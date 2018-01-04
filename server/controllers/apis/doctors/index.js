@@ -2,8 +2,8 @@
 
 const
 	express = require('express'),
-	doctorService = require('../../../services/doctors'),
-	// passport = require('passport'),
+	doctorService = require('../../../services/doctors');
+	// passport = require('passport')
 	// flash = require('connect-flash')
 
 let router = express.Router();
