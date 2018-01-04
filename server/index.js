@@ -82,15 +82,6 @@ module.exports = function() {
 				console.log('Database sync');
 			})
 		})
-
-		// server.listen(port, function () {
-		// 	console.log('Express server listening on - http://' + hostname + ':' + port);
-		// 	console.log(process.env.PORT || 3000);
-		//
-		// 	syncDatabase().then(() => {
-		// 		console.log('Database sync');
-		// 	})
-		// });
 	};
 
 	return {

@@ -16,12 +16,15 @@
     "express": "^4.16.2",
     "express-handlebars": "^3.0.0",
     "jsonwebtoken": "^8.1.0",
+    "moment": "^2.20.1",
     "morgan": "^1.9.0",
     "mysql": "^2.15.0",
     "mysql2": "^1.5.1",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "qs": "^6.5.1",
-    "sequelize": "^4.28.6"
+    "sequelize": "^4.28.6",
+    "sugar": "^2.0.4",
+    "sugar-date": "^2.0.4"
   }
 }
