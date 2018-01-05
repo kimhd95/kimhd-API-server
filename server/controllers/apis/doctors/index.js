@@ -2,43 +2,29 @@
 
 const
 	express = require('express'),
-	doctorService = require('../../../services/doctors');
-	// passport = require('passport')
-	// flash = require('connect-flash')
+	doctorService = require('../../../services/doctors'),
+	authService = require('../../../services/doctors/auth.js');
 
 let router = express.Router();
 
-// router.use(passport.initialize());
-// router.use(passport.session());
-// router.use(flash());
+// Authentication related Doctor APIs.
+router.get('/verifyToken', authService.verifyToken)
+router.post('/register', authService.registerDoctor);
+router.post('/login', authService.loginDoctor);
+router.get('/logout', authService.logoutDoctor);
+router.get('/emailDuplicateCheck', authService.doctorEmailDuplicateCheck);
 
-router.get('/', doctorService.getDoctors);
+// AUTHENTICATE HERE: APIs below this line needs to verify token. "req.decoded" variable is updated.
+router.use(authService.verifyToken);
+// Check if token is verified. Used for Home Page redirect on client side web dashboard.
+router.get('/tokenVerified', authService.checkTokenVerified)
 
-router.post('/authenticate', doctorService.authenticate);
-// router.post('/register', passport.authenticate('local'), doctorService.registerDoctor);
-router.post('/register', doctorService.registerDoctor);
-router.post('/login', doctorService.login);
-
-
-// TODO: 데모용 API 들.
 router.get('/get_patients/:doctor_code', doctorService.getPatients);
+router.get('/get_patients_to_add/:doctor_code', doctorService.getPatientsToAdd);
 router.get('/get_patient_info/:kakaoid', doctorService.getPatientInfo);
 router.get('/get_patient_info_summary/:kakaoid', doctorService.getPatientInfoSummary);
 
-
-router.use(doctorService.verifyToken);
-// ^middleware: APIs below this line needs to verify token.
-
-router.get('/logout', doctorService.logout);
-router.get('/dashboard', doctorService.dashboard);
-router.get('/menus', doctorService.menus);
-router.get('/user', doctorService.user);
-router.get('/patient/:id', doctorService.patientInfo);
+// Not used yet.
 router.get('/add_patient', doctorService.addPatient);
-
-
-
-
-// router.get('/:id', doctorService.getUserWithId);
 
 module.exports = router;
