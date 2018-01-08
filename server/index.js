@@ -23,6 +23,15 @@ module.exports = function() {
 		server.set('hostname', config.hostname);
 		server.set('jwt_secret', config.jwt_secret); // secret variable
 
+		// Enable CORS
+		server.use(function(req, res, next) {
+			res.header("Access-Control-Allow-Origin", "*");
+			res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+
+			res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+			next();
+		});
+
 		//--------------- View Part ------------------ //
 
 		server.set('viewDir', config.viewDir);

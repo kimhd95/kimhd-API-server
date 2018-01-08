@@ -140,14 +140,16 @@ function authenticate (req, res) {
 function doctorEmailDuplicateCheck (req, res){
 	const email = req.body.email || '';
 	if (!email.length) {
-		return res.status(400).json({exists: null, message: 'Incorrect email'});
+		return res.status(400).json({exists: null, message: 'Email not provided.'});
 	}
 	models.Doctor.findOne({
 		where: {
 			email: email
 		}
 	}).then(doctor => {
-		if (doctor) { // newly generated doctor_code already exists.
+		console.log('email: ' + email)
+		console.log('doctor.email: ' + doctor.email)
+		if (doctor) {
 			console.log("Email already exists: ")
 			res.status(200).json({exists: true, message: 'Email already exists.'})
 		} else {
@@ -161,21 +163,28 @@ function doctorEmailDuplicateCheck (req, res){
 
 function registerDoctor (req, res){
 
+	console.log('registerDoctor Called');
+	console.log('JSON.stringify(req.body): ' + JSON.stringify(req.body))
+
 	const email = req.body.email || '';
 	const password = req.body.password;
 	const hospital = req.body.hospital
 	const name = req.body.name
 	const secret = req.app.get('jwt_secret');
 
-	console.log('JSON.stringify(req.body): ' + JSON.stringify(req.body))
-	console.log('req.body: ' + req.body)
 
 
 	if (!email.length) {
-		return res.status(400).json({message: 'What the SERVER Received => JSON.stringify(req.body): ' + JSON.stringify(req.body) +
-			', email.length: ' + email.length + ', email: ' + email + ', password: ' + password + ', hospital: ' + hospital + ', name: ' + name})
-		// return res.status(400).json({success: false, error: 'Incorrect email'});
+		// return res.status(400).json({message: 'email.length: ' + email.length + ', email: ' + email + ', password: NOT ALLOWED' +  + ', hospital: ' + hospital + ', name: ' + name})
+		return res.status(400).json({success: false, error: 'Email not given'});
 	}
+
+	// Validate Email Regex
+	let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	if (!re.test(email)){
+		return res.status(400).json({success: false, error: 'Incorrect email'})
+	}
+
 
 	// Generate doctor_code
 	let doctor_code = Math.floor(Math.random() * 999999) + 1
@@ -272,6 +281,10 @@ function loginDoctor (req, res) {
 			email: email
 		}
 	}).then(doctor => {
+		console.log('doctor.email: ' + doctor.email)
+		console.log('doctor.password: ' + doctor.password)
+		console.log('given email: ' + email)
+		console.log('given password: ' + password)
 		if (!doctor) {
 			return res.status(403).json({success: true, message: 'No User'});
 		}
@@ -287,10 +300,10 @@ function loginDoctor (req, res) {
 					issuer: 'jellylab.io',
 					subject: 'userInfo'
 				}, (err, token) => {
-					console.log(token);
-					console.log(err);
+					console.log('err: ' + err, ', token: ' + token);
 					if (err) res.status(403).json({
-						message: error.message
+						success: false,
+						message: error.message + ', err: ' + err.message
 					});
 					res.cookie('token', token);
 					res.status(200).json({success: true, message: 'Ok'});
@@ -301,6 +314,11 @@ function loginDoctor (req, res) {
 				message: 'Password wrong'
 			});
 		}
+	}).catch(function (err){
+		res.status(403).json({
+			success: false,
+			message: 'DB error. err: ' + err.message
+		})
 	});
 }
 
