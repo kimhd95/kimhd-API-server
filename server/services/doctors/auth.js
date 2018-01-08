@@ -148,15 +148,14 @@ function doctorEmailDuplicateCheck (req, res){
 		}
 	}).then(doctor => {
 		if (doctor) { // newly generated doctor_code already exists.
-			console.log("doctor.doctor_code already exists: ")
+			console.log("Email already exists: ")
 			res.status(200).json({exists: true, message: 'Email already exists.'})
 		} else {
-			console.log("doctor_code is unique: " + doctor_code)
 			res.status(200).json({exists: false, message: 'Email is unique. Good to proceed.'})
 		}
 	}).catch(function (err){
 		console.log('ERROR while checking duplicate email')
-		res.status(500).json({exists: null, message: 'Internal server error'})
+		res.status(500).json({exists: null, message: 'Internal server error. err: ' + err.message})
 	})
 }
 
@@ -168,8 +167,14 @@ function registerDoctor (req, res){
 	const name = req.body.name
 	const secret = req.app.get('jwt_secret');
 
+	console.log('JSON.stringify(req.body): ' + JSON.stringify(req.body))
+	console.log('req.body: ' + req.body)
+
+
 	if (!email.length) {
-		return res.status(400).json({success: false, error: 'Incorrect email'});
+		return res.status(400).json({message: 'What the SERVER Received => JSON.stringify(req.body): ' + JSON.stringify(req.body) +
+			', email.length: ' + email.length + ', email: ' + email + ', password: ' + password + ', hospital: ' + hospital + ', name: ' + name})
+		// return res.status(400).json({success: false, error: 'Incorrect email'});
 	}
 
 	// Generate doctor_code

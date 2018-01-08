@@ -1,5 +1,3 @@
-const schedule = require('node-schedule');
-const axios = require('axios');
 const models = require('../../models');
 
 function now(date) {

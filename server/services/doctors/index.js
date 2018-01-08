@@ -3,7 +3,7 @@
  *
  * @date 2017-12-28
  * @author 김지원
- * @updated 2018-01-04
+ * @updated 2018-01-05
  *
  */
 
@@ -11,9 +11,12 @@
 
 const models = require('../../models');
 const _ = require('underscore');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op
 
 // Return all patients associated with given doctor code
 function getPatients(req, res){
+	let doctorCode = req.params.doctor_code
 	models.Patient.findAll({
 		where: {
 			doctor_code: req.params.doctor_code
@@ -31,9 +34,10 @@ function getPatients(req, res){
 // Return all patients associated with given doctor code
 // && only those who have not already registered with a doctor (patient.registered != 1).
 function getPatientsToAdd(req, res){
+	let doctorCode = req.params.doctor_code
 	models.Patient.findAll({
 		where: {
-			doctor_code: req.params.doctor_code,
+			doctor_code: doctorCode,
 			registered: {[Op.ne]: 1}
 		}
 	}).then(patients => {
@@ -47,6 +51,9 @@ function getPatientsToAdd(req, res){
 }
 
 function getPatientInfo (req, res){
+
+	let decoded = req.decoded
+
 	models.Patient.findOne({
 		where: {
 			kakaoid: req.params.kakaoid
@@ -59,58 +66,34 @@ function getPatientInfo (req, res){
 		console.log('start');
 
 		const p1 = new Promise(function(resolve, reject) {
-			models.Medicine_side.findOne({
-				where: {
-					kakaoid: patient.kakaoid
-				},
-				order: [
-					// Will escape username and validate DESC against a list of valid direction parameters
-					['time', 'DESC']
-				]
-			}).then(side => {
-				console.log('11');
-				if(side) patient.medicine_side = side.text;
-				resolve();
-
-			});
-		});
-		const p2 = new Promise(function(resolve, reject) {
-			models.Medicine_miss.findOne({
-				where: {
-					kakaoid: patient.kakaoid
-				}
-			}).then(miss => {
-				console.log('22');
-				if(miss) patient.medicine_miss = miss.text;
-				resolve();
-			});
-		});
-		const p3 = new Promise(function(resolve, reject) {
 			models.Mood_check.findAll({
 				where: {
 					kakaoid: patient.kakaoid
 				}
 			}).then(mood => {
-				console.log('33');
 				if(mood) patient.mood_check = mood;
 				resolve();
 			});
 		});
-		const p4 = new Promise(function(resolve, reject) {
+		const p2 = new Promise(function(resolve, reject) {
 			models.Medicine_check.findAll({
 				where: {
 					kakaoid: patient.kakaoid
 				}
+				// ,
+				// order: [
+				// 	// Will escape username and validate DESC against a list of valid direction parameters
+				// 	['time', 'DESC']
+				// ]
 			}).then(check => {
-				console.log('44');
 				if(check) patient.medicine_check = check;
 				resolve();
 			});
 		});
 
-		Promise.all([p1, p2, p3, p4]).then(function(value) {
+		Promise.all([p1, p2]).then(function(value) {
 			if(patient.doctor_code !== decoded.doctor_code.toString()) {
-				res.status(403).json({ message: 'Permission Error' });
+				res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
 				return;
 			}
 
@@ -136,6 +119,9 @@ function getPatientInfo (req, res){
 		}, function(reason) {
 			res.status(500).json({ message: 'Server Error' });
 		});
+	}).catch(function (err){
+		console.log("Get patient info summary failed: err.status: " + err.status + '\t err.message: ' + err.message)
+		res.status(500).json({message: err.message})
 	});
 }
 
@@ -148,7 +134,7 @@ function getPatientInfoSummary (req, res){
 		}
 	}).then(patient => {
 
-		const p3 = new Promise(function(resolve, reject) {
+		const p1 = new Promise(function(resolve, reject) {
 			models.Mood_check.findAll({
 				where: {
 					kakaoid: patient.kakaoid
@@ -159,7 +145,7 @@ function getPatientInfoSummary (req, res){
 			});
 		});
 
-		const p4 = new Promise(function(resolve, reject) {
+		const p2 = new Promise(function(resolve, reject) {
 			models.Medicine_check.findAll({
 				where: {
 					kakaoid: patient.kakaoid
@@ -170,7 +156,7 @@ function getPatientInfoSummary (req, res){
 			});
 		});
 
-		Promise.all([p3, p4]).then(function(value) {
+		Promise.all([p1, p2]).then(function(value) {
 			let
 				weekEmergencyMoodCount = 0,
 				monthEmergencyMoodCount = 0,
@@ -310,6 +296,9 @@ function getPatientInfoSummary (req, res){
 		}, function(reason) {
 			res.status(500).json({ message: 'Server Error' });
 		});
+	}).catch(function (err){
+		console.log("Get patient info summary failed: err.status: " + err.status + '\t err.message: ' + err.message)
+		res.status(500).json({message: err.message})
 	});
 }
 

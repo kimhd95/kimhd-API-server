@@ -27,9 +27,6 @@ module.exports = function() {
 
 		server.set('viewDir', config.viewDir);
 
-		// Returns middleware that parses json
-		server.use(bodyParser.json());
-
 		// use morgan to log requests to the console
 		server.use(morgan('dev'));
 
@@ -46,6 +43,7 @@ module.exports = function() {
 
 		// Returns middleware that parses json
 		server.use(bodyParser.json());
+		server.use(bodyParser.urlencoded({ extended: false }));
 
 		//
 		//

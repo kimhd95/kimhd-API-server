@@ -35,7 +35,7 @@ const sequelize = new Sequelize(
 
 			// don't use camelcase for automatically added attributes but underscore style
 			// so updatedAt will be updated_at
-			underscored: false,
+			underscored: true,
 
 			// disable the modification of tablenames; By default, sequelize will automatically
 			// transform all passed model names (first parameter of define) into plural.
@@ -52,46 +52,36 @@ const Patient = sequelize.define('patient', {
 	fullname: Sequelize.STRING,
 	patient_email: Sequelize.STRING,
 	patient_password: Sequelize.STRING,
-	kakaoid: Sequelize.STRING,
+	kakaoid: { type: Sequelize.STRING, allowNull: false, unique: true },
 	doctor_code: Sequelize.STRING,
 	registered: Sequelize.STRING,
 	phone: Sequelize.STRING,
 	sex: Sequelize.STRING,
-	birthday: Sequelize.STRING,
+	birthday: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
 
 	// medicine_side: Sequelize.STRING,
 
-	createdAt: Sequelize.STRING,
-	updatedAt: Sequelize.STRING
+	createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
 const Doctor = sequelize.define('doctor', {
-	doctor_code: Sequelize.STRING,
+	doctor_code: { type: Sequelize.STRING, allowNull: false, unique: true },
 	email:Sequelize.STRING,
 	password: Sequelize.STRING,
 	hospital: Sequelize.STRING,
 	name: Sequelize.STRING,
-	createdAt: Sequelize.STRING,
-	updatedAt: Sequelize.STRING
+	createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
 const Medicine_check = sequelize.define('medicine_check', {
 	kakaoid: Sequelize.STRING,
-	time: Sequelize.STRING,
-	med_check: Sequelize.STRING
-});
-
-const Medicine_miss = sequelize.define('medicine_miss', {
-	kakaoid: Sequelize.STRING,
-	text: Sequelize.STRING,
-	time: Sequelize.STRING
-});
-
-const Medicine_side = sequelize.define('medicine_side', {
-	kakaoid: Sequelize.STRING,
-	text: Sequelize.STRING,
-	time: Sequelize.STRING,
-	degree: Sequelize.STRING
+	med_check: Sequelize.STRING,
+	time: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	med_miss: Sequelize.STRING,
+	if_med_side_text: Sequelize.STRING,
+	med_side_degree: Sequelize.STRING,
 });
 
 const Medicine_time = sequelize.define('medicine_time', {
@@ -99,8 +89,8 @@ const Medicine_time = sequelize.define('medicine_time', {
 	slot: Sequelize.STRING,
 	time: Sequelize.STRING,
 	mute: Sequelize.STRING,
-	createdAt: Sequelize.STRING,
-	updatedAt: Sequelize.STRING
+	createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
 const Mood_check = sequelize.define('mood_check', {
@@ -123,8 +113,6 @@ module.exports = {
 	Patient: Patient,
 	Doctor: Doctor,
 	Medicine_check: Medicine_check,
-	Medicine_miss: Medicine_miss,
-	Medicine_side: Medicine_side,
 	Medicine_time: Medicine_time,
 	Mood_check: Mood_check,
 	Kakao_text: Kakao_text,

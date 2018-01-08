@@ -12,13 +12,12 @@ router.get('/verifyToken', authService.verifyToken)
 router.post('/register', authService.registerDoctor);
 router.post('/login', authService.loginDoctor);
 router.get('/logout', authService.logoutDoctor);
-router.get('/emailDuplicateCheck', authService.doctorEmailDuplicateCheck);
+router.post('/emailDuplicateCheck/', authService.doctorEmailDuplicateCheck);
 
 // AUTHENTICATE HERE: APIs below this line needs to verify token. "req.decoded" variable is updated.
 router.use(authService.verifyToken);
 // Check if token is verified. Used for Home Page redirect on client side web dashboard.
 router.get('/tokenVerified', authService.checkTokenVerified)
-
 router.get('/get_patients/:doctor_code', doctorService.getPatients);
 router.get('/get_patients_to_add/:doctor_code', doctorService.getPatientsToAdd);
 router.get('/get_patient_info/:kakaoid', doctorService.getPatientInfo);
