@@ -48,7 +48,7 @@ const sequelize = new Sequelize(
 );
 
 const Patient = sequelize.define('patient', {
-	username: Sequelize.STRING,
+	name: Sequelize.STRING,
 	fullname: Sequelize.STRING,
 	patient_email: Sequelize.STRING,
 	patient_password: Sequelize.STRING,

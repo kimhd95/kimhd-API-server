@@ -47,10 +47,10 @@ module.exports = function() {
 			// TODO: ADD WEB APP ADDRESS IN PRODUCTION.
 			// res.header('Access-Control-Allow-Origin', 'http://localhost');
 			// res.header('Access-Control-Allow-Origin', ['http://localhost:4000', 'http://localhost:2000']);
-			res.header('Access-Control-Allow-Origin', '*');
+			res.header('Access-Control-Allow-Origin', 'http://localhost:4000');
 			res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
 			res.header("Access-Control-Allow-Credentials", true);
-			res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+			res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Set-Cookie");
 			next();
 		});
 

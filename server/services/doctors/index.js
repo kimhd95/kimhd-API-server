@@ -44,7 +44,7 @@ function getPatientsToAdd(req, res){
 		if (!patients) {
 			return res.status(404).json({error: 'No unregistered patient associated with doctor code: ' + doctorCode});
 		}
-		res.status(200).json(patients);
+		return res.status(200).json(patients);
 	}).catch(function (err){
 		return res.status(500).json(err)
 	})
@@ -56,11 +56,14 @@ function getPatientInfo (req, res){
 
 	models.Patient.findOne({
 		where: {
-			kakao_id: req.params.kakao_id
+			kakao_id: req.params.kakao_id,
+			doctor_code: {[Op.ne]: null}
 		}
 	}).then(patient => {
 
-		console.log(patient.doctor_code);
+		if (patient){
+			console.log(patient.doctor_code);
+		}
 
 		patient.medicine_side='';
 		console.log('start');
@@ -92,14 +95,14 @@ function getPatientInfo (req, res){
 		});
 
 		Promise.all([p1, p2]).then(function(value) {
-			if(patient.doctor_code !== decoded.doctor_code.toString()) {
-				res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
-				return;
-			}
+			// if(patient.doctor_code !== decoded.doctor_code.toString()) {
+			// 	res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
+			// 	return;
+			// }
 
-			var patientinfo = {
+			let patientinfo = {
 				id: patient.id,
-				username: patient.username,
+				name: patient.name,
 				doctor_code: patient.doctor_code,
 				kakao_id: patient.kakao_id,
 				phone: patient.phone,
@@ -133,6 +136,10 @@ function getPatientInfoSummary (req, res){
 			kakao_id: patientKakaoId
 		}
 	}).then(patient => {
+
+		if (!patient){
+			return res.status(200).json({message: 'No patient found with given kakao_id.'})
+		}
 
 		const p1 = new Promise(function(resolve, reject) {
 			models.Mood_check.findAll({
@@ -278,7 +285,7 @@ function getPatientInfoSummary (req, res){
 
 			let patientinfo = {
 				id: patient.id,
-				username: patient.username,
+				name: patient.name,
 				doctor_code: patient.doctor_code,
 				kakao_id: patient.kakao_id,
 				weekTakenRate: weekTakenRate,
@@ -292,13 +299,13 @@ function getPatientInfoSummary (req, res){
 				nextHospitalVisitDate: nextHospitalVisitDate
 			}
 
-			res.status(200).json(patientinfo);
+			return res.status(200).json(patientinfo);
 		}, function(reason) {
-			res.status(500).json({ message: 'Server Error' });
+			return res.status(500).json({ message: 'Server Error. reason: ' + reason });
 		});
 	}).catch(function (err){
 		console.log("Get patient info summary failed: err.status: " + err.status + '\t err.message: ' + err.message)
-		res.status(500).json({message: err.message})
+		return res.status(500).json({message: err.message})
 	});
 }
 

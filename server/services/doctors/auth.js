@@ -41,7 +41,7 @@ const userPermission = {
 function verifyToken (req, res, next){
 
 	// const cookie = req.headers.cookie || '';
-	const cookie = req.cookie || '';
+	const cookie = req.cookies || '';
 	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
 	// check header or url parameters or post parameters for token
 	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
@@ -346,8 +346,15 @@ function loginDoctor (req, res) {
 							message: err.message + ', err: ' + err.message
 						});
 					}
-					res.cookie('token', token);
-					// res.header('Set-Cookie', token)
+					res.cookie('token', token, {domain:'localhost', path: '/', secure: false});
+					// res.cookie('domain', 'localhost')
+					// res.cookie('access_token', token);
+					// res.cookie('httpOnly', true);
+					// res.cookie('path', '/');
+					// res.cookie('test', 'testCookieValue');
+					// res.header('Set-Cookie', 'token: ' + token )
+					res.header('test', 'testCookieValue: cookieValue');
+					res.header('Access-Control-Allow-Credentials', 'true');
 					res.status(200).json({success: true, message: 'Ok', token: token});
 				});
 		} else {
