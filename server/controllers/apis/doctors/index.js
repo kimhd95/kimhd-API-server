@@ -8,7 +8,7 @@ const
 let router = express.Router();
 
 // Authentication related Doctor APIs.
-router.get('/verifyToken', authService.verifyToken)
+router.post('/verifyToken', authService.verifyToken)
 router.post('/register', authService.registerDoctor);
 router.post('/login', authService.loginDoctor);
 router.get('/logout', authService.logoutDoctor);

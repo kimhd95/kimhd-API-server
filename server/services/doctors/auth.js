@@ -40,14 +40,20 @@ const userPermission = {
 
 function verifyToken (req, res, next){
 
-	const cookie = req.headers.cookie || '';
+	// const cookie = req.headers.cookie || '';
+	const cookie = req.cookie || '';
 	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
 	// check header or url parameters or post parameters for token
 	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
 	const secret = req.app.get('jwt_secret');
 
+	console.log('cookie: ' + cookie)
+	console.log('token: ' + token)
+
+
 	// decode token
 	if (token) {
+		console.log('token given.')
 
 		// verifies secret and checks exp
 		jwt.verify(token, secret, function(err, decoded) {
@@ -56,7 +62,8 @@ function verifyToken (req, res, next){
 			} else {
 				// if everything is good, save to request for use in other routes
 				req.decoded = decoded;
-				next();
+				return res.status(200).json({success: true, message: 'Token verified.'})
+				// next();
 			}
 		});
 	} else {
@@ -295,11 +302,17 @@ function registerDoctor (req, res){
 
 function loginDoctor (req, res) {
 	console.log('loginDoctor called')
+	console.log('Cookies: ', req.cookies)
+
 
 	const email = req.body.email;
 	const password = req.body.password;
 	const secret = req.app.get('jwt_secret');
-	if (!email) return res.status(400).json({success: false, message: 'Incorrect id'});
+	if (!email){
+		console.log('Email not given.')
+		return res.status(400).json({success: false, message: 'Email not given.'});
+	}
+
 
 	models.Doctor.findOne({
 		where: {
@@ -334,7 +347,8 @@ function loginDoctor (req, res) {
 						});
 					}
 					res.cookie('token', token);
-					res.status(200).json({success: true, message: 'Ok'});
+					// res.header('Set-Cookie', token)
+					res.status(200).json({success: true, message: 'Ok', token: token});
 				});
 		} else {
 			res.status(403).json({
