@@ -138,7 +138,7 @@ function authenticate (req, res) {
 }
 
 function doctorEmailDuplicateCheck (req, res){
-	const email = req.body.email || '';
+	const email = req.body.email.toString() || '';
 	if (!email.length) {
 		return res.status(400).json({exists: null, message: 'Email not provided.'});
 	}
@@ -148,7 +148,9 @@ function doctorEmailDuplicateCheck (req, res){
 		}
 	}).then(doctor => {
 		console.log('email: ' + email)
-		console.log('doctor.email: ' + doctor.email)
+		if (doctor){console.log('doctor.email: ' + doctor.email)} else {
+			console.log('No doctor found with given email.')
+		}
 		if (doctor) {
 			console.log("Email already exists: ")
 			res.status(200).json({exists: true, message: 'Email already exists.'})
@@ -157,7 +159,7 @@ function doctorEmailDuplicateCheck (req, res){
 		}
 	}).catch(function (err){
 		console.log('ERROR while checking duplicate email')
-		res.status(500).json({exists: null, message: 'Internal server error. err: ' + err.message})
+		res.status(500).json({exists: null, message: 'Internal server DB error. err: ' + err.message, devLog: 'email given: ' + email})
 	})
 }
 
@@ -172,8 +174,7 @@ function registerDoctor (req, res){
 	const name = req.body.name
 	const secret = req.app.get('jwt_secret');
 
-
-
+	// Check if email arrived
 	if (!email.length) {
 		// return res.status(400).json({message: 'email.length: ' + email.length + ', email: ' + email + ', password: NOT ALLOWED' +  + ', hospital: ' + hospital + ', name: ' + name})
 		return res.status(400).json({success: false, error: 'Email not given'});
@@ -184,6 +185,29 @@ function registerDoctor (req, res){
 	if (!re.test(email)){
 		return res.status(400).json({success: false, error: 'Incorrect email'})
 	}
+
+	// Check if password arrived
+	if (!password.length) {
+		return res.status(400).json({success: false, error: 'Password not given'});
+	}
+
+	// Check if password > 6 alphanumeric
+	if(! password.length >=6 ){
+		return res.status(400).json({success: false, error: 'Password needs to be longer than 6 alphanumeric characters.'});
+	}
+
+	// Check if password > 6 alphanumeric
+	let letter = /[a-zA-Z]/;
+	let number = /[0-9]/;
+	let valid = number.test(password) && letter.test(password); //match a letter _and_ a number
+	if (!valid){
+		return res.status(400).json({success: false, message: 'Password requires at least one character and one digit.'})
+	}
+
+	// let pwre = /[A-Z0-9a-z!?^%*_~@#$]/g;
+	// if(! pwre.test(password) ){
+	// 	return res.status(400).json({success: false, error: 'Password needs to be longer than 6 alphanumeric characters.'});
+	// }
 
 
 	// Generate doctor_code
@@ -270,25 +294,26 @@ function registerDoctor (req, res){
 }
 
 function loginDoctor (req, res) {
+	console.log('loginDoctor called')
 
 	const email = req.body.email;
 	const password = req.body.password;
 	const secret = req.app.get('jwt_secret');
-	if (!email) return res.status(400).json({error: 'Incorrect id'});
+	if (!email) return res.status(400).json({success: false, message: 'Incorrect id'});
 
 	models.Doctor.findOne({
 		where: {
 			email: email
 		}
 	}).then(doctor => {
-		console.log('doctor.email: ' + doctor.email)
-		console.log('doctor.password: ' + doctor.password)
-		console.log('given email: ' + email)
-		console.log('given password: ' + password)
 		if (!doctor) {
-			return res.status(403).json({success: true, message: 'No User'});
+			return res.status(403).json({success: false, message: 'No User'});
 		}
 		if (doctor.password === password) {
+			console.log('doctor.email: ' + doctor.email)
+			console.log('doctor.password: ' + doctor.password)
+			console.log('given email: ' + email)
+			console.log('given password: ' + password)
 			jwt.sign({
 					id: doctor.id,
 					permissions: userPermission.DEVELOPER,
@@ -301,20 +326,24 @@ function loginDoctor (req, res) {
 					subject: 'userInfo'
 				}, (err, token) => {
 					console.log('err: ' + err, ', token: ' + token);
-					if (err) res.status(403).json({
-						success: false,
-						message: error.message + ', err: ' + err.message
-					});
+					if (err) {
+						console.log('err.message: ' + err.message);
+						res.status(403).json({
+							success: false,
+							message: err.message + ', err: ' + err.message
+						});
+					}
 					res.cookie('token', token);
 					res.status(200).json({success: true, message: 'Ok'});
 				});
 		} else {
 			res.status(403).json({
-				success: true,
+				success: false,
 				message: 'Password wrong'
 			});
 		}
 	}).catch(function (err){
+		console.log('err.message: ' + err.message);
 		res.status(403).json({
 			success: false,
 			message: 'DB error. err: ' + err.message

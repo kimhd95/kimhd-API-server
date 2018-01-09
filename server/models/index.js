@@ -5,13 +5,13 @@ const verifyAPIKEY = (req, res, next) => {
 
 	if(!req.body.apikey) {
 		console.log(req.body.apikey);
-		return res.status(400).send('Something broke!');
+		return res.status(400).send('API key not given.');
 	}
 
 	console.log(req.body);
 	const apikey = req.body.apikey.toString().trim() || '';
 	if(apikey!=config.apikey)
-		return res.status(400).send('Something broke!');
+		return res.status(400).send('API key is invalid.');
 
 	next();
 }
@@ -52,17 +52,17 @@ const Patient = sequelize.define('patient', {
 	fullname: Sequelize.STRING,
 	patient_email: Sequelize.STRING,
 	patient_password: Sequelize.STRING,
-	kakaoid: { type: Sequelize.STRING, allowNull: false, unique: true },
+	kakao_id: { type: Sequelize.STRING, allowNull: false, unique: true },
 	doctor_code: Sequelize.STRING,
 	registered: Sequelize.STRING,
 	phone: Sequelize.STRING,
 	sex: Sequelize.STRING,
-	birthday: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	birthday: { type: Sequelize.INTEGER, defaultValue: Sequelize.NOW },
 
 	// medicine_side: Sequelize.STRING,
 
-	createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-	updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+	created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
 const Doctor = sequelize.define('doctor', {
@@ -71,30 +71,30 @@ const Doctor = sequelize.define('doctor', {
 	password: Sequelize.STRING,
 	hospital: Sequelize.STRING,
 	name: Sequelize.STRING,
-	createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-	updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+	created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
 const Medicine_check = sequelize.define('medicine_check', {
-	kakaoid: Sequelize.STRING,
-	med_check: Sequelize.STRING,
+	kakao_id: Sequelize.STRING,
+	med_check: Sequelize.TINYINT,
 	time: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-	med_miss: Sequelize.STRING,
-	if_med_side_text: Sequelize.STRING,
+	med_miss_reason: Sequelize.STRING,
+	med_side: Sequelize.STRING,
 	med_side_degree: Sequelize.STRING,
 });
 
 const Medicine_time = sequelize.define('medicine_time', {
-	kakaoid: Sequelize.STRING,
+	kakao_id: Sequelize.STRING,
 	slot: Sequelize.STRING,
 	time: Sequelize.STRING,
 	mute: Sequelize.STRING,
-	createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-	updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+	created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
 const Mood_check = sequelize.define('mood_check', {
-	kakaoid: Sequelize.STRING,
+	kakao_id: Sequelize.STRING,
 	time: Sequelize.STRING,
 	type: Sequelize.STRING,
 	mood_check: Sequelize.STRING,
@@ -102,7 +102,7 @@ const Mood_check = sequelize.define('mood_check', {
 });
 
 const Kakao_text = sequelize.define('kakao_text', {
-	kakaoid: Sequelize.STRING,
+	kakao_id: Sequelize.STRING,
 	time: Sequelize.STRING,
 	text: Sequelize.STRING,
 	share_doctor: Sequelize.STRING

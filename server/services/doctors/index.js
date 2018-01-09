@@ -56,7 +56,7 @@ function getPatientInfo (req, res){
 
 	models.Patient.findOne({
 		where: {
-			kakaoid: req.params.kakaoid
+			kakao_id: req.params.kakao_id
 		}
 	}).then(patient => {
 
@@ -68,7 +68,7 @@ function getPatientInfo (req, res){
 		const p1 = new Promise(function(resolve, reject) {
 			models.Mood_check.findAll({
 				where: {
-					kakaoid: patient.kakaoid
+					kakao_id: patient.kakao_id
 				}
 			}).then(mood => {
 				if(mood) patient.mood_check = mood;
@@ -78,7 +78,7 @@ function getPatientInfo (req, res){
 		const p2 = new Promise(function(resolve, reject) {
 			models.Medicine_check.findAll({
 				where: {
-					kakaoid: patient.kakaoid
+					kakao_id: patient.kakao_id
 				}
 				// ,
 				// order: [
@@ -101,7 +101,7 @@ function getPatientInfo (req, res){
 				id: patient.id,
 				username: patient.username,
 				doctor_code: patient.doctor_code,
-				kakaoid: patient.kakaoid,
+				kakao_id: patient.kakao_id,
 				phone: patient.phone,
 				medicine_week: patient.medicine_week,
 				medicine_mouth: patient.medicine_mouth,
@@ -126,18 +126,18 @@ function getPatientInfo (req, res){
 }
 
 function getPatientInfoSummary (req, res){
-	const patientKakaoId = req.params.kakaoid;
+	const patientKakaoId = req.params.kakao_id;
 
 	models.Patient.findOne({
 		where: {
-			kakaoid: patientKakaoId
+			kakao_id: patientKakaoId
 		}
 	}).then(patient => {
 
 		const p1 = new Promise(function(resolve, reject) {
 			models.Mood_check.findAll({
 				where: {
-					kakaoid: patient.kakaoid
+					kakao_id: patient.kakao_id
 				}
 			}).then(mood => {
 				if(mood) patient.mood_check = mood;
@@ -148,7 +148,7 @@ function getPatientInfoSummary (req, res){
 		const p2 = new Promise(function(resolve, reject) {
 			models.Medicine_check.findAll({
 				where: {
-					kakaoid: patient.kakaoid
+					kakao_id: patient.kakao_id
 				}
 			}).then(check => {
 				if(check) patient.medicine_check = check;
@@ -280,7 +280,7 @@ function getPatientInfoSummary (req, res){
 				id: patient.id,
 				username: patient.username,
 				doctor_code: patient.doctor_code,
-				kakaoid: patient.kakaoid,
+				kakao_id: patient.kakao_id,
 				weekTakenRate: weekTakenRate,
 				monthTakenRate: monthTakenRate,
 				weekEmotionEmergencyCount: weekEmergencyMoodCount,
