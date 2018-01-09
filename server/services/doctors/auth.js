@@ -40,14 +40,20 @@ const userPermission = {
 
 function verifyToken (req, res, next){
 
-	const cookie = req.headers.cookie || '';
+	// const cookie = req.headers.cookie || '';
+	const cookie = req.cookie || '';
 	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
 	// check header or url parameters or post parameters for token
 	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
 	const secret = req.app.get('jwt_secret');
 
+	console.log('cookie: ' + cookie)
+	console.log('token: ' + token)
+
+
 	// decode token
 	if (token) {
+		console.log('token given.')
 
 		// verifies secret and checks exp
 		jwt.verify(token, secret, function(err, decoded) {
@@ -56,7 +62,8 @@ function verifyToken (req, res, next){
 			} else {
 				// if everything is good, save to request for use in other routes
 				req.decoded = decoded;
-				next();
+				return res.status(200).json({success: true, message: 'Token verified.'})
+				// next();
 			}
 		});
 	} else {
@@ -138,29 +145,35 @@ function authenticate (req, res) {
 }
 
 function doctorEmailDuplicateCheck (req, res){
-	const email = req.body.email || '';
+	const email = req.body.email.toString() || '';
 	if (!email.length) {
-		return res.status(400).json({exists: null, message: 'Incorrect email'});
+		return res.status(400).json({exists: null, message: 'Email not provided.'});
 	}
 	models.Doctor.findOne({
 		where: {
 			email: email
 		}
 	}).then(doctor => {
-		if (doctor) { // newly generated doctor_code already exists.
-			console.log("doctor.doctor_code already exists: ")
+		console.log('email: ' + email)
+		if (doctor){console.log('doctor.email: ' + doctor.email)} else {
+			console.log('No doctor found with given email.')
+		}
+		if (doctor) {
+			console.log("Email already exists: ")
 			res.status(200).json({exists: true, message: 'Email already exists.'})
 		} else {
-			console.log("doctor_code is unique: " + doctor_code)
 			res.status(200).json({exists: false, message: 'Email is unique. Good to proceed.'})
 		}
 	}).catch(function (err){
 		console.log('ERROR while checking duplicate email')
-		res.status(500).json({exists: null, message: 'Internal server error'})
+		res.status(500).json({exists: null, message: 'Internal server DB error. err: ' + err.message, devLog: 'email given: ' + email})
 	})
 }
 
 function registerDoctor (req, res){
+
+	console.log('registerDoctor Called');
+	console.log('JSON.stringify(req.body): ' + JSON.stringify(req.body))
 
 	const email = req.body.email || '';
 	const password = req.body.password;
@@ -168,9 +181,41 @@ function registerDoctor (req, res){
 	const name = req.body.name
 	const secret = req.app.get('jwt_secret');
 
+	// Check if email arrived
 	if (!email.length) {
-		return res.status(400).json({success: false, error: 'Incorrect email'});
+		// return res.status(400).json({message: 'email.length: ' + email.length + ', email: ' + email + ', password: NOT ALLOWED' +  + ', hospital: ' + hospital + ', name: ' + name})
+		return res.status(400).json({success: false, error: 'Email not given'});
 	}
+
+	// Validate Email Regex
+	let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	if (!re.test(email)){
+		return res.status(400).json({success: false, error: 'Incorrect email'})
+	}
+
+	// Check if password arrived
+	if (!password.length) {
+		return res.status(400).json({success: false, error: 'Password not given'});
+	}
+
+	// Check if password > 6 alphanumeric
+	if(! password.length >=6 ){
+		return res.status(400).json({success: false, error: 'Password needs to be longer than 6 alphanumeric characters.'});
+	}
+
+	// Check if password > 6 alphanumeric
+	let letter = /[a-zA-Z]/;
+	let number = /[0-9]/;
+	let valid = number.test(password) && letter.test(password); //match a letter _and_ a number
+	if (!valid){
+		return res.status(400).json({success: false, message: 'Password requires at least one character and one digit.'})
+	}
+
+	// let pwre = /[A-Z0-9a-z!?^%*_~@#$]/g;
+	// if(! pwre.test(password) ){
+	// 	return res.status(400).json({success: false, error: 'Password needs to be longer than 6 alphanumeric characters.'});
+	// }
+
 
 	// Generate doctor_code
 	let doctor_code = Math.floor(Math.random() * 999999) + 1
@@ -256,11 +301,18 @@ function registerDoctor (req, res){
 }
 
 function loginDoctor (req, res) {
+	console.log('loginDoctor called')
+	console.log('Cookies: ', req.cookies)
+
 
 	const email = req.body.email;
 	const password = req.body.password;
 	const secret = req.app.get('jwt_secret');
-	if (!email) return res.status(400).json({error: 'Incorrect id'});
+	if (!email){
+		console.log('Email not given.')
+		return res.status(400).json({success: false, message: 'Email not given.'});
+	}
+
 
 	models.Doctor.findOne({
 		where: {
@@ -268,9 +320,13 @@ function loginDoctor (req, res) {
 		}
 	}).then(doctor => {
 		if (!doctor) {
-			return res.status(403).json({success: true, message: 'No User'});
+			return res.status(403).json({success: false, message: 'No User'});
 		}
 		if (doctor.password === password) {
+			console.log('doctor.email: ' + doctor.email)
+			console.log('doctor.password: ' + doctor.password)
+			console.log('given email: ' + email)
+			console.log('given password: ' + password)
 			jwt.sign({
 					id: doctor.id,
 					permissions: userPermission.DEVELOPER,
@@ -282,20 +338,30 @@ function loginDoctor (req, res) {
 					issuer: 'jellylab.io',
 					subject: 'userInfo'
 				}, (err, token) => {
-					console.log(token);
-					console.log(err);
-					if (err) res.status(403).json({
-						message: error.message
-					});
+					console.log('err: ' + err, ', token: ' + token);
+					if (err) {
+						console.log('err.message: ' + err.message);
+						res.status(403).json({
+							success: false,
+							message: err.message + ', err: ' + err.message
+						});
+					}
 					res.cookie('token', token);
-					res.status(200).json({success: true, message: 'Ok'});
+					// res.header('Set-Cookie', token)
+					res.status(200).json({success: true, message: 'Ok', token: token});
 				});
 		} else {
 			res.status(403).json({
-				success: true,
+				success: false,
 				message: 'Password wrong'
 			});
 		}
+	}).catch(function (err){
+		console.log('err.message: ' + err.message);
+		res.status(403).json({
+			success: false,
+			message: 'DB error. err: ' + err.message
+		})
 	});
 }
 

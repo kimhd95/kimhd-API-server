@@ -1,8 +1,7 @@
 'use strict';
 
 const
-	apiRoute = require('./apis'),
-	errorRoute = require('./error');
+	apiRoute = require('./apis')
 
 function init(server) {
 	server.get('*', function (req, res, next) {
@@ -15,7 +14,11 @@ function init(server) {
 	});
 
 	server.use('/api', apiRoute);
-	server.use('/error', errorRoute);
+
+	// Handle unknown requests.
+	server.use('/error', function (req, res){
+		res.status(500).json({message: 'Unknown error.'})
+	});
 }
 
 module.exports = {
