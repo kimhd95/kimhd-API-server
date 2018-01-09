@@ -19,10 +19,11 @@ router.post('/emailDuplicateCheck', authService.doctorEmailDuplicateCheck);
 router.get('/tokenVerified', authService.checkTokenVerified)
 router.get('/get_patients/:doctor_code', doctorService.getPatients);
 router.get('/get_patients_to_add/:doctor_code', doctorService.getPatientsToAdd);
-router.get('/get_patient_info/:kakaoid', doctorService.getPatientInfo);
-router.get('/get_patient_info_summary/:kakaoid', doctorService.getPatientInfoSummary);
+router.get('/get_patient_info/:kakao_id', doctorService.getPatientInfo);
+router.get('/get_patient_info_summary/:kakao_id', doctorService.getPatientInfoSummary);
 
-router.use(authService.verifyToken);
+// 나중에 풀기.
+// router.use(authService.verifyToken);
 
 // Not used yet.
 router.get('/add_patient', doctorService.addPatient);
