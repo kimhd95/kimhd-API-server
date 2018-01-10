@@ -304,7 +304,6 @@ function loginDoctor (req, res) {
 	console.log('loginDoctor called')
 	console.log('Cookies: ', req.cookies)
 
-
 	const email = req.body.email;
 	const password = req.body.password;
 	const secret = req.app.get('jwt_secret');
@@ -312,7 +311,6 @@ function loginDoctor (req, res) {
 		console.log('Email not given.')
 		return res.status(400).json({success: false, message: 'Email not given.'});
 	}
-
 
 	models.Doctor.findOne({
 		where: {
@@ -346,7 +344,7 @@ function loginDoctor (req, res) {
 							message: err.message + ', err: ' + err.message
 						});
 					}
-					res.cookie('token', token, {domain:'localhost', path: '/', secure: false});
+					res.cookie('token', token, {secure: true});
 					// res.cookie('domain', 'localhost')
 					// res.cookie('access_token', token);
 					// res.cookie('httpOnly', true);

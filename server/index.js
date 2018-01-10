@@ -37,17 +37,29 @@ module.exports = function() {
 		// Enable CORS
 		server.use(function(req, res, next) {
 
-			// let allowedOrigins = ['localhost:4000', "http://121.",  "http://175.", "http://121.140.205.189"];
-			// let origin = req.headers.origin;
-			// if(allowedOrigins.indexOf(origin) > -1){
-			// 	res.setHeader('Access-Control-Allow-Origin', origin);
-			// }
+			let allowedOrigins = ['http://localhost:4000', "https://jellyfi.jellylab.io",
+				"http://dev.jellylab.io", "http://121.140.205.189", "http://jellyfi.jellylab.io, 'https://api.jellylab.io"];
+
+			let origin
+			if (req.headers){
+				origin = req.headers.origin;
+			}
+			if(allowedOrigins.indexOf(origin) > -1){
+				res.header('Access-Control-Allow-Origin', origin);
+			} else {
+				res.header('Access-Control-Allow-Origin', '*');
+			}
+
+			if (origin){
+				console.log('origin: ' + origin);
+				res.setHeader('log-origin', origin)
+			}
 
 			// res.header("Access-Control-Allow-Origin", "*");
 			// TODO: ADD WEB APP ADDRESS IN PRODUCTION.
 			// res.header('Access-Control-Allow-Origin', 'http://localhost');
 			// res.header('Access-Control-Allow-Origin', ['http://localhost:4000', 'http://localhost:2000']);
-			res.header('Access-Control-Allow-Origin', 'http://localhost:4000');
+			// res.header('Access-Control-Allow-Origin', 'http://localhost:4000');
 			res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
 			res.header("Access-Control-Allow-Credentials", true);
 			res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Set-Cookie");
