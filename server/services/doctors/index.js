@@ -3,16 +3,14 @@
  *
  * @date 2017-12-28
  * @author 김지원
- * @updated 2018-01-05
+ * @updated 2018-01-10
  *
  */
 
 'use strict';
 
 const models = require('../../models');
-const _ = require('underscore');
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op
+const Op = require('sequelize').Op
 
 function getPatientsRegistered(req, res){
 	let doctorCode = req.params.doctor_code
@@ -55,7 +53,7 @@ function getPatientsToAdd(req, res){
 	models.Patient.findAll({
 		where: {
 			doctor_code: doctorCode,
-			registered: {[Op.ne]: 1}
+			registered: {[Op.notIn]: [1, 2]}
 		}
 	}).then(patients => {
 		if (!patients) {
@@ -79,11 +77,11 @@ function getPatientInfo (req, res){
 	}).then(patient => {
 
 		if (patient){
-			console.log(patient.doctor_code);
+			console.log(patient.doctor_code)
 		}
 
-		patient.medicine_side='';
-		console.log('start');
+		patient.medicine_side=''
+		console.log('start')
 
 		const p1 = new Promise(function(resolve, reject) {
 			models.Mood_check.findAll({
@@ -92,9 +90,9 @@ function getPatientInfo (req, res){
 				}
 			}).then(mood => {
 				if(mood) patient.mood_check = mood;
-				resolve();
-			});
-		});
+				resolve()
+			})
+		})
 		const p2 = new Promise(function(resolve, reject) {
 			models.Medicine_check.findAll({
 				where: {
@@ -106,8 +104,8 @@ function getPatientInfo (req, res){
 				// 	['time', 'DESC']
 				// ]
 			}).then(check => {
-				if(check) patient.medicine_check = check;
-				resolve();
+				if(check) patient.medicine_check = check
+				resolve()
 			});
 		});
 
@@ -137,7 +135,7 @@ function getPatientInfo (req, res){
 			console.log(patientinfo);
 			res.status(200).json(patientinfo);
 		}, function(reason) {
-			res.status(500).json({ message: 'Server Error' });
+			res.status(500).json({ message: 'Server Error. Reason:' + reason.toString()});
 		});
 	}).catch(function (err){
 		console.log("Get patient info summary failed: err.status: " + err.status + '\t err.message: ' + err.message)
@@ -213,29 +211,10 @@ function getPatientInfoSummary (req, res){
 				}
 			}
 
-			let weekAverage = _(weekMoodChecks).reduce(function(total, moodCheck) {
-				return total + moodCheck;
-			}) / weekMoodChecks.length;
-
-			let weekSquaredDeviations = _(weekMoodChecks).reduce(function(total, moodCheck) {
-				let deviation = moodCheck - weekAverage;
-				let deviationSquared = deviation * deviation;
-				return total + deviationSquared;
-			}, 0);
-
-			let weekStandardDeviation = Math.sqrt(weekSquaredDeviations / weekMoodChecks.length);
-
-			let monthAverage = _(monthMoodChecks).reduce(function(total, moodCheck) {
-				return total + moodCheck;
-			}) / monthMoodChecks.length;
-
-			let monthSquaredDeviations = _(monthMoodChecks).reduce(function(total, moodCheck) {
-				let deviation = moodCheck - monthAverage;
-				let deviationSquared = deviation * deviation;
-				return total + deviationSquared;
-			}, 0);
-
-			let monthStandardDeviation = Math.sqrt(monthSquaredDeviations / monthMoodChecks.length);
+			let weekAvg = round(average(weekMoodChecks))
+			let weekSd = round(standardDeviation(weekMoodChecks))
+			let monthAvg = round(average(monthMoodChecks))
+			let monthSd = round(standardDeviation(monthMoodChecks))
 
 
 			// ------------------- Medicine Check ------------------- //
@@ -298,7 +277,8 @@ function getPatientInfoSummary (req, res){
 
 
 			// let nextHospitalVisitDate = now + 1000*60*60*24*(Math.floor(Math.random()*3) + 1)
-			let nextHospitalVisitDate = recordDate + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 데이트 + 랜덤 일 수.
+			let nextHospitalVisitDate = recordDate
+				// + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 데이트 + 랜덤 일 수.
 
 			let patientinfo = {
 				id: patient.id,
@@ -309,10 +289,10 @@ function getPatientInfoSummary (req, res){
 				monthTakenRate: monthTakenRate,
 				weekEmotionEmergencyCount: weekEmergencyMoodCount,
 				monthEmotionEmergencyCount: monthEmergencyMoodCount,
-				weekStandardDeviation: weekStandardDeviation,
-				monthStandardDeviation: monthStandardDeviation,
-				weekAverage: weekAverage,
-				monthAverage: monthAverage,
+				weekStandardDeviation: weekSd,
+				monthStandardDeviation: monthSd,
+				weekAverage: weekAvg,
+				monthAverage: monthAvg,
 				nextHospitalVisitDate: nextHospitalVisitDate
 			}
 
@@ -527,9 +507,9 @@ function standardDeviation(values){
 		return sqrDiff;
 	});
 
-	var avgSquareDiff = average(squareDiffs);
+	let avgSquareDiff = average(squareDiffs);
 
-	var stdDev = Math.sqrt(avgSquareDiff);
+	let stdDev = Math.sqrt(avgSquareDiff);
 	return stdDev;
 }
 
@@ -583,10 +563,11 @@ function registerPatient(req, res){
 		where: {kakao_id: kakao_id} // Condition
 	}).then(result => {
 		console.log('result: ' + result.toString())
-		if (result === 1){
+		if (result[0] === 1){ // result[0] stores the number of affected rows.
 			return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
 		} else {
-			return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. Result: ' + result.toString()})
+			return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. ' +
+				'It is possible the patient is already registered. Result: ' + result.toString()})
 		}
 	}).catch(function (err){
 		return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
@@ -601,7 +582,7 @@ function declinePatient(req, res){
 		where: {kakao_id: kakao_id} // Condition
 	}).then(result => {
 		console.log('result: ' + result.toString())
-		if (result === 2){
+		if (result[0] === 1){ // result[0] stores the number of affected rows.
 			return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
 		} else {
 			return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. Result: ' + result.toString()})
@@ -639,9 +620,9 @@ module.exports = {
 	getPatientsToAdd: getPatientsToAdd,
 	getPatientInfo: getPatientInfo,
 	getPatientInfoSummary: getPatientInfoSummary,
+	getPatientInfoAll: getPatientInfoAll,
 	getPatientMedMissReason: getPatientMedMissReason,
 	getPatientsRegistered: getPatientsRegistered,
 	registerPatient: registerPatient,
 	declinePatient: declinePatient,
-	getPatientInfoAll: getPatientInfoAll,
 };

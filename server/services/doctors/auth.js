@@ -344,13 +344,10 @@ function loginDoctor (req, res) {
 							message: err.message + ', err: ' + err.message
 						});
 					}
-					res.cookie('token', token, {secure: true});
-					// res.cookie('domain', 'localhost')
-					// res.cookie('access_token', token);
-					// res.cookie('httpOnly', true);
-					// res.cookie('path', '/');
-					// res.cookie('test', 'testCookieValue');
-					// res.header('Set-Cookie', 'token: ' + token )
+					// Refer to https://stackoverflow.com/questions/1062963/how-do-browser-cookie-domains-work/30676300#30676300 for cookie settings.
+					// And https://stackoverflow.com/questions/1134290/cookies-on-localhost-with-explicit-domain for localhost config.
+					res.cookie('token', token, {domain:'localhost'})
+					// res.cookie('token', token, {domain:'.jellylab.io', maxAge: 1000 * 60 * 15, secure: true});
 					res.header('test', 'testCookieValue: cookieValue');
 					res.header('Access-Control-Allow-Credentials', 'true');
 					res.status(200).json({success: true, message: 'Ok', token: token});

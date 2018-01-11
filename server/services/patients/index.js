@@ -37,17 +37,15 @@ function getPatientWithId(req, res) {
 }
 
 function registerKakaoId (req, res) {
-
 	let kakao_id, phone, name
 	if (req.body.kakao_id && req.body.phone && req.body.name){
 		kakao_id = req.body.kakao_id.toString().trim() || '';
 		phone = req.body.phone.toString().trim() || '';
 		name = req.body.name.toString().trim() || '';
 	} else {
-		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, phone, name).'})
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, phone, name).'
+			, kakao_id: req.body.kakao_id, doctor_cod: req.body.doctor_code})
 	}
-
-	if (!kakao_id) return res.status(400).json({error: 'kakao_id not given.'});
 
 	models.Patient.create({
 		kakao_id: kakao_id,
@@ -61,17 +59,14 @@ function registerKakaoId (req, res) {
 }
 
 function registerDoctorCode (req, res){
-
 	let kakao_id, doctor_code;
 	if (!(req.body.kakao_id && req.body.doctor_code)){
 		kakao_id = req.body.kakao_id.toString().trim() || '';
 		doctor_code = req.body.doctor_code.toString().trim() || '';
 	} else {
-		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, doctor_code).', kakao_id: req.body.kakao_id, doctor_cod: req.body.doctor_code})
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, doctor_code).'
+			, kakao_id: req.body.kakao_id, doctor_cod: req.body.doctor_code})
 	}
-	// const kakao_id = req.body.kakao_id.toString().trim() || '';
-	// if (!kakao_id) return res.status(400).json({error: 'kakao_id not given.'});
-	// const doctor_code = req.body.doctor_code.toString().trim() || '';
 
 	models.Patient.update(
 		{doctor_code: doctor_code},     // What to update
@@ -84,7 +79,6 @@ function registerDoctorCode (req, res){
 }
 
 function kakaoText (req, res) {
-
 	let kakao_id, text, time, type
 	if (req.body.kakao_id && req.body.text && req.body.time && (req.body.type !== undefined)){
 		kakao_id = req.body.kakao_id.toString().trim() || '';
@@ -94,12 +88,6 @@ function kakaoText (req, res) {
 	} else {
 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text, time, type).', kakao_id: req.body.kakao_id, text: req.body.text, time: req.body.time, type: req.body.type})
 	}
-
-	// const kakao_id = req.body.kakao_id.toString().trim() || '';
-	// if (!kakao_id) return res.status(400).json({error: 'Kakao Id not given'});
-	// const text = req.body.text.toString().trim() || '';
-	// const time = req.body.time.toString().trim() || '';
-	// const type = req.body.type.toString().trim() || '';
 
 	models.Kakao_text.create({
 		kakao_id: kakao_id,
@@ -120,11 +108,6 @@ function medicineCheck (req, res) {
 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text, time, type).', kakao_id: req.body.kakao_id, med_taken: req.body.med_taken, time: req.body.time})
 	}
 
-	// const kakao_id = req.body.kakao_id.toString().trim() || '';
-	// if (!kakao_id) return res.status(400).json({error: 'Kakao Id not given'});
-	// const time = req.body.time.toString().trim() || '';
-	// const med_check = req.body.med_taken.toString().trim() || '';
-
 	models.Medicine_check.create({
 		kakao_id: kakao_id,
 		med_check: med_check,
@@ -133,27 +116,9 @@ function medicineCheck (req, res) {
 		.catch(function (err){
 			res.status(400).json({success: false, message: 'Updated failed. Error: ' + err.message})
 		})
-
-	// models.Medicine_check.findAndCountAll({
-	// 	kakao_id: kakao_id,
-	// 	med_check: '1',
-	// 	time: {
-	// 		[Op.between]: [now(new Date(Date.now() - 7 * 24 * 3600 * 1000)), now(new Date())]
-	// 	}
-	// }).then(result => {
-	//
-	// 	Patient.update({
-	// 		medicine_week: parseInt(result.count*100/7.0),
-	// 	}, {
-	// 		where: {
-	// 			kakao_id: kakao_id,
-	// 		}
-	// 	});
-	// });
 }
 
 function medicineCheckMissReason(req, res){
-
 	let kakao_id, text;
 	if ((req.body.kakao_id !== undefined) && (req.body.text !== undefined)){
 		kakao_id = req.body.kakao_id.toString().trim() || '';
@@ -162,10 +127,6 @@ function medicineCheckMissReason(req, res){
 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text, time).', kakao_id: req.body.kakao_id, text: req.body.text})
 	}
 
-	// const kakao_id = req.body.kakao_id.toString().trim() || '';
-	// if (!kakao_id) return res.status(400).json({error: 'Kakao Id not given'});
-	// const text = req.body.text.toString().trim() || '';
-
 	models.Medicine_check.update(
 		{med_miss_reason: text},
 		{where: {
@@ -173,7 +134,7 @@ function medicineCheckMissReason(req, res){
 			time: {[Op.between]: [now(new Date(Date.now() - timeGapToCheckMedicineCheckConnection)), now(new Date())]},
 			med_check: {[Op.ne]: 1}
 			}
-		} // within 30 minutes of call
+		}
 	).then(medicine_check => res.status(200).json({success: true, message: 'Update done. medicine_check: ' + medicine_check.toString()})
 	).catch(function (err){
 		res.status(400).json({success: false, message: 'Updated failed. Error: ' + err.message})
@@ -181,7 +142,6 @@ function medicineCheckMissReason(req, res){
 }
 
 function medicineCheckMedSide(req, res){
-
 	let kakao_id, text;
 	if ((req.body.kakao_id !== undefined) && (req.body.text !== undefined)){
 		kakao_id = req.body.kakao_id.toString().trim() || '';
@@ -189,11 +149,6 @@ function medicineCheckMedSide(req, res){
 	} else {
 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text).', kakao_id: req.body.kakao_id, text: req.body.text})
 	}
-
-	//
-	// const kakao_id = req.body.kakao_id.toString().trim() || '';
-	// if (!kakao_id) return res.status(400).json({error: 'Kakao Id not given'});
-	// const text = req.body.text.toString().trim() || '';
 
 	models.Medicine_check.update(
 		{med_side: text},
@@ -218,10 +173,6 @@ function medicineCheckMedSideDegree(req, res){
 	} else {
 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text).', kakao_id: req.body.kakao_id, text: req.body.text})
 	}
-
-	// const kakao_id = req.body.kakao_id.toString().trim() || '';
-	// if (!kakao_id) return res.status(400).json({error: 'Kakao Id not given'});
-	// const text = req.body.text.toString().trim() || '';
 
 	models.Medicine_check.update(
 		{med_side_degree: text},
@@ -326,48 +277,7 @@ function medicineTime (req, res) {
 			});
 		}
 	});
-};
-
-// TODO: Deprecated
-
-function medicineSide (req, res) {
-
-	const kakao_id = req.body.kakao_id.toString().trim() || '';
-	if (!kakao_id) return res.status(400).json({error: 'Incorrect id'});
-
-	const time = req.body.time.toString().trim() || '';
-	const text = req.body.text.toString().trim() || '';
-
-	models.Medicine_side.create({
-		kakao_id: kakao_id,
-		text: text,
-		time: time
-	}).then(medicine_side => res.status(201).json(medicine_side));
-
-};
-
-function medicineMiss (req, res) {
-	const kakao_id = req.body.kakao_id.toString().trim() || '';
-	if (!kakao_id) return res.status(400).json({error: 'Incorrect id'});
-
-	const text = req.body.text.toString().trim() || '';
-	const time = req.body.time.toString().trim() || '';
-
-	models.Medicine_miss.create({
-		kakao_id: kakao_id,
-		med_check: text,
-		time: time
-	}).then(medicine_miss => res.status(201).json(medicine_miss));
-
-};
-
-// TODO: Empty functions below
-
-function interviewTime (req, res) {
-};
-
-function interviewCheck (req, res) {
-};
+}
 
 module.exports = {
 	getPatients: getPatients,
@@ -377,6 +287,7 @@ module.exports = {
 	registerKakaoId: registerKakaoId,
 	registerDoctorCode: registerDoctorCode,
 	kakaoText: kakaoText,
+
 	medicineCheck: medicineCheck,
 	medicineCheckMissReason: medicineCheckMissReason,
 	medicineCheckMedSide: medicineCheckMedSide,
@@ -386,8 +297,4 @@ module.exports = {
 	moodCheckReason: setMoodCheckReason,
 
 	// medicineTime: medicineTime,
-	// medicineMiss: medicineMiss,
-	// medicineSide: medicineSide,
-	// interviewTime: interviewTime,
-	// interviewCheck: interviewCheck
-};
+}
