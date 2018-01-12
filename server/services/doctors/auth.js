@@ -380,23 +380,31 @@ function loginDoctor (req, res) {
 					// console.log('server.get(\'token_domain\'): ' + server.get('token_domain'))
 					// console.log('server.get(\'env\') === \'dev\'): ' + (server.get('env') === 'dev'))
 					console.log('req.header.origin = ' + req.header('origin'))
-					if (req.header('origin') !== undefined) {
-						if (req.header('origin').includes('localhost')) {
-							console.log('req origin includes localhost')
-							if (req.secure) {
-								console.log('req is secure')
-								res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: true})
-							} else {
-								console.log('req is NOT secure')
-								res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: false})
-							}
+
+					if (req.header('origin') === undefined){
+                        console.log('req origin is undefined. Probably from postman.')
+                        if (req.secure) {
+                            console.log('req is secure')
+                            res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: true})
+                        } else {
+                            console.log('req is NOT secure')
+                            res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: false})
+                        }
+					} else if (req.header('origin').includes('localhost')) {
+						console.log('req origin includes localhost OR it is from postman.')
+						if (req.secure) {
+							console.log('req is secure')
+							res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: true})
 						} else {
-							console.log('req origin does NOT include localhost')
-							if (req.secure) {
-								res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: true})
-							} else {
-								res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: false})
-							}
+							console.log('req is NOT secure')
+							res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: false})
+						}
+					} else {
+						console.log('req origin does NOT include localhost')
+						if (req.secure) {
+							res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: true})
+						} else {
+							res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: false})
 						}
 					}
 					// if (config.env === 'dev'){
