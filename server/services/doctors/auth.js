@@ -42,7 +42,7 @@ const userPermission = {
 function verifyToken (req, res, next){
 
 	// const cookie = req.headers.cookie || '';
-	const cookie = req.cookies || '';
+	const cookie = req.cookies || req.headers.cookie || '';
 	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
 	// check header or url parameters or post parameters for token
 	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
@@ -50,7 +50,6 @@ function verifyToken (req, res, next){
 
 	console.log('cookie: ' + cookie)
 	console.log('token: ' + token)
-
 
 	// decode token
 	if (token) {
@@ -63,7 +62,7 @@ function verifyToken (req, res, next){
 			} else {
 				// if everything is good, save to request for use in other routes
 				req.decoded = decoded;
-				return res.status(200).json({success: true, message: 'Token verified.'})
+				return res.status(200).json({success: true, message: 'Token verified.', doctor_code: decoded.doctor_code})
 				// next();
 			}
 		});
@@ -78,10 +77,40 @@ function verifyToken (req, res, next){
 
 function checkTokenVerified (req, res, next){
 	// If this function can be reached, it means that the token has already been verified.
-	// Thus, return success.
-	return res.status(200).send({
-		success: true
-	})
+	// Thus, continue..
+	// const cookie = req.headers.cookie || '';
+	const cookie = req.cookies || '';
+	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
+	// check header or url parameters or post parameters for token
+	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
+	const secret = req.app.get('jwt_secret');
+
+	console.log('cookie: ' + cookie)
+	console.log('token: ' + token)
+
+	// decode token
+	if (token) {
+		console.log('token given.')
+
+		// verifies secret and checks exp
+		jwt.verify(token, secret, function(err, decoded) {
+			if (err) {
+				return res.json({ success: false, message: 'Failed to authenticate token.' });
+			} else {
+				// if everything is good, save to request for use in other routes
+				req.decoded = decoded;
+				console.log('Token verified').
+				res.status(200).json({token_verified: true, doctor_code: decoded.doctor_code})
+			}
+		});
+	} else {
+		// return an error if there is no token
+		return res.status(403).send({
+			success: false,
+			message: 'API call not allowed. No token provided.'
+		});
+	}
+	next()
 }
 
 // authenticate is not being used for now, but may be used for later.
@@ -351,21 +380,23 @@ function loginDoctor (req, res) {
 					// console.log('server.get(\'token_domain\'): ' + server.get('token_domain'))
 					// console.log('server.get(\'env\') === \'dev\'): ' + (server.get('env') === 'dev'))
 					console.log('req.header.origin = ' + req.header('origin'))
-					if (req.header('origin').includes('localhost')){
-						console.log('req origin includes localhost')
-						if(req.secure){
-							console.log('req is secure')
-							res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: true})
+					if (req.header('origin') !== undefined) {
+						if (req.header('origin').includes('localhost')) {
+							console.log('req origin includes localhost')
+							if (req.secure) {
+								console.log('req is secure')
+								res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: true})
+							} else {
+								console.log('req is NOT secure')
+								res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: false})
+							}
 						} else {
-							console.log('req is NOT secure')
-							res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: false})
-						}
-					} else {
-						console.log('req origin does NOT include localhost')
-						if (req.secure){
-							res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: true})
-						} else {
-							res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: false})
+							console.log('req origin does NOT include localhost')
+							if (req.secure) {
+								res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: true})
+							} else {
+								res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: false})
+							}
 						}
 					}
 					// if (config.env === 'dev'){

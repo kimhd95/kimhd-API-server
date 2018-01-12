@@ -8,14 +8,16 @@ const
 let router = express.Router();
 
 // Authentication related Doctor APIs.
-router.post('/verifyToken', authService.verifyToken)
+router.post('/verify_token', authService.verifyToken)
 router.post('/register', authService.registerDoctor);
 router.post('/login', authService.loginDoctor);
 router.get('/logout', authService.logoutDoctor);
 router.post('/emailDuplicateCheck', authService.doctorEmailDuplicateCheck);
 
 // AUTHENTICATE HERE: APIs below this line needs to verify token. "req.decoded" variable is updated.
-// Check if token is verified. Used for Home Page redirect on client side web dashboard.
+// router.use(authService.verifyToken);
+
+// Check if token is verified. Used for Login Page redirect on client side web dashboard.
 router.get('/tokenVerified', authService.checkTokenVerified)
 router.get('/get_patients/:doctor_code', doctorService.getPatients);
 router.get('/get_patients_registered/:doctor_code', doctorService.getPatientsRegistered);
@@ -27,10 +29,6 @@ router.get('/get_patient_med_miss_reason/:kakao_id', doctorService.getPatientMed
 
 router.post('/register_patient', doctorService.registerPatient);
 router.post('/decline_patient', doctorService.declinePatient);
-
-
-// 나중에 풀기.
-// router.use(authService.verifyToken);
 
 // Not used yet.
 router.get('/add_patient', doctorService.addPatient);
