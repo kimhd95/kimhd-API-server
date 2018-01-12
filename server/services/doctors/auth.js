@@ -13,6 +13,7 @@
 const qs = require('qs');
 const jwt = require('jsonwebtoken');
 const models = require('../../models');
+const config = require('../../../configs')
 
 // Constants
 const EnumRoleType = {
@@ -339,28 +340,54 @@ function loginDoctor (req, res) {
 					console.log('err: ' + err, ', token: ' + token);
 					if (err) {
 						console.log('err.message: ' + err.message);
-						res.status(403).json({
+						return res.status(403).json({
 							success: false,
-							message: err.message + ', err: ' + err.message
+							message: err.message
 						});
 					}
 					// Refer to https://stackoverflow.com/questions/1062963/how-do-browser-cookie-domains-work/30676300#30676300 for cookie settings.
 					// And https://stackoverflow.com/questions/1134290/cookies-on-localhost-with-explicit-domain for localhost config.
-					res.cookie('token', token, {domain:'localhost'})
+					// console.log('server.get(\'env\'): ' + server.get('env'))
+					// console.log('server.get(\'token_domain\'): ' + server.get('token_domain'))
+					// console.log('server.get(\'env\') === \'dev\'): ' + (server.get('env') === 'dev'))
+					console.log('req.header.origin = ' + req.header('origin'))
+					if (req.header('origin').includes('localhost')){
+						console.log('req origin includes localhost')
+						if(req.secure){
+							console.log('req is secure')
+							res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: true})
+						} else {
+							console.log('req is NOT secure')
+							res.cookie('token', token, {domain: 'localhost', maxAge: 1000 * 60 * 15, secure: false})
+						}
+					} else {
+						console.log('req origin does NOT include localhost')
+						if (req.secure){
+							res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: true})
+						} else {
+							res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: false})
+						}
+					}
+					// if (config.env === 'dev'){
+					// 	res.cookie('token', token, {domain: config.token_domain})
+					// } else {
+					// 	res.cookie('token', token, {domain: config.token_domain, maxAge: 1000 * 60 * 15, secure: true})
+					// }
+					// res.cookie('token', token, {domain:'localhost'})
 					// res.cookie('token', token, {domain:'.jellylab.io', maxAge: 1000 * 60 * 15, secure: true});
 					res.header('test', 'testCookieValue: cookieValue');
 					res.header('Access-Control-Allow-Credentials', 'true');
-					res.status(200).json({success: true, message: 'Ok', token: token});
+					return res.status(200).json({success: true, message: 'Ok', token: token});
 				});
 		} else {
-			res.status(403).json({
+			return res.status(403).json({
 				success: false,
 				message: 'Password wrong'
 			});
 		}
 	}).catch(function (err){
 		console.log('err.message: ' + err.message);
-		res.status(403).json({
+		return res.status(403).json({
 			success: false,
 			message: 'DB error. err: ' + err.message
 		})

@@ -4,8 +4,7 @@ const
 	express = require('express'),
 	bodyParser = require('body-parser'),
 	syncDatabase = require('./database'),
-	morgan = require('morgan'),
-	cors = require('cors')
+	morgan = require('morgan')
 
 module.exports = function() {
 	let server = express(),
@@ -19,25 +18,14 @@ module.exports = function() {
 		server.set('env', config.env);
 		server.set('port', config.port);
 		server.set('hostname', config.hostname);
+		server.set('token_domain', config.token_domain);
 		server.set('jwt_secret', config.jwt_secret); // secret variable
-
-		// let whitelist = ['http://localhost', 'http://121.', 'http://175.', 'http://121.140.205.189']
-		// let corsOptions = {
-		// 	origin: function (origin, callback) {
-		// 		if (whitelist.indexOf(origin) !== -1) {
-		// 			callback(null, true)
-		// 		} else {
-		// 			callback(new Error('Not allowed by CORS'))
-		// 		}
-		// 	}
-		// }
-		//
-		// server.use(cors(corsOptions))
 
 		// Enable CORS
 		server.use(function(req, res, next) {
 
-			let allowedOrigins = ['http://localhost:4000', "https://jellyfi.jellylab.io",
+			let allowedOrigins = ['http://localhost:4000', 'http://localhost:80','http://localhost', 'http://localhost:8081','https://localhost:8443',
+				"https://jellyfi.jellylab.io", 'http://localhost:4000', 'http://127.0.0.1',
 				"http://dev.jellylab.io", "http://121.140.205.189", "http://jellyfi.jellylab.io, 'https://api.jellylab.io"];
 
 			let origin
@@ -55,11 +43,6 @@ module.exports = function() {
 				res.setHeader('log-origin', origin)
 			}
 
-			// res.header("Access-Control-Allow-Origin", "*");
-			// TODO: ADD WEB APP ADDRESS IN PRODUCTION.
-			// res.header('Access-Control-Allow-Origin', 'http://localhost');
-			// res.header('Access-Control-Allow-Origin', ['http://localhost:4000', 'http://localhost:2000']);
-			// res.header('Access-Control-Allow-Origin', 'http://localhost:4000');
 			res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
 			res.header("Access-Control-Allow-Credentials", true);
 			res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Set-Cookie");
@@ -81,9 +64,10 @@ module.exports = function() {
 		let
 			hostname = server.get('hostname'),
 			port = server.get('port');
+
 		server.listen(process.env.PORT || port, function (){
-			console.log('Express server listening on - http://' + hostname + ':' + port);
-			console.log(process.env.PORT || server.get('port') || 3000);
+			console.log('Express server listening on - http(s)://' + hostname + ':' + port + '. Environment (config.env): ' + server.get('env'));
+			console.log('process.env.PORT || server.get(\'port\') || 3000: ' + (process.env.PORT || port || 3000));
 			syncDatabase().then(() => {console.log('Database sync');})
 		})
 	};
