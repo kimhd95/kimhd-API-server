@@ -3,16 +3,31 @@
  *
  * @date 2017-12-28
  * @author 김지원
- * @updated 2018-01-05
+ * @updated 2018-01-10
  *
  */
 
 'use strict';
 
 const models = require('../../models');
-const _ = require('underscore');
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op
+const Op = require('sequelize').Op
+
+function getPatientsRegistered(req, res){
+	let doctorCode = req.params.doctor_code
+	models.Patient.findAll({
+		where: {
+			doctor_code: doctorCode,
+			registered: 1
+		}
+	}).then(patients => {
+		if (!patients) {
+			return res.status(404).json({error: 'No patient registered with doctor code: ' + doctorCode});
+		}
+		res.json(patients);
+	}).catch(function (err){
+		return res.status(500).json(err)
+	})
+}
 
 // Return all patients associated with given doctor code
 function getPatients(req, res){
@@ -38,7 +53,7 @@ function getPatientsToAdd(req, res){
 	models.Patient.findAll({
 		where: {
 			doctor_code: doctorCode,
-			registered: {[Op.ne]: 1}
+			registered: {[Op.notIn]: [1, 2]}
 		}
 	}).then(patients => {
 		if (!patients) {
@@ -62,11 +77,11 @@ function getPatientInfo (req, res){
 	}).then(patient => {
 
 		if (patient){
-			console.log(patient.doctor_code);
+			console.log(patient.doctor_code)
 		}
 
-		patient.medicine_side='';
-		console.log('start');
+		patient.medicine_side=''
+		console.log('start')
 
 		const p1 = new Promise(function(resolve, reject) {
 			models.Mood_check.findAll({
@@ -75,9 +90,9 @@ function getPatientInfo (req, res){
 				}
 			}).then(mood => {
 				if(mood) patient.mood_check = mood;
-				resolve();
-			});
-		});
+				resolve()
+			})
+		})
 		const p2 = new Promise(function(resolve, reject) {
 			models.Medicine_check.findAll({
 				where: {
@@ -89,8 +104,8 @@ function getPatientInfo (req, res){
 				// 	['time', 'DESC']
 				// ]
 			}).then(check => {
-				if(check) patient.medicine_check = check;
-				resolve();
+				if(check) patient.medicine_check = check
+				resolve()
 			});
 		});
 
@@ -120,7 +135,7 @@ function getPatientInfo (req, res){
 			console.log(patientinfo);
 			res.status(200).json(patientinfo);
 		}, function(reason) {
-			res.status(500).json({ message: 'Server Error' });
+			res.status(500).json({ message: 'Server Error. Reason:' + reason.toString()});
 		});
 	}).catch(function (err){
 		console.log("Get patient info summary failed: err.status: " + err.status + '\t err.message: ' + err.message)
@@ -196,29 +211,193 @@ function getPatientInfoSummary (req, res){
 				}
 			}
 
-			let weekAverage = _(weekMoodChecks).reduce(function(total, moodCheck) {
-				return total + moodCheck;
-			}) / weekMoodChecks.length;
+			let weekAvg = round(average(weekMoodChecks))
+			let weekSd = round(standardDeviation(weekMoodChecks))
+			let monthAvg = round(average(monthMoodChecks))
+			let monthSd = round(standardDeviation(monthMoodChecks))
 
-			let weekSquaredDeviations = _(weekMoodChecks).reduce(function(total, moodCheck) {
-				let deviation = moodCheck - weekAverage;
-				let deviationSquared = deviation * deviation;
-				return total + deviationSquared;
-			}, 0);
 
-			let weekStandardDeviation = Math.sqrt(weekSquaredDeviations / weekMoodChecks.length);
+			// ------------------- Medicine Check ------------------- //
+			let totalWeekCount = 0;
+			let totalMonthCount = 0;
 
-			let monthAverage = _(monthMoodChecks).reduce(function(total, moodCheck) {
-				return total + moodCheck;
-			}) / monthMoodChecks.length;
+			let takenWeekCount = 0;
+			let takenMonthCount = 0;
 
-			let monthSquaredDeviations = _(monthMoodChecks).reduce(function(total, moodCheck) {
-				let deviation = moodCheck - monthAverage;
-				let deviationSquared = deviation * deviation;
-				return total + deviationSquared;
-			}, 0);
+			let recordDate = new Date().getTime();
 
-			let monthStandardDeviation = Math.sqrt(monthSquaredDeviations / monthMoodChecks.length);
+			for (let iterationCount in patient.medicine_check){
+
+				let medCheck = patient.medicine_check[iterationCount]['med_check']
+				let datetime = patient.medicine_check[iterationCount]['time']
+
+				// This code converts YYYY-MM-DD hh:mm:ss to YYYY/MM/DD hh:mm:ss that is easily parsed by Date constructor.
+				let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
+				console.log('datetimeConverted: ' + datetimeConverted)
+
+				let jsDate = Date.parse(datetimeConverted);
+				recordDate = jsDate;
+				console.log('jsDate: ' + jsDate)
+				let now = new Date().getTime();
+				console.log('now: ' + now)
+
+				let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
+				console.log('timeDifferenceInDays: ' + timeDifferenceInDays)
+
+				if (timeDifferenceInDays < 7) { // record within 7 days of query
+					totalWeekCount += 1;
+					if (medCheck === 1){
+						takenWeekCount += 1;
+					}
+				}
+				if (timeDifferenceInDays < 30) { // record within 30 days of query
+					totalMonthCount += 1;
+					if (medCheck === 1){
+						takenMonthCount += 1;
+					}
+				}
+			}
+
+			// let medTakenRate = (medTakenCount/totalCount *100).toFixed(0);
+			let weekTakenRate,
+				monthTakenRate
+
+
+			if (totalWeekCount > 0 ){
+				weekTakenRate = (takenWeekCount / totalWeekCount * 100).toFixed((0));
+			} else {
+				weekTakenRate = 0;
+			}
+
+			if (totalMonthCount > 0){
+				monthTakenRate = (takenMonthCount / totalMonthCount * 100).toFixed(0);
+			} else {
+				monthTakenRate = 0;
+			}
+
+
+			// let nextHospitalVisitDate = now + 1000*60*60*24*(Math.floor(Math.random()*3) + 1)
+			let nextHospitalVisitDate = recordDate
+				// + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 데이트 + 랜덤 일 수.
+
+			let patientinfo = {
+				id: patient.id,
+				name: patient.name,
+				doctor_code: patient.doctor_code,
+				kakao_id: patient.kakao_id,
+				weekTakenRate: weekTakenRate,
+				monthTakenRate: monthTakenRate,
+				weekEmotionEmergencyCount: weekEmergencyMoodCount,
+				monthEmotionEmergencyCount: monthEmergencyMoodCount,
+				weekStandardDeviation: weekSd,
+				monthStandardDeviation: monthSd,
+				weekAverage: weekAvg,
+				monthAverage: monthAvg,
+				nextHospitalVisitDate: nextHospitalVisitDate
+			}
+
+			return res.status(200).json(patientinfo);
+		}, function(reason) {
+			return res.status(500).json({ message: 'Server Error. reason: ' + reason });
+		});
+	}).catch(function (err){
+		console.log("Get patient info summary failed: err.status: " + err.status + '\t err.message: ' + err.message)
+		return res.status(500).json({message: err.message})
+	});
+}
+
+function getPatientInfoAll (req, res){
+	const patientKakaoId = req.params.kakao_id;
+
+	let med_miss_reasons;
+
+	models.Patient.findOne({
+		where: {
+			kakao_id: patientKakaoId
+		}
+	}).then(patient => {
+
+		if (!patient){
+			return res.status(200).json({message: 'No patient found with given kakao_id.'})
+		}
+
+		const p1 = new Promise(function(resolve, reject) {
+			models.Mood_check.findAll({
+				where: {
+					kakao_id: patient.kakao_id
+				}
+			}).then(mood => {
+				if(mood) patient.mood_check = mood;
+				resolve();
+			});
+		});
+
+		const p2 = new Promise(function(resolve, reject) {
+			models.Medicine_check.findAll({
+				where: {
+					kakao_id: patient.kakao_id
+				}
+			}).then(check => {
+				if(check) patient.medicine_check = check;
+				resolve();
+			});
+		});
+
+		const p3 = new Promise(function(resolve, reject) {
+			models.Medicine_check.findAll({
+				where: {
+					kakao_id: req.params.kakao_id,
+					med_check: {[Op.ne]: 1}
+				}
+			}).then(med_checks => {
+				if (med_checks) {
+					med_miss_reasons = med_checks;
+					resolve();
+				}
+				resolve();
+			}).catch(function (err){
+				return res.status(500).json(err)
+			})
+		});
+
+
+		Promise.all([p1, p2, p3]).then(function(value) {
+			let
+				weekEmergencyMoodCount = 0,
+				monthEmergencyMoodCount = 0,
+				weekMoodChecks = [],
+				monthMoodChecks = []
+
+			// ---------- Mood Check ------------ //
+
+			for (let iterationCount in patient.mood_check){
+				let moodCheck = patient.mood_check[iterationCount]['mood_check']
+				let datetime = patient.mood_check[iterationCount]['time']
+
+				// This code converts YYYY-MM-DD hh:mm:ss to YYYY/MM/DD hh:mm:ss that is easily parsed by Date constructor.
+				let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
+				let jsDate = Date.parse(datetimeConverted);
+				let now = new Date().getTime();
+				let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
+
+				if (timeDifferenceInDays < 7) { // record within 7 days of query
+					weekMoodChecks.push(moodCheck)
+					if (moodCheck <= -3){
+						weekEmergencyMoodCount += 1;
+					}
+				}
+				if (timeDifferenceInDays < 30) { // record within 30 days of query
+					monthMoodChecks.push(moodCheck)
+					if (moodCheck <= -3) {
+						monthEmergencyMoodCount += 1;
+					}
+				}
+			}
+
+			let weekAvg = round(average(weekMoodChecks))
+			let weekSd = round(standardDeviation(weekMoodChecks))
+			let monthAvg = round(average(monthMoodChecks))
+			let monthSd = round(standardDeviation(monthMoodChecks))
 
 
 			// ------------------- Medicine Check ------------------- //
@@ -292,11 +471,12 @@ function getPatientInfoSummary (req, res){
 				monthTakenRate: monthTakenRate,
 				weekEmotionEmergencyCount: weekEmergencyMoodCount,
 				monthEmotionEmergencyCount: monthEmergencyMoodCount,
-				weekStandardDeviation: weekStandardDeviation,
-				monthStandardDeviation: monthStandardDeviation,
-				weekAverage: weekAverage,
-				monthAverage: monthAverage,
-				nextHospitalVisitDate: nextHospitalVisitDate
+				weekStandardDeviation: weekSd,
+				monthStandardDeviation: monthSd,
+				weekAverage: weekAvg,
+				monthAverage: monthAvg,
+				nextHospitalVisitDate: nextHospitalVisitDate,
+				med_check_reason: med_miss_reasons
 			}
 
 			return res.status(200).json(patientinfo);
@@ -307,6 +487,52 @@ function getPatientInfoSummary (req, res){
 		console.log("Get patient info summary failed: err.status: " + err.status + '\t err.message: ' + err.message)
 		return res.status(500).json({message: err.message})
 	});
+}
+
+function average (data){
+	let sum = data.reduce(function(sum, value){
+		return parseInt(sum) + parseInt(value);
+	}, 0);
+
+	let avg = sum / data.length;
+	return avg;
+}
+
+function standardDeviation(values){
+	let avg = average(values);
+
+	let squareDiffs = values.map(function(value){
+		let diff = value - avg;
+		let sqrDiff = diff * diff;
+		return sqrDiff;
+	});
+
+	let avgSquareDiff = average(squareDiffs);
+
+	let stdDev = Math.sqrt(avgSquareDiff);
+	return stdDev;
+}
+
+function round(num){
+	return Math.round(parseInt(num) * 100) / 100
+}
+
+
+
+function getPatientMedMissReason(req, res){
+	models.Medicine_check.findAll({
+		where: {
+			kakao_id: req.params.kakao_id,
+			med_check: {[Op.ne]: 1}
+		}
+	}).then(med_checks => {
+		if (!med_checks) {
+			return res.status(404).json({error: 'No missed medicine checks associated with kakao_id: ' + req.params.kakao_id});
+		}
+		return res.status(200).json(med_checks);
+	}).catch(function (err){
+		return res.status(500).json(err)
+	})
 }
 
 function addPatient (req, res) {
@@ -328,6 +554,45 @@ function addPatient (req, res) {
 		});
 	}
 }
+
+function registerPatient(req, res){
+	let kakao_id = req.body.kakao_id
+		models.Patient.update({
+		registered: 1 // What to update
+	}, {
+		where: {kakao_id: kakao_id} // Condition
+	}).then(result => {
+		console.log('result: ' + result.toString())
+		if (result[0] === 1){ // result[0] stores the number of affected rows.
+			return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
+		} else {
+			return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. ' +
+				'It is possible the patient is already registered. Result: ' + result.toString()})
+		}
+	}).catch(function (err){
+		return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
+	})
+}
+
+function declinePatient(req, res){
+	let kakao_id = req.body.kakao_id
+	models.Patient.update({
+		registered: 2 // What to update
+	}, {
+		where: {kakao_id: kakao_id} // Condition
+	}).then(result => {
+		console.log('result: ' + result.toString())
+		if (result[0] === 1){ // result[0] stores the number of affected rows.
+			return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
+		} else {
+			return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. Result: ' + result.toString()})
+		}
+	}).catch(function (err){
+		return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
+	})
+}
+
+
 
 function getDoctors(req, res) {
 	console.log('getDoctors called.')
@@ -355,4 +620,9 @@ module.exports = {
 	getPatientsToAdd: getPatientsToAdd,
 	getPatientInfo: getPatientInfo,
 	getPatientInfoSummary: getPatientInfoSummary,
+	getPatientInfoAll: getPatientInfoAll,
+	getPatientMedMissReason: getPatientMedMissReason,
+	getPatientsRegistered: getPatientsRegistered,
+	registerPatient: registerPatient,
+	declinePatient: declinePatient,
 };
