@@ -3,7 +3,9 @@
  *
  * @date 2018-01-04
  * @author 김지원
- * @updated N/A
+ * @updated 2018-01-15
+ * @updated_by 김지원
+ * @update_log verifyToken & checkTokenVerified updated.
  *
  * Refer to https://www.npmjs.com/package/jsonwebtoken for jwt.
  */
@@ -39,12 +41,13 @@ const userPermission = {
 	},
 }
 
+// verifyToken is mainly used for initial authentication purposes.
+// For example, to determine whether the browser is already "logged in" or not.
+// For general authentication purposes, calling the APIs directly will suffice.
+// This is because "checkTokenVerified" is called as a middleware for APIs that need authentication.
 function verifyToken (req, res, next){
-
-	// const cookie = req.headers.cookie || '';
 	const cookie = req.cookies || req.headers.cookie || '';
 	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-	// check header or url parameters or post parameters for token
 	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
 	const secret = req.app.get('jwt_secret');
 
@@ -58,12 +61,11 @@ function verifyToken (req, res, next){
 		// verifies secret and checks exp
 		jwt.verify(token, secret, function(err, decoded) {
 			if (err) {
-				return res.json({ success: false, message: 'Failed to authenticate token.' });
+				return res.status(403).json({ success: false, message: 'Failed to authenticate token.' });
 			} else {
 				// if everything is good, save to request for use in other routes
 				req.decoded = decoded;
-				return res.status(200).json({success: true, message: 'Token verified.', doctor_code: decoded.doctor_code})
-				// next();
+				return res.status(200).json({success: true, message: 'Token verified.', doctor_code: decoded.doctor_code, redirect: '/login'})
 			}
 		});
 	} else {
@@ -76,31 +78,23 @@ function verifyToken (req, res, next){
 }
 
 function checkTokenVerified (req, res, next){
-	// If this function can be reached, it means that the token has already been verified.
-	// Thus, continue..
-	// const cookie = req.headers.cookie || '';
 	const cookie = req.cookies || req.headers.cookie || '';
 	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-	// check header or url parameters or post parameters for token
 	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
-	const secret = req.app.get('jwt_secret');
-
-	console.log('cookie: ' + cookie)
-	console.log('token: ' + token)
+	const secret = config.jwt_secret;
+	// const secret = req.app.get('jwt_secret');
 
 	// decode token
 	if (token) {
-		console.log('token given.')
-
 		// verifies secret and checks exp
 		jwt.verify(token, secret, function(err, decoded) {
 			if (err) {
 				return res.json({ success: false, message: 'Failed to authenticate token.' });
 			} else {
-				// if everything is good, save to request for use in other routes
-				req.decoded = decoded;
+				// if everything is good, save decoded token payload to request for use in other routes
 				console.log('Token verified').
-				res.status(200).json({token_verified: true, doctor_code: decoded.doctor_code})
+				req.decoded = decoded;
+				next()
 			}
 		});
 	} else {
@@ -110,7 +104,6 @@ function checkTokenVerified (req, res, next){
 			message: 'API call not allowed. No token provided.'
 		});
 	}
-	next()
 }
 
 // authenticate is not being used for now, but may be used for later.
@@ -376,9 +369,6 @@ function loginDoctor (req, res) {
 					}
 					// Refer to https://stackoverflow.com/questions/1062963/how-do-browser-cookie-domains-work/30676300#30676300 for cookie settings.
 					// And https://stackoverflow.com/questions/1134290/cookies-on-localhost-with-explicit-domain for localhost config.
-					// console.log('server.get(\'env\'): ' + server.get('env'))
-					// console.log('server.get(\'token_domain\'): ' + server.get('token_domain'))
-					// console.log('server.get(\'env\') === \'dev\'): ' + (server.get('env') === 'dev'))
 					console.log('req.header.origin = ' + req.header('origin'))
 
 					if (req.header('origin') === undefined){
@@ -407,13 +397,6 @@ function loginDoctor (req, res) {
 							res.cookie('token', token, {domain: '.jellylab.io', maxAge: 1000 * 60 * 15, secure: false})
 						}
 					}
-					// if (config.env === 'dev'){
-					// 	res.cookie('token', token, {domain: config.token_domain})
-					// } else {
-					// 	res.cookie('token', token, {domain: config.token_domain, maxAge: 1000 * 60 * 15, secure: true})
-					// }
-					// res.cookie('token', token, {domain:'localhost'})
-					// res.cookie('token', token, {domain:'.jellylab.io', maxAge: 1000 * 60 * 15, secure: true});
 					res.header('test', 'testCookieValue: cookieValue');
 					res.header('Access-Control-Allow-Credentials', 'true');
 					return res.status(200).json({success: true, message: 'Ok', token: token});

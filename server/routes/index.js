@@ -17,8 +17,11 @@ function init(server) {
 
 	// Handle unknown requests.
 	server.use('/error', function (req, res){
-		res.status(500).json({message: 'Unknown error.'})
+		res.status(404).json({message: 'API call URL not found.'})
 	});
+	server.use(function(req,res){
+		res.redirect('/error');
+	})
 }
 
 module.exports = {
