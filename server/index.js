@@ -7,7 +7,8 @@ const
 	morgan = require('morgan')
 
 module.exports = function() {
-	let server = express(),
+	let
+		server = express(),
 		create,
 		start;
 

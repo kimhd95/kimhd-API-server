@@ -79,7 +79,7 @@ function checkTokenVerified (req, res, next){
 	// If this function can be reached, it means that the token has already been verified.
 	// Thus, continue..
 	// const cookie = req.headers.cookie || '';
-	const cookie = req.cookies || '';
+	const cookie = req.cookies || req.headers.cookie || '';
 	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
 	// check header or url parameters or post parameters for token
 	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
