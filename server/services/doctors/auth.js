@@ -418,7 +418,7 @@ function loginDoctor (req, res) {
 
 function logoutDoctor (req, res) {
 	res.clearCookie('token');
-	res.status(200).end();
+	return res.status(200).end();
 }
 
 
