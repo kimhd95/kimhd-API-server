@@ -65,7 +65,7 @@ function verifyToken (req, res, next){
 			} else {
 				// if everything is good, save to request for use in other routes
 				req.decoded = decoded;
-				return res.status(200).json({success: true, message: 'Token verified.', doctor_code: decoded.doctor_code, hospital: decoded.hospital, doctor_name: decoded.name, redirect: '/login'})
+				return res.status(200).json({success: true, message: 'Token verified.', email: decoded.email, doctor_code: decoded.doctor_code, hospital: decoded.hospital, doctor_name: decoded.name, redirect: '/login'})
 			}
 		});
 	} else {
