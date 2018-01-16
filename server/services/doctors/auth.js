@@ -65,7 +65,7 @@ function verifyToken (req, res, next){
 			} else {
 				// if everything is good, save to request for use in other routes
 				req.decoded = decoded;
-				return res.status(200).json({success: true, message: 'Token verified.', doctor_code: decoded.doctor_code, redirect: '/login'})
+				return res.status(200).json({success: true, message: 'Token verified.', doctor_code: decoded.doctor_code, doctor_name: decoded.name, redirect: '/login'})
 			}
 		});
 	} else {
@@ -352,7 +352,8 @@ function loginDoctor (req, res) {
 					id: doctor.id,
 					permissions: userPermission.DEVELOPER,
 					email: doctor.email,
-					doctor_code: doctor.doctor_code
+					doctor_code: doctor.doctor_code,
+					name: doctor.name
 				},
 				secret, {
 					expiresIn: '7d',
