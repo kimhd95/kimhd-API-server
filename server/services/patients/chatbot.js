@@ -1,6 +1,5 @@
 const models = require('../../models');
-const sequelize = require('sequelize');
-const Op = sequelize.Op;
+const Op = models.sequelize.Op;
 
 
 function updatePatient (req, res) {
@@ -40,49 +39,15 @@ function updatePatient (req, res) {
 	}
 
 	if (param_value){
-		sequelize.query('UPDATE users SET ' + param_name + ' = ' + param_value + ' WHERE kakao_id = ' + kakao_id)
-	// }
-	//
-	//
-	// if (param_value) {
-	// 	models.Patient.findOne({
-	// 		where: {
-	// 			kakao_id: kakao_id
-	// 		}
-	// 	}).then(patient => {
-	// 		if (!patient) {
-	// 			return res.status(403).json({success: false, message: 'patient not found'})
-	// 		}
-	//
-	//
-	//
-	// 		patient.(param_value) String(param_value).save().then(_ => {
-	// 			console.log ('SUCCESS !!!!')
-	// 		})
-	//
-	// 		if (name){
-	// 			patient.name.save()
-	// 		} else if (fullname){
-	// 			param_value = fullname
-	// 		} else if (email) {
-	// 			param_value = email
-	// 		} else if (doctor_code) {
-	// 			param_value = doctor_code
-	// 		} else if (phone) {
-	// 			param_value = phone
-	// 		} else if (sex) {
-	// 			param_value = sex
-	// 		} else if (birthday) {
-	// 			param_value = birthday
-	// 		}
-	//
-	//
-	// 		patient.parameter.toString().save().then(_ => {
-	// 			return res.status(200).json({success: true, message: _.message})
-	// 		})
-	// 	}).catch(function (err){
-	// 		return res.status(403).json({success: false, message: 'update Patient failed. err: ' + err.message})
-	// 	})
+		models.sequelize.query('UPDATE patients SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
+			if (result){
+				return res.status(200).json({success: true, message: 'patient data updated. Result info: ' + result[0].info})
+			} else {
+				return res.status(403).json({success: false, message: 'patient update query failed.'})
+			}
+		}).catch(function (err){
+			return res.status(403).json({success: false, message: 'Unknown error while querying patients table for update from ChatBot server. err: ' + err.message})
+		})
 	}
 }
 
