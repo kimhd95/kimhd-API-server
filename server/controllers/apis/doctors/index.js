@@ -19,6 +19,7 @@ router.use(authService.checkTokenVerified)
 
 // Check if token is verified. Used for Login Page redirect on client side web dashboard.
 router.put('/update_password', authService.updatePassword)
+router.put('/update_hospital', authService.updateHospital)
 router.delete('/delete_doctor', authService.deleteDoctor)
 
 router.get('/get_patients/:doctor_code', doctorService.getPatients)

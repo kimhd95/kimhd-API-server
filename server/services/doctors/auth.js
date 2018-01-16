@@ -421,6 +421,32 @@ function logoutDoctor (req, res) {
 	return res.status(200).end();
 }
 
+function updateHospital (req, res) {
+	const email = req.body.email
+	const curPassword = req.body.password
+	const newHospital = req.body.hospital_new
+	if (!email) return res.status(400).json({success: false, message: 'email not provided.'});
+
+	models.Doctor.findOne({
+		where: {
+			email: email
+		}
+	}).then(doctor => {
+		if (!doctor) {
+			return res.status(404).json({error: 'No user with given email address.'});
+		}
+
+		if (doctor.password === curPassword){
+			doctor.hospital = newHospital
+			doctor.save().then(_ => {
+				return res.status(200).json({success: true, message: 'Hospital successfully updated.'})
+			})
+		} else {
+			return res.status(403).json({success: false, message: 'Given current password is wrong.'})
+		}
+	});
+}
+
 function updatePassword (req, res) {
 	const email = req.body.email
 	const curPassword = req.body.password_current
@@ -554,4 +580,5 @@ module.exports = {
 	doctorEmailDuplicateCheck: doctorEmailDuplicateCheck,
 	updatePassword: updatePassword,
 	deleteDoctor: deleteDoctor,
+	updateHospital: updateHospital,
 };
