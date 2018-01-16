@@ -421,6 +421,72 @@ function logoutDoctor (req, res) {
 	return res.status(200).end();
 }
 
+function updatePassword (req, res) {
+	const email = req.body.email
+	const curPassword = req.body.password_current
+	const newPassword = req.body.password_new
+	if (!email) return res.status(400).json({success: false, message: 'email not provided.'});
+
+	models.Doctor.findOne({
+		where: {
+			email: email
+		}
+	}).then(doctor => {
+		if (!doctor) {
+			return res.status(404).json({error: 'No user with given email address.'});
+		}
+
+   if (doctor.password === curPassword){
+			doctor.password = newPassword
+	   doctor.save().then(_ => {
+		   return res.status(200).json({success: true, message: 'Password successfully updated.'})
+	   })
+   } else {
+			return res.status(403).json({success: false, message: 'Given current password is wrong.'})
+   }
+	});
+}
+
+function deleteDoctor (req, res) {
+	const email = req.body.email
+	const password = req.body.password
+	if (!email) return res.status(400).json({success: false, message: 'Email not provided.'})
+
+	models.Doctor.find({
+		where: {
+			email: email
+		}
+	}).then(doctor => {
+		console.log('doctor with given email found')
+		if (!doctor){
+			return res.status(403).json({success: false, message: 'No doctor account with given email address found'})
+		} else {
+			if (doctor.password !== password){
+				return res.status(403).json({success: false, message: 'The given password does not match with the account password.'})
+			} else {
+				models.Doctor.destroy({
+					where: {
+						email: email,
+						password: password
+					}
+				}).then(result => {
+					console.log('Doctor.destroy result: ' + result)
+
+					if (result === 0){
+						return res.status(403).json({success: false, message: 'Doctor email and password match. But somehow the delete failed.'})
+					} else {
+						return res.status(200).json({success: true, message: 'Doctor account successfully deleted.'})
+					}
+
+				}).catch(function (err){
+					return res.status(403).json({success: false, message: 'Unknown inner catch error on Doctor.destroy. err: ' + err.message})
+				})
+			}
+		}
+	}).catch(function (err){
+		return res.status(403).json({success: false, message: 'Unknown outer catch error. err: ' + err.message})
+	})
+}
 
 // TODO: getDoctor and updateDoctor are legacy code. need to update when needed.
 function getDoctor (req, res) {
@@ -486,4 +552,6 @@ module.exports = {
 	getUser: getDoctor,
 	updateDoctor: updateDoctor,
 	doctorEmailDuplicateCheck: doctorEmailDuplicateCheck,
+	updatePassword: updatePassword,
+	deleteDoctor: deleteDoctor,
 };

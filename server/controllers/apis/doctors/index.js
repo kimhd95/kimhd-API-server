@@ -18,6 +18,9 @@ router.post('/email_duplicate_check', authService.doctorEmailDuplicateCheck)
 router.use(authService.checkTokenVerified)
 
 // Check if token is verified. Used for Login Page redirect on client side web dashboard.
+router.put('/update_password', authService.updatePassword)
+router.delete('/delete_doctor', authService.deleteDoctor)
+
 router.get('/get_patients/:doctor_code', doctorService.getPatients)
 router.get('/get_patients_registered/:doctor_code', doctorService.getPatientsRegistered)
 router.get('/get_patients_to_add/:doctor_code', doctorService.getPatientsToAdd)
