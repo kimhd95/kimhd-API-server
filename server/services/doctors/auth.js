@@ -92,7 +92,7 @@ function checkTokenVerified (req, res, next){
 				return res.json({ success: false, message: 'Failed to authenticate token.' });
 			} else {
 				// if everything is good, save decoded token payload to request for use in other routes
-				console.log('Token verified').
+				console.log('Token verified')
 				req.decoded = decoded;
 				next()
 			}
