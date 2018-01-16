@@ -65,7 +65,7 @@ function verifyToken (req, res, next){
 			} else {
 				// if everything is good, save to request for use in other routes
 				req.decoded = decoded;
-				return res.status(200).json({success: true, message: 'Token verified.', doctor_code: decoded.doctor_code, doctor_name: decoded.name, redirect: '/login'})
+				return res.status(200).json({success: true, message: 'Token verified.', doctor_code: decoded.doctor_code, hospital: decoded.hospital, doctor_name: decoded.name, redirect: '/login'})
 			}
 		});
 	} else {
@@ -344,15 +344,12 @@ function loginDoctor (req, res) {
 			return res.status(403).json({success: false, message: 'No User'});
 		}
 		if (doctor.password === password) {
-			console.log('doctor.email: ' + doctor.email)
-			console.log('doctor.password: ' + doctor.password)
-			console.log('given email: ' + email)
-			console.log('given password: ' + password)
 			jwt.sign({
 					id: doctor.id,
 					permissions: userPermission.DEVELOPER,
 					email: doctor.email,
 					doctor_code: doctor.doctor_code,
+					hospital: doctor.hospital,
 					name: doctor.name
 				},
 				secret, {

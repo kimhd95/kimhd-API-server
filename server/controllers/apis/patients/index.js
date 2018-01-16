@@ -3,9 +3,17 @@
 const
 	express = require('express'),
 	patientService = require('../../../services/patients'),
-	models = require('../../../models');
+	models = require('../../../models'),
+	chatbotService = require('../../../services/patients/chatbot')
 
 let router = express.Router();
+
+console.log('apis/patients/index.js called')
+router.put('/update_patient', chatbotService.updatePatient)
+
+
+
+
 
 
 router.get('/get_patients', patientService.getPatients);

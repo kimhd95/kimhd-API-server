@@ -14,6 +14,12 @@ router.post('/login', authService.loginDoctor)
 router.get('/logout', authService.logoutDoctor)
 router.post('/email_duplicate_check', authService.doctorEmailDuplicateCheck)
 
+
+router.use(function (req, res, next) {
+	console.log('verifying token now.')
+	next()
+})
+
 // AUTHENTICATE HERE: APIs below this line needs to verify token. "req.decoded" variable is updated.
 router.use(authService.checkTokenVerified)
 
