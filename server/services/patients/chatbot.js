@@ -51,7 +51,10 @@ function updatePatient (req, res) {
 	}
 }
 
+
+
 module.exports = {
 	updatePatient: updatePatient,
+	// getPatientLog: getPatientLog,
 
 }
