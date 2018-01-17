@@ -26,7 +26,7 @@ router.use(authService.checkTokenVerified)
 // Check if token is verified. Used for Login Page redirect on client side web dashboard.
 router.post('/update_password', authService.updatePassword) // Changed from PUT -> POST because client side web dashboard AJAX call does not send cookie with PUT method requests. // 2018-01-17 02:57
 router.post('/update_hospital', authService.updateHospital)
-router.delete('/delete_doctor', authService.deleteDoctor)
+router.post('/delete_doctor', authService.deleteDoctor)
 
 router.get('/get_patients/:doctor_code', doctorService.getPatients)
 router.get('/get_patients_registered/:doctor_code', doctorService.getPatientsRegistered)
