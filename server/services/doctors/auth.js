@@ -66,71 +66,79 @@ function verifyToken (req, res){
 			} else {
 				// if everything is good, renew token in cookie and save decoded payload to request for use in other routes
 
-				jwt.sign({
-						id: decoded.id,
-						permissions: userPermission.DEVELOPER,
-						email: decoded.email,
-						doctor_code: decoded.doctor_code,
-						hospital: decoded.hospital,
-						name: decoded.name
-					},
-					secret, {
-						expiresIn: '7d', // Token valid for 7 days. However, Cookie maxAge might be less. Check below.
-						issuer: 'jellylab.io',
-						subject: 'userInfo'
-					}, (err, token) => {
+				models.Doctor.findOne({
+					where: {
+						email: decoded.email
+					}
+				}).then(doctor => {
+					jwt.sign({
+							id: doctor.id,
+							permissions: userPermission.DEVELOPER,
+							email: doctor.email,
+							doctor_code: doctor.doctor_code,
+							hospital: doctor.hospital,
+							name: doctor.name
+						},
+						secret, {
+							expiresIn: '7d', // Token valid for 7 days. However, Cookie maxAge might be less. Check below.
+							issuer: 'jellylab.io',
+							subject: 'userInfo'
+						}, (err, token) => {
 
-						if (err){
-							return res.status(403).json({success: true, message: 'Cookie token renew failed.', error: 'Given Token is successfully verified but new Token has not been issued.'})
-						}
-
-						console.log('err: ' + err, ', token: ' + token);
-						if (err) {
-							console.log('err.message: ' + err.message);
-							return res.status(403).json({
-								success: false,
-								message: err.message
-							});
-						}
-						// Refer to https://stackoverflow.com/questions/1062963/how-do-browser-cookie-domains-work/30676300#30676300 for cookie settings.
-						// And https://stackoverflow.com/questions/1134290/cookies-on-localhost-with-explicit-domain for localhost config.
-						console.log('req.header.origin = ' + req.header('origin'))
-
-						const cookieMaxAge = 1000 * 60 * 60 * 18; // 18 Hours
-						if (req.header('origin') === undefined){
-							console.log('req origin is undefined. Probably from postman.')
-							if (req.secure) {
-								console.log('req is secure')
-								res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: true})
-							} else {
-								console.log('req is NOT secure')
-								res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: false})
+							if (err){
+								return res.status(403).json({success: true, message: 'Cookie token renew failed.', error: 'Given Token is successfully verified but new Token has not been issued.'})
 							}
-						} else if (req.header('origin').includes('localhost')) {
-							console.log('req origin includes localhost OR it is from postman.')
-							if (req.secure) {
-								console.log('req is secure')
-								res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: true})
-							} else {
-								console.log('req is NOT secure')
-								res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: false})
-							}
-						} else {
-							console.log('req origin does NOT include localhost')
-							if (req.secure) {
-								res.cookie('token', token, {domain: '.jellylab.io', maxAge: cookieMaxAge, secure: true})
-							} else {
-								res.cookie('token', token, {domain: '.jellylab.io', maxAge: cookieMaxAge, secure: false})
-							}
-						}
 
-						res.header('test', 'testCookieValue: cookieValue');
-						res.header('Access-Control-Allow-Credentials', 'true');
-						req.decoded = decoded;
-						return res.status(200).json({success: true, message: 'Token verified.', email: decoded.email, doctor_code: decoded.doctor_code, hospital: decoded.hospital, doctor_name: decoded.name, redirect: '/login'})
-						// return res.status(200).json({success: true, message: 'Ok', token: token});
-					})
-				}
+							console.log('err: ' + err, ', token: ' + token);
+							if (err) {
+								console.log('err.message: ' + err.message);
+								return res.status(403).json({
+									success: false,
+									message: err.message
+								});
+							}
+							// Refer to https://stackoverflow.com/questions/1062963/how-do-browser-cookie-domains-work/30676300#30676300 for cookie settings.
+							// And https://stackoverflow.com/questions/1134290/cookies-on-localhost-with-explicit-domain for localhost config.
+							console.log('req.header.origin = ' + req.header('origin'))
+
+							const cookieMaxAge = 1000 * 60 * 60 * 18; // 18 Hours
+							if (req.header('origin') === undefined){
+								console.log('req origin is undefined. Probably from postman.')
+								if (req.secure) {
+									console.log('req is secure')
+									res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: true})
+								} else {
+									console.log('req is NOT secure')
+									res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: false})
+								}
+							} else if (req.header('origin').includes('localhost')) {
+								console.log('req origin includes localhost OR it is from postman.')
+								if (req.secure) {
+									console.log('req is secure')
+									res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: true})
+								} else {
+									console.log('req is NOT secure')
+									res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: false})
+								}
+							} else {
+								console.log('req origin does NOT include localhost')
+								if (req.secure) {
+									res.cookie('token', token, {domain: '.jellylab.io', maxAge: cookieMaxAge, secure: true})
+								} else {
+									res.cookie('token', token, {domain: '.jellylab.io', maxAge: cookieMaxAge, secure: false})
+								}
+							}
+
+							res.header('test', 'testCookieValue: cookieValue');
+							res.header('Access-Control-Allow-Credentials', 'true');
+							return res.status(200).json({success: true, message: 'Token verified.', email: doctor.email, doctor_code: doctor.doctor_code, hospital: doctor.hospital, doctor_name: doctor.name, redirect: '/login'})
+						})
+					}).catch(function (err){
+						return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
+				})
+			}
+
+
 			// return res.status(403).json({success: true, message: 'Given token is verified, but Cookie token renew failed.'})
 		});
 	} else {
