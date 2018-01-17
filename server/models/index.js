@@ -26,7 +26,7 @@ const sequelize = new Sequelize(
 
 		define: {
 			// don't add the timestamp attributes (updatedAt, createdAt)
-			timestamps: false,
+			timestamps: true,
 
 			// don't delete database entries but set the newly added attribute deletedAt
 			// to the current date (when deletion was done). paranoid will only work if
@@ -57,13 +57,27 @@ const Patient = sequelize.define('patient', {
 	registered: Sequelize.STRING,
 	phone: Sequelize.STRING,
 	sex: Sequelize.STRING,
-	birthday: { type: Sequelize.INTEGER, defaultValue: Sequelize.NOW },
+	birthday: { type: Sequelize.INTEGER },
 
 	// medicine_side: Sequelize.STRING,
 
 	created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
 	updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
+
+
+const PatientLog = sequelize.define('patient_log', {
+	kakao_id: { type: Sequelize.STRING, allowNull: false},
+	scenario: Sequelize.STRING,
+	state: Sequelize.STRING,
+	content: Sequelize.STRING,
+	date: Sequelize.STRING,
+	type: Sequelize.STRING,
+
+	created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+});
+
 
 const Doctor = sequelize.define('doctor', {
 	doctor_code: { type: Sequelize.STRING, allowNull: false, unique: true },
@@ -116,5 +130,6 @@ module.exports = {
 	Medicine_time: Medicine_time,
 	Mood_check: Mood_check,
 	Kakao_text: Kakao_text,
+	PatientLog: PatientLog,
 	verifyAPIKEY: verifyAPIKEY
 }

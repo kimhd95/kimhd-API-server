@@ -9,7 +9,10 @@ const
 let router = express.Router();
 
 console.log('apis/patients/index.js called')
-router.put('/update_patient', chatbotService.updatePatient)
+router.post('/register_patient', chatbotService.registerPatient)
+router.post('/update_patient', chatbotService.updatePatient)
+router.post('/create_patient_log', chatbotService.createPatientLog)
+router.get('/get_patient_log/:kakao_id', chatbotService.getPatientLog)
 
 
 
