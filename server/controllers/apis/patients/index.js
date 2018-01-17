@@ -12,7 +12,7 @@ console.log('apis/patients/index.js called')
 router.post('/register_patient', chatbotService.registerPatient)
 router.post('/update_patient', chatbotService.updatePatient)
 router.post('/create_patient_log', chatbotService.createPatientLog)
-router.get('/get_patient_log/:kakao_id', chatbotService.getPatientLog)
+router.get('/get_patient_info/:kakao_id', chatbotService.getPatientInfo)
 
 
 

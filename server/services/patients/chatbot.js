@@ -10,7 +10,9 @@ function registerPatient (req, res) {
 	}
 
 	models.Patient.create({
-		kakao_id: kakao_id
+		kakao_id: kakao_id,
+		scenario: '3',
+		state: 'init'
 	}).then(patient => {
 		return res.status(201).json({success: true, patient})
 	}).catch(function (err){
@@ -78,19 +80,30 @@ function updatePatient (req, res) {
 }
 
 
-function getPatientLog (req, res) {
+function getPatientInfo (req, res) {
 	console.log('getPatientLog called.')
 	const kakao_id = req.params.kakao_id
 
 	if (kakao_id) {
-		models.PatientLog.findAll({
+
+		models.Patient.findOne({
 			where: {
 				kakao_id: kakao_id
 			}
-		}).then(patientLog => {
-			console.log(patientLog);
-			return res.status(200).json({success: true, patientLog})
-		});
+		}).then(patient => {
+			models.PatientLog.findAll({
+				where: {
+					kakao_id: kakao_id
+				}
+			}).then(patientLog => {
+				console.log(patientLog);
+				return res.status(200).json({success: true, patient_info: patient, patient_log: patientLog})
+			}).catch(function (err){
+				return res.status(403).json({success: false, message: 'patient info found. But error occured while retrieving logs.', error: err.message})
+			})
+		}).catch(function (err){
+			return res.status(403).json({success: false, message: err.message})
+		})
 	} else {
 		return res.status(403).json({success: false, message: 'kakao_id not given.'})
 	}
@@ -139,7 +152,7 @@ function createPatientLog (req, res){
 module.exports = {
 	registerPatient: registerPatient,
 	updatePatient: updatePatient,
-	getPatientLog: getPatientLog,
+	getPatientInfo: getPatientInfo,
 	createPatientLog: createPatientLog,
 
 }
