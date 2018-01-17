@@ -49,7 +49,8 @@ function verifyToken (req, res){
 	const cookie = req.cookies || req.headers.cookie || '';
 	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
 	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
-	const secret = req.app.get('jwt_secret');
+	// const secret = req.app.get('jwt_secret');
+	const secret = config.jwt_secret;
 
 	console.log('cookie: ' + cookie)
 	console.log('token: ' + token)
@@ -61,7 +62,7 @@ function verifyToken (req, res){
 		// verifies secret and checks exp
 		jwt.verify(token, secret, function(err, decoded) {
 			if (err) {
-				return res.status(403).json({ success: false, message: 'Failed to authenticate token.' });
+				return res.status(403).json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
 			} else {
 				// if everything is good, renew token in cookie and save decoded payload to request for use in other routes
 
@@ -126,17 +127,9 @@ function verifyToken (req, res){
 						res.header('test', 'testCookieValue: cookieValue');
 						res.header('Access-Control-Allow-Credentials', 'true');
 						return res.status(200).json({success: true, message: 'Ok', token: token});
-
-					}).catch(function (err){
-						console.log('jwt sign failed.')
-						return res.status(403).json({success:false, message: 'jwt sign failed. err: ' + err.message})
-				});
-
-				return res.status(403).json({success: true, message: 'Given token is verified, but Cookie token renew failed.'})
-
-				// req.decoded = decoded;
-				// return res.status(200).json({success: true, message: 'Token verified.', email: decoded.email, doctor_code: decoded.doctor_code, hospital: decoded.hospital, doctor_name: decoded.name, redirect: '/login'})
-			}
+					})
+				}
+			// return res.status(403).json({success: true, message: 'Given token is verified, but Cookie token renew failed.'})
 		});
 	} else {
 		// return an error if there is no token
@@ -159,7 +152,7 @@ function checkTokenVerified (req, res, next){
 		// verifies secret and checks exp
 		jwt.verify(token, secret, function(err, decoded) {
 			if (err) {
-				return res.json({ success: false, message: 'Failed to authenticate token.' });
+				return res.json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
 			} else {
 				// if everything is good, save decoded token payload to request for use in other routes
 				console.log('Token verified')
@@ -399,7 +392,9 @@ function loginDoctor (req, res) {
 
 	const email = req.body.email;
 	const password = req.body.password;
-	const secret = req.app.get('jwt_secret');
+	// const secret = req.app.get('jwt_secret');
+	const secret = config.jwt_secret;
+
 	if (!email){
 		console.log('Email not given.')
 		return res.status(400).json({success: false, message: 'Email not given.'});
@@ -444,19 +439,19 @@ function loginDoctor (req, res) {
             console.log('req origin is undefined. Probably from postman.')
             if (req.secure) {
                 console.log('req is secure')
-                res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: true})
+                res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: true})
             } else {
                 console.log('req is NOT secure')
-                res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: false})
+                res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: false})
             }
 					} else if (req.header('origin').includes('localhost')) {
 						console.log('req origin includes localhost OR it is from postman.')
 						if (req.secure) {
 							console.log('req is secure')
-							res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: true})
+							res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: true})
 						} else {
 							console.log('req is NOT secure')
-							res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: false})
+							res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: false})
 						}
 					} else {
 						console.log('req origin does NOT include localhost')
