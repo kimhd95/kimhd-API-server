@@ -91,6 +91,9 @@ function getPatientInfo (req, res) {
 				kakao_id: kakao_id
 			}
 		}).then(patient => {
+			if (!patient){
+				return res.status(403).json({success: false, message: 'patient not found with kakao_id: ' + kakao_id})
+			}
 			models.PatientLog.findAll({
 				where: {
 					kakao_id: kakao_id

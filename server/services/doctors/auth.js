@@ -575,6 +575,7 @@ function deleteDoctor (req, res) {
 					if (result === 0){
 						return res.status(403).json({success: false, message: 'Doctor email and password match. But somehow the delete failed.'})
 					} else {
+						res.clearCookie('token');
 						return res.status(200).json({success: true, message: 'Doctor account successfully deleted.'})
 					}
 
