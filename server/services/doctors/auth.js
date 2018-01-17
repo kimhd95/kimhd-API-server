@@ -126,7 +126,9 @@ function verifyToken (req, res){
 
 						res.header('test', 'testCookieValue: cookieValue');
 						res.header('Access-Control-Allow-Credentials', 'true');
-						return res.status(200).json({success: true, message: 'Ok', token: token});
+						req.decoded = decoded;
+						return res.status(200).json({success: true, message: 'Token verified.', email: decoded.email, doctor_code: decoded.doctor_code, hospital: decoded.hospital, doctor_name: decoded.name, redirect: '/login'})
+						// return res.status(200).json({success: true, message: 'Ok', token: token});
 					})
 				}
 			// return res.status(403).json({success: true, message: 'Given token is verified, but Cookie token renew failed.'})
