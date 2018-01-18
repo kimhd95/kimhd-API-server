@@ -2,7 +2,7 @@
   "name": "jelly-api-server-2018",
   "version": "0.1.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=dev node index.js",

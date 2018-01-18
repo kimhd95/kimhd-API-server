@@ -58,6 +58,8 @@ const Patient = sequelize.define('patient', {
 	phone: Sequelize.STRING,
 	sex: Sequelize.STRING,
 	birthday: { type: Sequelize.INTEGER },
+	scenario: Sequelize.STRING,
+	state: Sequelize.STRING,
 
 	// medicine_side: Sequelize.STRING,
 

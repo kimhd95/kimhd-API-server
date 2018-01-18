@@ -8,16 +8,29 @@ function registerPatient (req, res) {
 	} else {
 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, phone, name).'})
 	}
+	if (!kakao_id){
+		return res.status(403).json({success: false, message: 'Kakao_id not given in Body. Check parameters.'})
+	}
 
-	models.Patient.create({
-		kakao_id: kakao_id,
-		scenario: '3',
-		state: 'init'
+	models.Patient.findOne({
+		where: {
+			kakao_id: kakao_id
+		}
 	}).then(patient => {
-		return res.status(201).json({success: true, patient})
-	}).catch(function (err){
-		return res.status(500).json({success: false, error: err.message})
-	});
+		if (patient){
+			return res.status(403).json({success: false, message: 'patient with same kakao_id already exists'})
+		} else {
+			models.Patient.create({
+				kakao_id: kakao_id,
+				scenario: '3',
+				state: 'init'
+			}).then(patient => {
+				return res.status(201).json({success: true, message: 'patient created.', patient: patient})
+			}).catch(function (err){
+				return res.status(500).json({success: false, message: 'Error while creating Patient in DB.', error: err.message, err: err})
+			});
+		}
+	})
 }
 
 function updatePatient (req, res) {
@@ -99,10 +112,12 @@ function getPatientInfo (req, res) {
 					kakao_id: kakao_id
 				}
 			}).then(patientLog => {
+				if (patientLog){
+					return res.status(200).json({success: true, message: 'patient and patient_log both found.', patient_info: patient, patient_log: patientLog})
+				}
 				console.log(patientLog);
-				return res.status(200).json({success: true, patient_info: patient, patient_log: patientLog})
 			}).catch(function (err){
-				return res.status(403).json({success: false, message: 'patient info found. But error occured while retrieving logs.', error: err.message})
+				return res.status(403).json({success: false, patient_info: patient, message: 'patient info found. But error occured while retrieving logs.', error: err.message})
 			})
 		}).catch(function (err){
 			return res.status(403).json({success: false, message: err.message})
