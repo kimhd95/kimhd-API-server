@@ -26,8 +26,6 @@ router.get('/get_medicine_check/:kakao_id', chatbotService.getMedicineCheck)
 router.post('/create_medicine_check', chatbotService.createMedicineCheck)
 
 
-
-
 router.get('/get_patients', patientService.getPatients);
 router.get('/:id', patientService.getPatientWithId);
 

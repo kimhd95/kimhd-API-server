@@ -1,7 +1,7 @@
 'use strict';
 
 let devConfig = {
-	env: 'dev',
+	env: 'local',
 	hostname: 'localhost',
 	port: 5000,
 	token_domain: 'localhost',

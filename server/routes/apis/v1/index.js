@@ -7,12 +7,7 @@ const
 
 let router = express.Router();
 
-router.use('/*', (req, res, next) => {
-	console.log('v1 router called: ' + req.url);
-	next();
-});
+router.use('/doctors', doctorsController)
+router.use('/patients', patientsController)
 
-router.use('/doctors', doctorsController);
-router.use('/patients', patientsController);
-
-module.exports = router;
+module.exports = router

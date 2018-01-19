@@ -50,8 +50,22 @@ module.exports = function() {
 			next();
 		});
 
-		// use morgan to log requests to the console
-		server.use(morgan('dev'));
+		// -------------- Forward HTTP to HTTPS ---------- //
+		console.log('process.env.NODE_ENV: ' + process.env.NODE_ENV)
+		if (config.env === 'dev' || config.env === 'local') {
+			server.use(morgan('dev'));      // MW: log requests to console
+		} else {
+			server.enable('trust proxy');
+			server.use(function (req, res, next) {
+				if (req.secure) {
+					next();
+				} else {
+					res.redirect('https://' + req.headers.host + req.url);
+				}
+			});
+			server.set('trust proxy', 1)
+		}
+
 
 		// Returns middleware that parses json
 		server.use(bodyParser.json());

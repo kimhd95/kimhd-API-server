@@ -94,7 +94,7 @@ function updatePatient (req, res) {
 		param_name = 'fullname'
 		param_value = fullname
 	} else if (email) {
-		param_name = 'email'
+		param_name = 'patient_email'
 		param_value = email
 	} else if (doctor_code) {
 		param_name = 'doctor_code'
@@ -110,9 +110,14 @@ function updatePatient (req, res) {
 		param_value = birthday
 	}
 
+
+	console.log('param_name: ' + param_name)
+	console.log('param_value found: ' + param_value)
 	if (param_value){
+		console.log('param_value found: ' + param_value)
 		models.sequelize.query('UPDATE patients SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
 			if (result){
+				console.log('result: ' + result.toString())
 				return res.status(200).json({success: true, message: 'patient data updated. Result info: ' + result[0].info})
 			} else {
 				return res.status(403).json({success: false, message: 'patient update query failed.'})
@@ -120,6 +125,9 @@ function updatePatient (req, res) {
 		}).catch(function (err){
 			return res.status(403).json({success: false, message: 'Unknown error while querying patients table for update from ChatBot server. err: ' + err.message})
 		})
+	} else {
+		return res.status(403).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
+			'And one more parameter is required among name, fullname, email, doctor_code, phone, sex, birthday'})
 	}
 }
 
@@ -281,7 +289,7 @@ function getMedicineTime (req, res) {
 			kakao_id: kakao_id
 		}
 	}).then(Medicine_time => {
-		res.status(201).json({success: true, result: Medicine_time})
+		res.status(201).json({success: true, message: 'Medicine success', result: Medicine_time})
 	}).catch(function (err){
 		res.status(400).json({success: false, message: 'Get failed. Error: ' + err.message})
 	})
