@@ -1,12 +1,43 @@
 const models = require('../../models');
 const Op = models.sequelize.Op;
 
+function getPatientChartURL (req, res){
+	let kakao_id
+	if (req.body){
+		kakao_id = req.params.kakao_id
+	} else {
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).'})
+	}
+	if (!kakao_id){
+		return res.status(403).json({success: false, message: 'Kakao_id not given in parameter. Check parameters.'})
+	}
+
+	models.Patient.findOne({
+		where: {
+			kakao_id: kakao_id
+		}
+	}).then(patient => {
+		if (patient){
+			return res.status(403).json({success: false, message: 'patient with same kakao_id already exists'})
+		} else {
+
+			return res.status(200).json({success: true, message: 'patient found returning url.', url: 'https://jellyfi.jellylab.io/' + patient.kakao_id})
+
+			// TODO: Create encrypted_kakao_id to protect raw kakao_id from being public.
+			// return res.status(200).json({success: true, message: 'patient found returning url.', url: 'https://jellyfi.jellylab.io/' + patient.encrypted_kakao_id})
+
+		}
+	}).catch(function (err){
+		return res.status(403).json({success: false, message: 'Error while searching for Patient with given kakao_id. err: ' + err.message})
+	})
+}
+
 function registerPatient (req, res) {
 	let kakao_id
 	if (req.body){
 		kakao_id = req.body.kakao_id
 	} else {
-		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, phone, name).'})
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).'})
 	}
 	if (!kakao_id){
 		return res.status(403).json({success: false, message: 'Kakao_id not given in Body. Check parameters.'})
@@ -346,6 +377,8 @@ function createMedicineCheck (req, res) {
 
 
 module.exports = {
+	getPatientChartURL: getPatientChartURL,
+
 	registerPatient: registerPatient,
 	updatePatient: updatePatient,
 	getPatientInfo: getPatientInfo,

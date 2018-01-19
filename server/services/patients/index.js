@@ -225,7 +225,6 @@ function medicineTime (req, res) {
 	const slot = req.body.slot.toString().trim() || '';
 	const time = req.body.medicine_time.toString().trim() || '';
 
-
 	models.Medicine_time.findOne({
 		where: {
 			kakao_id: kakao_id,

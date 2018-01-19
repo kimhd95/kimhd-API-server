@@ -9,6 +9,12 @@ const
 let router = express.Router();
 
 console.log('apis/patients/index.js called')
+
+// Special request for Dashboard Chart URL for patients from Kakao Chatbot Server.
+router.get('/get_patient_chart_url/:kakao_id', chatbotService.getPatientChartURL)
+
+
+
 router.post('/register_patient', chatbotService.registerPatient)
 router.post('/update_patient', chatbotService.updatePatient)
 router.post('/create_patient_log', chatbotService.createPatientLog)

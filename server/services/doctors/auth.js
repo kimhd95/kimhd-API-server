@@ -491,8 +491,27 @@ function loginDoctor (req, res) {
 }
 
 function logoutDoctor (req, res) {
-	res.clearCookie('token');
-	return res.status(200).end();
+	const cookie = req.cookies || req.headers.cookie || '';
+	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
+	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
+	const secret = config.jwt_secret;
+
+	if (token) {
+		jwt.verify(token, secret, function(err, decoded) {
+			if (err) {
+				return res.json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
+			} else {
+				res.clearCookie('token');
+				return res.status(200).end();
+			}
+		});
+	} else {
+		res.clearCookie('token');
+		return res.status(403).send({
+			success: false,
+			message: 'No token given.'
+		});
+	}
 }
 
 function updateHospital (req, res) {
