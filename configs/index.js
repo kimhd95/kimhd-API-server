@@ -4,6 +4,6 @@ const
 	_ = require('lodash'),
 	env = process.env.NODE_ENV || 'local',
 	envConfig = require('./' + env),
-	databaseConfig = require('./database');
+	dbKeyConfig = require('../db_and_keys');
 
-module.exports = _.merge(envConfig, databaseConfig);
+module.exports = _.merge(envConfig, dbKeyConfig);
