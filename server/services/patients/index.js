@@ -105,17 +105,18 @@ function medicineCheck (req, res) {
 		med_check = req.body.med_taken.toString().trim() || '';
 		time = req.body.time.toString().trim() || '';
 	} else {
-		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text, time, type).', kakao_id: req.body.kakao_id, med_taken: req.body.med_taken, time: req.body.time})
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text, time).', kakao_id: req.body.kakao_id, med_taken: req.body.med_taken, time: req.body.time})
 	}
 
 	models.Medicine_check.create({
 		kakao_id: kakao_id,
 		med_check: med_check,
 		time: time
-	}).then(medicine_check => res.status(201).json(medicine_check))
-		.catch(function (err){
-			res.status(400).json({success: false, message: 'Updated failed. Error: ' + err.message})
-		})
+	}).then(medicine_check => {
+		res.status(201).json(medicine_check)
+	}).catch(function (err){
+		res.status(400).json({success: false, message: 'Update failed. Error: ' + err.message})
+	})
 }
 
 function medicineCheckMissReason(req, res){

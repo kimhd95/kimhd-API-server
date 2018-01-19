@@ -75,6 +75,7 @@ const PatientLog = sequelize.define('patient_log', {
 	content: Sequelize.STRING,
 	date: Sequelize.STRING,
 	type: Sequelize.STRING,
+	answer_num: Sequelize.INTEGER,
 
 	created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
 	updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }

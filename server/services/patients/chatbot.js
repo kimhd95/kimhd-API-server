@@ -110,7 +110,11 @@ function getPatientInfo (req, res) {
 			models.PatientLog.findAll({
 				where: {
 					kakao_id: kakao_id
-				}
+				},
+				order: [
+					// Will escape username and validate DESC against a list of valid direction parameters
+					['id', 'DESC']
+				]
 			}).then(patientLog => {
 				if (patientLog){
 					return res.status(200).json({success: true, message: 'patient and patient_log both found.', patient_info: patient, patient_log: patientLog})
@@ -134,6 +138,7 @@ function createPatientLog (req, res){
 	const content = req.body.content
 	const date = req.body.date
 	const type = req.body.type
+	const answer_num = req.body.answer_num
 
 	models.PatientLog.create({
 		kakao_id: kakao_id,
@@ -141,7 +146,8 @@ function createPatientLog (req, res){
 		state: state,
 		content: content,
 		date: date,
-		type: type
+		type: type,
+		answer_num: answer_num
 	}).then(patientLog => {
 
 		models.Patient.update(
@@ -162,8 +168,180 @@ function createPatientLog (req, res){
 	}).catch(function (err){
 		return res.status(500).json({success: false, error: err.message})
 	})
+}
 
 
+// TODO: Develop later. Not used now
+function medicineTime (req, res) {
+
+	const kakao_id = req.body.kakao_id.toString().trim() || '';
+	if (!kakao_id) return res.status(400).json({error: 'Incorrect id'});
+
+	const slot = req.body.slot.toString().trim() || '';
+	const time = req.body.medicine_time.toString().trim() || '';
+
+
+	models.Medicine_time.findOne({
+		where: {
+			kakao_id: kakao_id,
+			slot: slot
+		}
+	}).then(medicine_time => {
+		if (!medicine_time) {
+			models.Medicine_time.create({
+				kakao_id: kakao_id,
+				slot: slot,
+				time: time
+			}).then(medicine_time => res.status(201).json(medicine_time));
+		} else {
+
+			if (!slot.length) return res.status(400).json({error: 'Incorrect'});
+			if (!time.length) return res.status(400).json({error: 'Incorrect'});
+
+			medicine_time.time = time;
+			medicine_time.slot = slot;
+
+			medicine_time.save().then(_ => res.status(201).json(medicine_time));
+
+			const rule = new schedule.RecurrenceRule();
+			rule.hour = parseInt(time);
+			rule.minute = 0;
+
+			scheduler = req.app.get('scheduler');
+
+			if (scheduler[kakao_id][slot]) scheduler[kakao_id][slot].cancel();
+
+			models.User.findOne({
+				where: {
+					kakao_id: kakao_id
+				}
+			}).then(user => {
+				scheduler[kakao_id][slot] = schedule.scheduleJob(rule, function(){
+
+					axios.post('https://openapi.bablabs.com/v2/kakao-talks', {
+						phone_number:user.phone,
+						message:'sdf'
+					}, {
+						headers: { Authorization: '456789' }
+					}).then(response => {
+						console.log(response.data.url);
+						console.log(response.data.explanation);
+					}).catch(error => {
+						console.log(error);
+					});
+				});
+			});
+		}
+	});
+}
+
+
+function getMedicineTime (req, res) {
+
+	let kakao_id
+	if ((req.params.kakao_id !== undefined)){
+		kakao_id = req.params.kakao_id.toString().trim() || '';
+	} else {
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).', kakao_id: req.params.kakao_id})
+	}
+
+	models.Medicine_time.findAll({
+		where: {
+			kakao_id: kakao_id
+		}
+	}).then(Medicine_time => {
+		res.status(201).json({success: true, result: Medicine_time})
+	}).catch(function (err){
+		res.status(400).json({success: false, message: 'Get failed. Error: ' + err.message})
+	})
+}
+
+function createMedicineTime (req, res) {
+
+	let kakao_id, slot, time
+	if ((req.body.kakao_id !== undefined) && (req.body.slot !== undefined) && (req.body.time !== undefined)){
+		kakao_id = req.body.kakao_id.toString().trim() || '';
+		slot = req.body.slot.toString().trim() || '';
+		time = req.body.time.toString().trim() || '';
+	} else {
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, slot, time).', kakao_id: req.body.kakao_id, slot: req.body.slot, time: req.body.time})
+	}
+
+	models.Medicine_time.create({
+		kakao_id: kakao_id,
+		slot: slot,
+		time: time
+	}).then(Medicine_time => {
+		res.status(201).json({success: true, result: Medicine_time})
+	}).catch(function (err){
+		res.status(400).json({success: false, message: 'Create failed. Error: ' + err.message})
+	})
+}
+
+// function updateMedicineTimeMute (req, res) {
+//
+// 	let kakao_id, slot, time
+// 	if ((req.body.kakao_id !== undefined) && (req.body.slot !== undefined) && (req.body.time !== undefined)){
+// 		kakao_id = req.body.kakao_id.toString().trim() || '';
+// 		slot = req.body.slot.toString().trim() || '';
+// 		time = req.body.time.toString().trim() || '';
+// 	} else {
+// 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, slot, time).', kakao_id: req.body.kakao_id, slot: req.body.slot, time: req.body.time})
+// 	}
+//
+// 	if (param_value){
+// 		models.sequelize.query('UPDATE patients SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
+// 			if (result){
+// 				return res.status(200).json({success: true, message: 'patient data updated. Result info: ' + result[0].info})
+// 			} else {
+// 				return res.status(403).json({success: false, message: 'patient update query failed.'})
+// 			}
+// 		}).catch(function (err){
+// 			return res.status(403).json({success: false, message: 'Unknown error while querying patients table for update from ChatBot server. err: ' + err.message})
+// 		})
+// 	}
+// }
+
+function getMedicineCheck (req, res) {
+
+	let kakao_id
+	if ((req.params.kakao_id !== undefined)){
+		kakao_id = req.params.kakao_id.toString().trim() || '';
+	} else {
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).', kakao_id: req.params.kakao_id})
+	}
+
+	models.Medicine_check.findAll({
+		where: {
+			kakao_id: kakao_id
+		}
+	}).then(Medicine_check => {
+		res.status(201).json({success: true, result: Medicine_check})
+	}).catch(function (err){
+		res.status(400).json({success: false, message: 'Get failed. Error: ' + err.message})
+	})
+}
+
+function createMedicineCheck (req, res) {
+
+	let kakao_id, med_check, time
+	if ((req.body.kakao_id !== undefined) && (req.body.med_taken !== undefined) && (req.body.time !== undefined)){
+		kakao_id = req.body.kakao_id.toString().trim() || '';
+		med_check = req.body.med_taken.toString().trim() || '';
+		time = req.body.time.toString().trim() || '';
+	} else {
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text, time).', kakao_id: req.body.kakao_id, med_taken: req.body.med_taken, time: req.body.time})
+	}
+
+	models.Medicine_check.create({
+		kakao_id: kakao_id,
+		med_check: med_check,
+		time: time
+	}).then(medicine_check => {
+		res.status(201).json({success: true, result: medicine_check})
+	}).catch(function (err){
+		res.status(400).json({success: false, message: 'Create failed. Error: ' + err.message})
+	})
 }
 
 
@@ -172,5 +350,13 @@ module.exports = {
 	updatePatient: updatePatient,
 	getPatientInfo: getPatientInfo,
 	createPatientLog: createPatientLog,
+
+	createMedicineTime: createMedicineTime,
+	getMedicineTime: getMedicineTime,
+	// updateMedicineTime: updateMedicineTime,
+
+	createMedicineCheck: createMedicineCheck,
+	getMedicineCheck: getMedicineCheck,
+	// createMoodCheck: createMoodCheck,
 
 }

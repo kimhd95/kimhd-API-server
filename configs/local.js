@@ -3,8 +3,8 @@
 let devConfig = {
 	env: 'dev',
 	hostname: 'localhost',
-	port: 8081,
-	token_domain: '.jellylab.io',
+	port: 5000,
+	token_domain: 'localhost',
 };
 
 module.exports = devConfig;

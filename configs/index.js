@@ -2,7 +2,7 @@
 
 const
 	_ = require('lodash'),
-	env = process.env.NODE_ENV || 'dev',
+	env = process.env.NODE_ENV || 'local',
 	envConfig = require('./' + env),
 	databaseConfig = require('./database');
 
