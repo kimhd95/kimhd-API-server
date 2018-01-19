@@ -1,3 +1,5 @@
+const productionKeys = require('./production_keys')
+
 const environments = {
 	local: {
 		mysql: {
@@ -34,14 +36,14 @@ const environments = {
 	},
 	production: {
 		mysql: {
-			host: '<FILL IN HOST MANUALLY.>',
-			username: '<FILL IN USERNAME MANUALLY>',
-			password: '<FILL IN PASSWORD MANUALLY.>',
-			database: '<FILL IN DB NAME MANUALLY>',
+			host: productionKeys.prodDBHost,
+			username: productionKeys.prodDBUserName,
+			password: productionKeys.prodDBKey,
+			database: productionKeys.prodDBDatabase,
 			logging: console.log
 		},
-		apikey: '<FILL IN API KEY MANUALLY>',
-		jwt_secret: "<FILL IN JWT SECRET KEY MANUALLY>"
+		apikey: productionKeys.prodAPIKey,
+		jwt_secret: productionKeys.prodJWTKey
 	}
 }
 

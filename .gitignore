@@ -1,4 +1,4 @@
 node_modules
 .idea/
 jelly-api-server-2018.zip
-configs/db_and_keys
+configs/production_keys.js
