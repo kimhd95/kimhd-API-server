@@ -129,6 +129,7 @@ function updatePatient (req, res) {
 
 
 function getPatientInfo (req, res) {
+	console.log('getPatientInfo called.')
 	const kakao_id = req.params.kakao_id
 
 	if (kakao_id) {
@@ -149,10 +150,14 @@ function getPatientInfo (req, res) {
 					['id', 'DESC']
 				]
 			}).then(patientLog => {
+				console.log('patientLog findAll finished.')
 				if (patientLog){
+					console.log(patientLog);
 					return res.status(200).json({success: true, message: 'patient and patient_log both found.', patient_info: patient, patient_log: patientLog})
+				} else {
+					// Return when no data found
+					return res.status(403).json({success: false, message: 'No patientLog found with given kakao_id.'})
 				}
-				console.log(patientLog);
 			}).catch(function (err){
 				return res.status(403).json({success: false, patient_info: patient, message: 'patient info found. But error occured while retrieving logs.', error: err.message})
 			})
@@ -296,44 +301,70 @@ function createMedicineTime (req, res) {
 		kakao_id = req.body.kakao_id.toString().trim() || '';
 		slot = req.body.slot.toString().trim() || '';
 		time = req.body.time.toString().trim() || '';
+
+		if (slot < 0 || slot >= 4 ){
+			return res.status(403).json({success: false, message: 'Allowed Slot values are 0 (Morning), 1 (Lunch), 2 (Dinner), 3 (Before Sleep)'})
+		}
+
 	} else {
 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, slot, time).', kakao_id: req.body.kakao_id, slot: req.body.slot, time: req.body.time})
 	}
 
-	models.Medicine_time.create({
-		kakao_id: kakao_id,
-		slot: slot,
-		time: time
-	}).then(Medicine_time => {
-		res.status(201).json({success: true, result: Medicine_time})
+	models.Medicine_time.findOne({
+		where: {
+			kakao_id: kakao_id,
+			slot: slot
+		}
+	}).then(med_time => {
+		if (med_time){
+			console.log('slot already exists for given kakao_id, slot. Updating value')
+			med_time.slot = slot
+			med_time.save().then(_ => {
+				return res.status(201).json(med_time)
+			}).catch(function (err){
+				return res.status(500).json({success: false, message: 'slot already exists for given kakao_id and slot, but failed to update.', err: err.message})
+			})
+		} else {
+			models.Medicine_time.create({
+				kakao_id: kakao_id,
+				slot: slot,
+				time: time
+			}).then(Medicine_time => {
+				return res.status(201).json({success: true, result: Medicine_time})
+			}).catch(function (err){
+				return res.status(400).json({success: false, message: 'Slot does not exist for given kakao_id. However, create failed.', err: err.message})
+			})
+		}
 	}).catch(function (err){
-		res.status(400).json({success: false, message: 'Create failed. Error: ' + err.message})
+		return res.status(500).json({success: false, message: 'Create medicine time failed for some unknown reason.', err: err.message})
 	})
 }
 
-// function updateMedicineTimeMute (req, res) {
-//
-// 	let kakao_id, slot, time
-// 	if ((req.body.kakao_id !== undefined) && (req.body.slot !== undefined) && (req.body.time !== undefined)){
-// 		kakao_id = req.body.kakao_id.toString().trim() || '';
-// 		slot = req.body.slot.toString().trim() || '';
-// 		time = req.body.time.toString().trim() || '';
-// 	} else {
-// 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, slot, time).', kakao_id: req.body.kakao_id, slot: req.body.slot, time: req.body.time})
-// 	}
-//
-// 	if (param_value){
-// 		models.sequelize.query('UPDATE patients SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
-// 			if (result){
-// 				return res.status(200).json({success: true, message: 'patient data updated. Result info: ' + result[0].info})
-// 			} else {
-// 				return res.status(403).json({success: false, message: 'patient update query failed.'})
-// 			}
-// 		}).catch(function (err){
-// 			return res.status(403).json({success: false, message: 'Unknown error while querying patients table for update from ChatBot server. err: ' + err.message})
-// 		})
-// 	}
-// }
+
+// To be used for later.
+function updateMedicineTimeMute (req, res) {
+
+	let kakao_id, slot, time
+	if ((req.body.kakao_id !== undefined) && (req.body.slot !== undefined) && (req.body.time !== undefined)){
+		kakao_id = req.body.kakao_id.toString().trim() || '';
+		slot = req.body.slot.toString().trim() || '';
+		time = req.body.time.toString().trim() || '';
+	} else {
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, slot, time).', kakao_id: req.body.kakao_id, slot: req.body.slot, time: req.body.time})
+	}
+
+	if (param_value){
+		models.sequelize.query('UPDATE patients SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
+			if (result){
+				return res.status(200).json({success: true, message: 'patient data updated. Result info: ' + result[0].info})
+			} else {
+				return res.status(403).json({success: false, message: 'patient update query failed.'})
+			}
+		}).catch(function (err){
+			return res.status(403).json({success: false, message: 'Unknown error while querying patients table for update from ChatBot server. err: ' + err.message})
+		})
+	}
+}
 
 function getMedicineCheck (req, res) {
 
