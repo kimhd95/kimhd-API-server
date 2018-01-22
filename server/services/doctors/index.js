@@ -75,9 +75,8 @@ function getPatientInfo (req, res){
 			doctor_code: {[Op.ne]: null}
 		}
 	}).then(patient => {
-
-		if (patient){
-			console.log(patient.doctor_code)
+		if (!patient){
+			return res.status(403).json({success: false, message: 'No patient found with given kakao_id that has a value for doctor_code.'})
 		}
 
 		patient.medicine_side=''
@@ -441,10 +440,8 @@ function getPatientInfoAll (req, res){
 				}
 			}
 
-			// let medTakenRate = (medTakenCount/totalCount *100).toFixed(0);
 			let weekTakenRate,
 				monthTakenRate
-
 
 			if (totalWeekCount > 0 ){
 				weekTakenRate = (takenWeekCount / totalWeekCount * 100).toFixed((0));
@@ -458,9 +455,7 @@ function getPatientInfoAll (req, res){
 				monthTakenRate = 0;
 			}
 
-
-			// let nextHospitalVisitDate = now + 1000*60*60*24*(Math.floor(Math.random()*3) + 1)
-			let nextHospitalVisitDate = recordDate + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 데이트 + 랜덤 일 수.
+			let nextHospitalVisitDate = recordDate + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 날짜 + 랜덤 일 수.
 
 			let patientinfo = {
 				id: patient.id,
@@ -518,7 +513,6 @@ function round(num){
 }
 
 
-
 function getPatientMedMissReason(req, res){
 	models.Medicine_check.findAll({
 		where: {
@@ -536,10 +530,7 @@ function getPatientMedMissReason(req, res){
 }
 
 function addPatient (req, res) {
-
 	let decoded = req.decoded
-	console.log(decoded)
-
 	if (decoded.email) {
 		models.Patient.findOne({
 			where: {
@@ -547,8 +538,6 @@ function addPatient (req, res) {
 				registered: 0
 			}
 		}).then(patient => {
-			console.log(patient);
-
 			patient.registered = 1
 			patient.save().then(_ => res.status(200).json(patient));
 		});
@@ -557,7 +546,7 @@ function addPatient (req, res) {
 
 function registerPatient(req, res){
 	let kakao_id = req.body.kakao_id
-		models.Patient.update({
+	models.Patient.update({
 		registered: 1 // What to update
 	}, {
 		where: {kakao_id: kakao_id} // Condition
@@ -592,30 +581,50 @@ function declinePatient(req, res){
 	})
 }
 
+function getMedicineCheck (req, res){
 
+	const kakao_id = req.params.kakao_id
+	const startTime = req.params.start
+	const endTime = req.params.end
 
-function getDoctors(req, res) {
-	console.log('getDoctors called.')
-	models.Doctor.findAll().then(result => {
-		res.json(result);
+	models.Medicine_check.findAll({
+		where: {
+			kakao_id: req.params.kakao_id,
+			time: {[Op.lt]: endTime,
+				[Op.gt]: startTime},
+		}
+	}).then(med_checks => {
+		if (!med_checks) {
+			return res.status(404).json({error: 'No missed medicine checks associated with kakao_id: ' + req.params.kakao_id});
+		}
+		return res.status(200).json({success: true, medicine_checks: med_checks});
+	}).catch(function (err){
+		return res.status(500).json(err)
 	})
-	.catch(function (err){
-		res.status(500).json({
-			success: false,
-			message: 'Server Error getDoctors()'
-		});	})
 }
 
-function getUserWithId(req, res) {
-	let id = req.params.id || 0,
-		result = {};
-	res.json(result);
+function getMoodCheck (req, res){
+	const startTime = req.params.start
+	const endTime = req.params.end
+
+	models.Mood_check.findAll({
+		where: {
+			kakao_id: req.params.kakao_id,
+			time: {[Op.lt]: endTime,
+				[Op.gt]: startTime},
+		}
+	}).then(mood_checks => {
+		if (!mood_checks) {
+			return res.status(404).json({error: 'No missed mood checks associated with kakao_id: ' + req.params.kakao_id});
+		}
+		return res.status(200).json({success: true, mood_checks: mood_checks})
+	}).catch(function (err){
+		return res.status(500).json(err)
+	})
 }
 
 module.exports = {
 	addPatient: addPatient,
-	getDoctors: getDoctors,
-	getUserWithId: getUserWithId,
 	getPatients: getPatients,
 	getPatientsToAdd: getPatientsToAdd,
 	getPatientInfo: getPatientInfo,
@@ -625,4 +634,6 @@ module.exports = {
 	getPatientsRegistered: getPatientsRegistered,
 	registerPatient: registerPatient,
 	declinePatient: declinePatient,
+	getMedicineCheck: getMedicineCheck,
+	getMoodCheck: getMoodCheck,
 };

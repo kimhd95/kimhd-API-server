@@ -25,6 +25,10 @@ const sequelize = new Sequelize(
 		dialect: 'mysql',
 
 		define: {
+			// For Korean support
+			charset: 'utf8',
+			collate: 'utf8_general_ci',
+
 			// don't add the timestamp attributes (updatedAt, createdAt)
 			timestamps: false,
 
@@ -57,7 +61,7 @@ const Patient = sequelize.define('patient', {
 	registered: Sequelize.STRING,
 	phone: Sequelize.STRING,
 	sex: Sequelize.STRING,
-	birthday: { type: Sequelize.INTEGER },
+	birthday: Sequelize.INTEGER,
 	scenario: Sequelize.STRING,
 	state: Sequelize.STRING,
 
@@ -73,7 +77,7 @@ const PatientLog = sequelize.define('patient_log', {
 	scenario: Sequelize.STRING,
 	state: Sequelize.STRING,
 	content: Sequelize.STRING,
-	date: Sequelize.STRING,
+	date: Sequelize.INTEGER,
 	type: Sequelize.STRING,
 	answer_num: Sequelize.INTEGER,
 
@@ -95,7 +99,7 @@ const Doctor = sequelize.define('doctor', {
 const Medicine_check = sequelize.define('medicine_check', {
 	kakao_id: Sequelize.STRING,
 	med_check: Sequelize.TINYINT,
-	time: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+	time: Sequelize.INTEGER,
 	med_miss_reason: Sequelize.STRING,
 	med_side: Sequelize.STRING,
 	med_side_degree: Sequelize.STRING,
@@ -104,7 +108,7 @@ const Medicine_check = sequelize.define('medicine_check', {
 const Medicine_time = sequelize.define('medicine_time', {
 	kakao_id: Sequelize.STRING,
 	slot: Sequelize.STRING,
-	time: Sequelize.STRING,
+	time: Sequelize.INTEGER,
 	mute: Sequelize.STRING,
 	created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
 	updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
@@ -112,7 +116,7 @@ const Medicine_time = sequelize.define('medicine_time', {
 
 const Mood_check = sequelize.define('mood_check', {
 	kakao_id: Sequelize.STRING,
-	time: Sequelize.STRING,
+	time: Sequelize.INTEGER,
 	type: Sequelize.STRING,
 	mood_check: Sequelize.STRING,
 	mood_text: Sequelize.STRING
@@ -120,7 +124,7 @@ const Mood_check = sequelize.define('mood_check', {
 
 const Kakao_text = sequelize.define('kakao_text', {
 	kakao_id: Sequelize.STRING,
-	time: Sequelize.STRING,
+	time: Sequelize.INTEGER,
 	text: Sequelize.STRING,
 	share_doctor: Sequelize.STRING
 });

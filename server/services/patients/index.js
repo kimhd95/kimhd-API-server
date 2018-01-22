@@ -14,11 +14,6 @@ function now(date) {
 	return date.getFullYear()+'-'+m+'-'+d+' '+h+':'+i+':'+s;
 }
 
-const NOTFOUND = {
-	message: 'Not Found',
-	documentation_url: 'http://localhost:8000/request',
-}
-
 function getPatients(req, res) {
 	models.Patient.findAll({
 	}).then(result => {

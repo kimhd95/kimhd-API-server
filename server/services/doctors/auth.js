@@ -137,16 +137,14 @@ function verifyToken (req, res){
 						return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
 				})
 			}
-
-
 			// return res.status(403).json({success: true, message: 'Given token is verified, but Cookie token renew failed.'})
-		});
+		})
 	} else {
 		// return an error if there is no token
 		return res.status(403).send({
 			success: false,
 			message: 'No token provided.'
-		});
+		})
 	}
 }
 
@@ -155,7 +153,6 @@ function checkTokenVerified (req, res, next){
 	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
 	let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
 	const secret = config.jwt_secret;
-	// const secret = req.app.get('jwt_secret');
 
 	// decode token
 	if (token) {
@@ -267,19 +264,13 @@ function doctorEmailDuplicateCheck (req, res){
 }
 
 function registerDoctor (req, res){
-
-	console.log('registerDoctor Called');
-	console.log('JSON.stringify(req.body): ' + JSON.stringify(req.body))
-
-	const email = req.body.email || '';
-	const password = req.body.password;
+	const email = req.body.email || ''
+	const password = req.body.password
 	const hospital = req.body.hospital
 	const name = req.body.name
-	const secret = req.app.get('jwt_secret');
 
 	// Check if email arrived
 	if (!email.length) {
-		// return res.status(400).json({message: 'email.length: ' + email.length + ', email: ' + email + ', password: NOT ALLOWED' +  + ', hospital: ' + hospital + ', name: ' + name})
 		return res.status(400).json({success: false, error: 'Email not given'});
 	}
 
@@ -307,18 +298,10 @@ function registerDoctor (req, res){
 		return res.status(400).json({success: false, message: 'Password requires at least one character and one digit.'})
 	}
 
-	// let pwre = /[A-Z0-9a-z!?^%*_~@#$]/g;
-	// if(! pwre.test(password) ){
-	// 	return res.status(400).json({success: false, error: 'Password needs to be longer than 6 alphanumeric characters.'});
-	// }
-
-
 	// Generate doctor_code
 	let doctor_code = Math.floor(Math.random() * 999999) + 1
-	console.log('doctor_code: ' + doctor_code)
 
-	const p1 = new Promise(function(resolve, reject) {
-
+	new Promise(function(resolve, reject) {
 		// create function for recursive call to avoid asynchronous problems
 		function generateUniqueDoctorCode(doctor_code){
 			models.Doctor.findOne({
@@ -340,11 +323,8 @@ function registerDoctor (req, res){
 				reject(err)
 			})
 		}
-
 		doctor_code = generateUniqueDoctorCode(doctor_code)
-
 	}).then(function (doctor_code){
-
 		models.Doctor.create({
 			email: email,
 			password: password,
@@ -352,35 +332,8 @@ function registerDoctor (req, res){
 			hospital: hospital,
 			name: name
 		}).then(doctor => {
-			console.log('AFTER CREATE DOCTOR IN DB.')
-			res.status(201).json({success: true, message: 'Ok'});
-			// jwt.sign({
-			// 		id: doctor.id,
-			// 		permissions: userPermission.DEVELOPER,
-			// 		email: doctor.email,
-			// 		doctor_code: doctor.doctor_code
-			// 	},
-			// 	secret,
-			// 	{
-			// 		expiresIn: '7d',
-			// 		issuer: 'jellylab.io',
-			// 		subject: 'doctor'
-			// 	},
-			// 	(err, token) => {
-			// 		console.log(token);
-			// 		console.log(err);
-			// 		if (err) {
-			// 			console.log('ERROR WHILE signing Json Web Token')
-			// 			res.status(403).json({
-			// 				message: error.message
-			// 			});
-			// 		}
-			// 		res.cookie('token', token);
-			// 		res.status(201).json({success: true, message: 'Ok'});
-			// 	});
+			res.status(201).json({success: true, message: 'Ok'})
 		}).catch(function (err) {
-			// handle error;
-			console.log('ERROR WHILE CREATING DOCTOR ROW IN DB')
 			if (err) res.status(500).json({
 				success: false,
 				message: err.message,
@@ -396,17 +349,12 @@ function registerDoctor (req, res){
 	})
 }
 
-function loginDoctor (req, res) {
-	console.log('loginDoctor called')
-	console.log('Cookies: ', req.cookies)
-
-	const email = req.body.email;
-	const password = req.body.password;
-	// const secret = req.app.get('jwt_secret');
-	const secret = config.jwt_secret;
+function loginDoctor (req, res){
+	const email = req.body.email
+	const password = req.body.password
+	const secret = config.jwt_secret
 
 	if (!email){
-		console.log('Email not given.')
 		return res.status(400).json({success: false, message: 'Email not given.'});
 	}
 
@@ -416,7 +364,7 @@ function loginDoctor (req, res) {
 		}
 	}).then(doctor => {
 		if (!doctor) {
-			return res.status(403).json({success: false, message: 'No User'});
+			return res.status(403).json({success: false, message: 'No doctor account found with given email address.'});
 		}
 		if (doctor.password === password) {
 			jwt.sign({
@@ -608,60 +556,6 @@ function deleteDoctor (req, res) {
 	})
 }
 
-// TODO: getDoctor and updateDoctor are legacy code. need to update when needed.
-function getDoctor (req, res) {
-	const cookie = req.headers.cookie || '';
-	const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-	const response = {};
-	const user = {};
-
-	if (!cookies.token) {
-		res.status(200).json({ message: 'Not Login' });
-		return;
-	}
-
-	jwt.verify(cookies.token, req.app.get('jwt-secret'), (err, decoded) => {
-		if(err) res.status(403).json({
-			success: false,
-			message: err.message
-		});
-
-		if (decoded.username) {
-			user.permissions = decoded.permissions;
-			user.username = decoded.username;
-			user.id = decoded.id;
-		}
-	});
-
-	response.user = user;
-	res.json(response);
-}
-
-function updateDoctor (req, res) {
-	const email = parseInt(req.params.email, 10);
-	if (!id) return res.status(400).json({error: 'Incorrect id'});
-
-	models.Doctor.findOne({
-		where: {
-			email: email
-		}
-	}).then(user => {
-		if (!user) {
-			return res.status(404).json({error: 'No user'});
-		}
-
-//    if (user.password == req.body.password)
-		let name = req.body.name || '';
-		name = name.toString().trim();
-		if (!name.length) {
-			return res.status(400).json({error: 'Incorrect name'});
-		}
-
-		user.name = name;
-		user.save().then(_ => res.json(user));
-	});
-}
-
 module.exports = {
 	verifyToken: verifyToken,
 	checkTokenVerified: checkTokenVerified,
@@ -669,8 +563,6 @@ module.exports = {
 	registerDoctor: registerDoctor,
 	loginDoctor: loginDoctor,
 	logoutDoctor: logoutDoctor,
-	getUser: getDoctor,
-	updateDoctor: updateDoctor,
 	doctorEmailDuplicateCheck: doctorEmailDuplicateCheck,
 	updatePassword: updatePassword,
 	deleteDoctor: deleteDoctor,

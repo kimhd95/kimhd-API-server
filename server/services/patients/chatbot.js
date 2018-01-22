@@ -110,11 +110,7 @@ function updatePatient (req, res) {
 		param_value = birthday
 	}
 
-
-	console.log('param_name: ' + param_name)
-	console.log('param_value found: ' + param_value)
 	if (param_value){
-		console.log('param_value found: ' + param_value)
 		models.sequelize.query('UPDATE patients SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
 			if (result){
 				console.log('result: ' + result.toString())
@@ -133,11 +129,9 @@ function updatePatient (req, res) {
 
 
 function getPatientInfo (req, res) {
-	console.log('getPatientLog called.')
 	const kakao_id = req.params.kakao_id
 
 	if (kakao_id) {
-
 		models.Patient.findOne({
 			where: {
 				kakao_id: kakao_id
@@ -210,7 +204,7 @@ function createPatientLog (req, res){
 }
 
 
-// TODO: Develop later. Not used now
+// Legacy code left here for reference.
 function medicineTime (req, res) {
 
 	const kakao_id = req.body.kakao_id.toString().trim() || '';
@@ -364,12 +358,12 @@ function getMedicineCheck (req, res) {
 function createMedicineCheck (req, res) {
 
 	let kakao_id, med_check, time
-	if ((req.body.kakao_id !== undefined) && (req.body.med_taken !== undefined) && (req.body.time !== undefined)){
+	if ((req.body.kakao_id !== undefined) && (req.body.med_check !== undefined) && (req.body.time !== undefined)){
 		kakao_id = req.body.kakao_id.toString().trim() || '';
-		med_check = req.body.med_taken.toString().trim() || '';
+		med_check = req.body.med_check.toString().trim() || '';
 		time = req.body.time.toString().trim() || '';
 	} else {
-		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text, time).', kakao_id: req.body.kakao_id, med_taken: req.body.med_taken, time: req.body.time})
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, med_check, time).', kakao_id: req.body.kakao_id, med_check: req.body.med_check, time: req.body.time})
 	}
 
 	models.Medicine_check.create({
@@ -399,5 +393,4 @@ module.exports = {
 	createMedicineCheck: createMedicineCheck,
 	getMedicineCheck: getMedicineCheck,
 	// createMoodCheck: createMoodCheck,
-
 }
