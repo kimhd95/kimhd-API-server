@@ -44,7 +44,7 @@ module.exports = function() {
 		})
 
 		// -------------- Forward HTTP to HTTPS ---------- //
-		if (config.env === 'local') {
+		if (config.env === 'local' || config.env === 'dev') {
 			server.use(morgan('dev'))
 		} else {
 			server.enable('trust proxy')

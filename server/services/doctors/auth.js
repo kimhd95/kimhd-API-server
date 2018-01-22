@@ -131,7 +131,8 @@ function verifyToken (req, res){
 
 							res.header('test', 'testCookieValue: cookieValue');
 							res.header('Access-Control-Allow-Credentials', 'true');
-							return res.status(200).json({success: true, message: 'Token verified.', email: doctor.email, doctor_code: doctor.doctor_code, hospital: doctor.hospital, doctor_name: doctor.name, redirect: '/login'})
+							return res.status(200).json({success: true, message: 'Token verified.', email: doctor.email,
+								doctor_code: doctor.doctor_code, hospital: doctor.hospital, doctor_name: doctor.name, redirect: '/dashboard'})
 						})
 					}).catch(function (err){
 						return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
@@ -421,7 +422,7 @@ function loginDoctor (req, res){
 					}
 					res.header('test', 'testCookieValue: cookieValue');
 					res.header('Access-Control-Allow-Credentials', 'true');
-					return res.status(200).json({success: true, message: 'Ok', token: token});
+					return res.status(200).json({success: true, message: 'Ok', token: token, redirect:'/dashboard'});
 				});
 		} else {
 			return res.status(403).json({

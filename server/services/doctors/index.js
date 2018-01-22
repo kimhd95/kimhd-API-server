@@ -191,8 +191,9 @@ function getPatientInfoSummary (req, res){
 				let datetime = patient.mood_check[iterationCount]['time']
 
 				// This code converts YYYY-MM-DD hh:mm:ss to YYYY/MM/DD hh:mm:ss that is easily parsed by Date constructor.
-				let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
-				let jsDate = Date.parse(datetimeConverted);
+				// let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
+				// let jsDate = Date.parse(datetimeConverted);
+				let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
 				let now = new Date().getTime();
 				let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
 
@@ -230,18 +231,9 @@ function getPatientInfoSummary (req, res){
 				let medCheck = patient.medicine_check[iterationCount]['med_check']
 				let datetime = patient.medicine_check[iterationCount]['time']
 
-				// This code converts YYYY-MM-DD hh:mm:ss to YYYY/MM/DD hh:mm:ss that is easily parsed by Date constructor.
-				let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
-				console.log('datetimeConverted: ' + datetimeConverted)
-
-				let jsDate = Date.parse(datetimeConverted);
-				recordDate = jsDate;
-				console.log('jsDate: ' + jsDate)
+				let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
 				let now = new Date().getTime();
-				console.log('now: ' + now)
-
 				let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
-				console.log('timeDifferenceInDays: ' + timeDifferenceInDays)
 
 				if (timeDifferenceInDays < 7) { // record within 7 days of query
 					totalWeekCount += 1;
@@ -374,8 +366,7 @@ function getPatientInfoAll (req, res){
 				let datetime = patient.mood_check[iterationCount]['time']
 
 				// This code converts YYYY-MM-DD hh:mm:ss to YYYY/MM/DD hh:mm:ss that is easily parsed by Date constructor.
-				let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
-				let jsDate = Date.parse(datetimeConverted);
+				let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
 				let now = new Date().getTime();
 				let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
 
@@ -413,18 +404,9 @@ function getPatientInfoAll (req, res){
 				let medCheck = patient.medicine_check[iterationCount]['med_check']
 				let datetime = patient.medicine_check[iterationCount]['time']
 
-				// This code converts YYYY-MM-DD hh:mm:ss to YYYY/MM/DD hh:mm:ss that is easily parsed by Date constructor.
-				let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
-				console.log('datetimeConverted: ' + datetimeConverted)
-
-				let jsDate = Date.parse(datetimeConverted);
-				recordDate = jsDate;
-				console.log('jsDate: ' + jsDate)
+				let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
 				let now = new Date().getTime();
-				console.log('now: ' + now)
-
 				let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
-				console.log('timeDifferenceInDays: ' + timeDifferenceInDays)
 
 				if (timeDifferenceInDays < 7) { // record within 7 days of query
 					totalWeekCount += 1;

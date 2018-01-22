@@ -123,6 +123,7 @@ const Mood_check = sequelize.define('mood_check', {
 });
 
 const Kakao_text = sequelize.define('kakao_text', {
+	id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
 	kakao_id: Sequelize.STRING,
 	time: Sequelize.INTEGER,
 	text: Sequelize.STRING,
