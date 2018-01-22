@@ -605,6 +605,23 @@ function getMoodCheck (req, res){
 	})
 }
 
+function getPatientMedicineTime (req, res){
+	const kakao_id = req.params.kakao_id
+
+	models.Medicine_time.findAll({
+		where: {
+			kakao_id: req.params.kakao_id,
+		}
+	}).then(med_times => {
+		if (!med_times) {
+			return res.status(404).json({error: 'No medicine times associated with kakao_id: ' + req.params.kakao_id});
+		}
+		return res.status(200).json({success: true, medicine_times: med_times});
+	}).catch(function (err){
+		return res.status(500).json(err)
+	})
+}
+
 module.exports = {
 	addPatient: addPatient,
 	getPatients: getPatients,
@@ -618,4 +635,5 @@ module.exports = {
 	declinePatient: declinePatient,
 	getMedicineCheck: getMedicineCheck,
 	getMoodCheck: getMoodCheck,
+	getPatientMedicineTime: getPatientMedicineTime,
 };
