@@ -509,33 +509,23 @@ function getMedicineTimeToCheck (req, res) {
 			// limit: 8 // 이전 8회까지만.
 		}).then(med_check => {
 
-			return res.status(200).json({success: true, message: 'successfully retrieved data.', med_time: Medicine_time, med_check: med_check})
-			// // 최근 데이터부터 하나씩 체크
-			// let result = [];
-			// // Step -1: 오늘 Medicine_check 를 했는지 체크.
-			// // Step 0: Expected 데이터 확인. (오후 6~12시일 경우 '오늘 저녁' 부터 체크한다.)
-			// let currentHour = Math.floor((time%(60*60*24)) / (60*60)) // (time - time % 60*60)/(60*60)
-			// // Step 1: 가져온 med_check 데이터를 최근것부터 확인.
-			//
-			// // Step 2: 가장 최근
-			// // Step 3
-			// // Step 4
-			// let today = null
-			// let yesterday = null
-			// for (let i=0; i < med_check; i++){
-			// 	if (!today){
-			// 		today = med_check[i].date;
-			// 	}
-			// }
-			//
-			// for (let i=0; i < Medicine_time.length*2; i++){ // .length*2 를 하면 이틀치 체크 횟수
-			//
-			// 	if (Medicine_time. )
-			//
-			// 	if (Medicine_time[i].slot === med_check[i].slot){
-			//
-			// 	}
-			// }
+			let expectedValues = [];
+			for (let i=0; i<Medicine_time.length; i++){
+				// if (med_check.slot) Medicine_time[i].slot
+				// if (med_check)
+				expectedValues.push({date: time - (time % 60*60*24), slot: Medicine_time[i].slot})  // 오늘
+				expectedValues.push({date: time - (time % 60*60*24) - 60*60*24, slot: Medicine_time[i].slot}) // 어제
+			}
+
+			for (let j=0; j<med_check.length; j++){
+				for (let k=0; k < expectedValues.length; k++){
+					if (expectedValues[k].date === med_check[j].date && expectedValues[k].slot === med_check[j].slot){
+						expectedValues.splice(k, 1)
+					}
+				}
+			}
+
+			return res.status(200).json({success: true, message: 'successfully retrieved data.', med_time: Medicine_time, med_check: med_check, toAskValues: expectedValues})
 		}).catch(err => {
 			res.status(400).json({success: false, message: 'Failed. Error: ' + err.message})
 		})
