@@ -40,7 +40,7 @@ router.get('/get_mood_check/:kakao_id/:start/:end', doctorService.getMoodCheck)
 router.post('/register_patient', doctorService.registerPatient)
 router.post('/decline_patient', doctorService.declinePatient)
 
-router.get('/get_patient_medicine_time/:kakao_id', doctorService.getPatientMedicineTime)
+router.get('/get_patient_medicine_time/:kakao_id')
 
 // Not used yet.
 router.get('/add_patient', doctorService.addPatient)

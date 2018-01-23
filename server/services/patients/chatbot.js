@@ -386,25 +386,161 @@ function getMedicineCheck (req, res) {
 	})
 }
 
+// Time은 UnixTime in seconds 로 한다 - Integer. - 기록할 당시의 유닉스시간
+// Date는 (UnixTime in seconds) - (UnixTime in seconds % 60*60*24) 로 한다. 그 해당 날짜만 기록. (시간, 분, 초 를 제외한다.) - medicine_time 에서 약체크에 해당하는 날짜시간.
+// Allowed Slot values are 0 (Morning), 1 (Lunch), 2 (Dinner), 3 (Before Sleep) - Integer
 function createMedicineCheck (req, res) {
 
-	let kakao_id, med_check, time
-	if ((req.body.kakao_id !== undefined) && (req.body.med_check !== undefined) && (req.body.time !== undefined)){
+	let kakao_id, med_check, time, date, slot
+	if ((req.body.kakao_id !== undefined) && (req.body.med_check !== undefined) && (req.body.time !== undefined) && (req.body.date !== undefined) && (req.body.slot !== undefined)){
 		kakao_id = req.body.kakao_id.toString().trim() || '';
 		med_check = req.body.med_check.toString().trim() || '';
 		time = req.body.time.toString().trim() || '';
+		date = req.body.date.toString().trim() || '';
+		slot = req.body.slot.toString().trim() || '';
 	} else {
-		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, med_check, time).', kakao_id: req.body.kakao_id, med_check: req.body.med_check, time: req.body.time})
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, med_check, time, date, slot).',
+			kakao_id: req.body.kakao_id, med_check: req.body.med_check, time: req.body.time, date: req.body.date, slot: req.body.slot})
 	}
 
 	models.Medicine_check.create({
 		kakao_id: kakao_id,
 		med_check: med_check,
-		time: time
+		time: time,
+		date: date,
+		slot: slot
 	}).then(medicine_check => {
 		res.status(201).json({success: true, result: medicine_check})
 	}).catch(function (err){
 		res.status(400).json({success: false, message: 'Create failed. Error: ' + err.message})
+	})
+}
+
+function createMoodCheck (req, res) {
+
+	let kakao_id, mood_check, type, time, text
+	if ((req.body.kakao_id !== undefined) && (req.body.mood_check !== undefined) && (req.body.time !== undefined) && (req.body.type !== undefined) && (req.body.text !== undefined)){
+		kakao_id = req.body.kakao_id.toString().trim() || '';
+		mood_check = req.body.mood_check.toString().trim() || '';
+		type = req.body.type.toString().trim() || '';
+		time = req.body.time.toString().trim() || '';
+		text = req.body.text.toString().trim() || '';
+	} else {
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, med_check, time, text).',
+			kakao_id: req.body.kakao_id, mood_check: req.body.mood_check, type: req.body.type, time: req.body.time})
+	}
+
+	models.Mood_check.create({
+		kakao_id: kakao_id,
+		mood_check: mood_check,
+		type: type,
+		time: time
+	}).then(mood_check => {
+		res.status(201).json({success: true, result: mood_check})
+	}).catch(function (err){
+		res.status(400).json({success: false, message: 'Create failed. Error: ' + err.message})
+	})
+
+}
+
+
+// Integrated into createMoodCheck. Unused now.
+function createMoodCheckText (req, res){
+	let kakao_id, mood_check_id, text;
+	if ((req.body.kakao_id !== undefined) && (req.body.mood_check_id !== undefined) && (req.body.text !== undefined)){
+		kakao_id = req.body.kakao_id.toString().trim() || '';
+		mood_check_id = req.body.mood_check_id.toString().trim() || '';
+		text = req.body.text.toString().trim() || '';
+	} else {
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, mood_check_id, text).', kakao_id: req.body.kakao_id, mood_check_id: req.body.mood_check_id, text: req.body.text})
+	}
+
+	models.Mood_check.update(
+		{mood_text: text},
+		{where: {
+				kakao_id: kakao_id,
+				id: mood_check_id,
+			}
+		}
+	).then(mood_check => res.status(200).json({success: true, message: 'Update done. mood_check: ' + mood_check.toString()})
+	).catch(function (err){
+		res.status(400).json({success: false, message: 'Updated failed. Error: ' + err.message})
+	})
+}
+
+// 환자가 챗봇으로 약체크를 할 때, 이전 이틀동안 최대 3회 약체크 null data 가 있을 경우 그 time slot 을 가져와 챗봇 서버에 알려준다. 그러면 챗봇 서버는 환자에거게 적절한 약체크 질문을 던진다. date 는 unixtime in seconds
+function getMedicineTimeToCheck (req, res) {
+
+	let kakao_id, time
+	if ((req.params.kakao_id !== undefined) && (req.params.time !== undefined)){
+		// kakao_id = req.body.kakao_id.toString().trim() || '';
+		// time = req.body.time.toString().trim() || '';
+		kakao_id = req.params.kakao_id
+		time = req.params.time
+	} else {
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, time).',
+			kakao_id: req.body.kakao_id, date: req.body.time})
+	}
+
+	models.Medicine_time.findAll({
+		where: {
+			kakao_id: kakao_id
+		},
+		order: [
+			['slot', 'DESC']
+		]
+	}).then(Medicine_time => {
+
+
+		// 메디신 타임을 다 가져와서, 메디신 체크에 원래 체크를 해야 하는 날짜와 타임슬롯에 데이터가 실제로 존재하는지 확인.
+		models.Medicine_check.findAll({
+			where: {
+				kakao_id: kakao_id,
+				// med_check: {[Op.ne]: null}, // 데이터가 있는 경우 다 가져온다. med_check 가 null 일 수가 없기에 주석처리 함. (환자가 체크를 하지 않았으면 row 자체가 생성되지 않았을 것이기에.)
+				date: {   // 주의: time 은 콜 했을 당시의 유닉스 시간. date 는 medicine_check 데이터 내에서 해당하는 날짜.
+					[Op.lt]: time,
+					[Op.gte]: time - (time % 60*60*24) // 오늘
+				}
+			},
+			order: [
+				// Will escape username and validate DESC against a list of valid direction parameters
+				['time', 'DESC']
+			]
+			// limit: 8 // 이전 8회까지만.
+		}).then(med_check => {
+
+			return res.status(200).json({success: true, message: 'successfully retrieved data.', med_time: Medicine_time, med_check: med_check})
+			// // 최근 데이터부터 하나씩 체크
+			// let result = [];
+			// // Step -1: 오늘 Medicine_check 를 했는지 체크.
+			// // Step 0: Expected 데이터 확인. (오후 6~12시일 경우 '오늘 저녁' 부터 체크한다.)
+			// let currentHour = Math.floor((time%(60*60*24)) / (60*60)) // (time - time % 60*60)/(60*60)
+			// // Step 1: 가져온 med_check 데이터를 최근것부터 확인.
+			//
+			// // Step 2: 가장 최근
+			// // Step 3
+			// // Step 4
+			// let today = null
+			// let yesterday = null
+			// for (let i=0; i < med_check; i++){
+			// 	if (!today){
+			// 		today = med_check[i].date;
+			// 	}
+			// }
+			//
+			// for (let i=0; i < Medicine_time.length*2; i++){ // .length*2 를 하면 이틀치 체크 횟수
+			//
+			// 	if (Medicine_time. )
+			//
+			// 	if (Medicine_time[i].slot === med_check[i].slot){
+			//
+			// 	}
+			// }
+		}).catch(err => {
+			res.status(400).json({success: false, message: 'Failed. Error: ' + err.message})
+		})
+	}).catch(function (err){
+		res.status(400).json({success: false, message: 'Failed. Error: ' + err.message})
 	})
 }
 
@@ -423,5 +559,7 @@ module.exports = {
 
 	createMedicineCheck: createMedicineCheck,
 	getMedicineCheck: getMedicineCheck,
-	// createMoodCheck: createMoodCheck,
+	createMoodCheck: createMoodCheck,
+	createMoodCheckText: createMoodCheckText,
+	getMedicineTimeToCheck: getMedicineTimeToCheck,
 }

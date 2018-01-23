@@ -26,6 +26,11 @@ router.post('/create_medicine_time', chatbotService.createMedicineTime)
 router.get('/get_medicine_check/:kakao_id', chatbotService.getMedicineCheck)
 router.post('/create_medicine_check', chatbotService.createMedicineCheck)
 
+router.post('/create_mood_check', chatbotService.createMoodCheck)
+router.post('/create_mood_check_text', chatbotService.createMoodCheckText)
+
+router.get('/get_medicine_time_to_check/:kakao_id/:time', chatbotService.getMedicineTimeToCheck)
+
 
 router.get('/get_patients', patientService.getPatients);
 router.get('/:id', patientService.getPatientWithId);

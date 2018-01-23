@@ -24,7 +24,6 @@ const EnumRoleType = {
 	DEVELOPER: 'developer',
 	DOCTOR: 'doctor'
 }
-
 const userPermission = {
 	DEFAULT: {
 		visit: ['dashboard', 'patients', 'add patient'],
@@ -164,6 +163,7 @@ function checkTokenVerified (req, res, next){
 			} else {
 				// if everything is good, save decoded token payload to request for use in other routes
 				console.log('Token verified')
+				// req.decoded 에 저장해두어야 이후 함수에서 refer 가능.
 				req.decoded = decoded;
 				next()
 			}
@@ -420,7 +420,6 @@ function loginDoctor (req, res){
 							res.cookie('token', token, {domain: '.jellylab.io', maxAge: cookieMaxAge, secure: false})
 						}
 					}
-					res.header('test', 'testCookieValue: cookieValue');
 					res.header('Access-Control-Allow-Credentials', 'true');
 					return res.status(200).json({success: true, message: 'Ok', token: token, redirect:'/dashboard'});
 				});
