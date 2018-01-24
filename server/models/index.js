@@ -101,6 +101,8 @@ const Medicine_check = sequelize.define('medicine_check', {
 	kakao_id: Sequelize.STRING,
 	med_check: Sequelize.TINYINT,
 	time: Sequelize.INTEGER,
+	date: Sequelize.INTEGER,
+	slot: Sequelize.INTEGER,
 	med_miss_reason: Sequelize.STRING,
 	med_side: Sequelize.STRING,
 	med_side_degree: Sequelize.STRING,

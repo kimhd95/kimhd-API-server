@@ -97,6 +97,7 @@ function getPatientInfo (req, res){
 				where: {
 					kakao_id: patient.kakao_id
 				}
+				// 필요할 경우 시간 Descending order 로 데이터 회수 가능.
 				// ,
 				// order: [
 				// 	// Will escape username and validate DESC against a list of valid direction parameters
@@ -109,6 +110,7 @@ function getPatientInfo (req, res){
 		});
 
 		Promise.all([p1, p2]).then(function(value) {
+			// 환자의 닥터코드와 해당 API 콜을 하는 클라이언트에 로그인을 한 닥터의 닥터코드가 일치하는지 확인하는 코드.
 			// if(patient.doctor_code !== decoded.doctor_code.toString()) {
 			// 	res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
 			// 	return;

@@ -7,7 +7,7 @@ const
 
 let router = express.Router();
 
-router.use('/doctors', doctorsController)
-router.use('/patients', patientsController)
+router.use('/doctors', doctorsController) // Doctor Dashboard Web App
+router.use('/patients', patientsController) // Chatbot Server
 
 module.exports = router
