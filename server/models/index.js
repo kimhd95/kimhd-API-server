@@ -64,6 +64,7 @@ const Patient = sequelize.define('patient', {
 	birthday: Sequelize.INTEGER,
 	scenario: Sequelize.STRING,
 	state: Sequelize.STRING,
+	next_visit: Sequelize.STRING,
 
 	// medicine_side: Sequelize.STRING,
 

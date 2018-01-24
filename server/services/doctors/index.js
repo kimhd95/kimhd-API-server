@@ -563,6 +563,25 @@ function declinePatient(req, res){
 	})
 }
 
+function changePatientVisit(req, res){
+    let kakao_id = req.body.kakao_id
+    models.Patient.update({
+        registered: 1 // What to update
+    }, {
+        where: {kakao_id: kakao_id} // Condition
+    }).then(result => {
+        console.log('result: ' + result.toString())
+        if (result[0] === 1){ // result[0] stores the number of affected rows.
+            return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
+        } else {
+            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id.' +
+				'Result: ' + result.toString()})
+        }
+    }).catch(function (err){
+        return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
+    })
+}
+
 function getMedicineCheck (req, res){
 
 	const kakao_id = req.params.kakao_id
@@ -636,4 +655,6 @@ module.exports = {
 	getMedicineCheck: getMedicineCheck,
 	getMoodCheck: getMoodCheck,
 	getPatientMedicineTime: getPatientMedicineTime,
+    changePatientVisit: changePatientVisit,
+
 };
