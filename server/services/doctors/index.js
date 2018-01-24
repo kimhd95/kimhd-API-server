@@ -130,7 +130,7 @@ function getPatientInfo (req, res){
 				medicine_miss: patient.medicine_miss,
 				mood_check: patient.mood_check,
 				medicine_check: patient.medicine_check,
-				next_time: patient.next_time,
+				next_hospital_visit_date: patient.next_hospital_visit_date,
 			}
 
 			console.log(patientinfo);
@@ -270,7 +270,7 @@ function getPatientInfoSummary (req, res){
 
 
 			// let nextHospitalVisitDate = now + 1000*60*60*24*(Math.floor(Math.random()*3) + 1)
-			let nextHospitalVisitDate = recordDate
+			let nextHospitalVisitDate = patient.next_hospital_visit_date
 				// + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 데이트 + 랜덤 일 수.
 
 			let patientinfo = {
@@ -439,7 +439,8 @@ function getPatientInfoAll (req, res){
 				monthTakenRate = 0;
 			}
 
-			let nextHospitalVisitDate = recordDate + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 날짜 + 랜덤 일 수.
+			// let nextHospitalVisitDate = recordDate + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 날짜 + 랜덤 일 수.
+			let nextHospitalVisitDate = patient.next_hospital_visit_date
 
 			let patientinfo = {
 				id: patient.id,

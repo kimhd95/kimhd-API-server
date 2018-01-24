@@ -388,6 +388,7 @@ function getMedicineCheck (req, res) {
 
 // Time은 UnixTime in seconds 로 한다 - Integer. - 기록할 당시의 유닉스시간
 // Date는 (UnixTime in seconds) - (UnixTime in seconds % 60*60*24) 로 한다. 그 해당 날짜만 기록. (시간, 분, 초 를 제외한다.) - medicine_time 에서 약체크에 해당하는 날짜시간.
+// 또한, Date 는 한국시 기준으로 기록하고, 한국시 기준으로 회수한다. (챗봇에서 콜을 할 때 이미 한국시로 Date 를 준다.)
 // Allowed Slot values are 0 (Morning), 1 (Lunch), 2 (Dinner), 3 (Before Sleep) - Integer
 function createMedicineCheck (req, res) {
 
@@ -407,7 +408,7 @@ function createMedicineCheck (req, res) {
 		kakao_id: kakao_id,
 		med_check: med_check,
 		time: time,
-		date: date,
+		date: parseInt(date), // (챗봇에서 콜을 할 때 이미 한국시로 Date 를 준다.)
 		slot: slot
 	}).then(medicine_check => {
 		res.status(201).json({success: true, result: medicine_check})
@@ -468,7 +469,8 @@ function createMoodCheckText (req, res){
 	})
 }
 
-// 환자가 챗봇으로 약체크를 할 때, 이전 이틀동안 최대 3회 약체크 null data 가 있을 경우 그 time slot 을 가져와 챗봇 서버에 알려준다. 그러면 챗봇 서버는 환자에거게 적절한 약체크 질문을 던진다. date 는 unixtime in seconds
+// 환자가 챗봇으로 약체크를 할 때, 이전 이틀동안 최대 3회 약체크 null data 가 있을 경우 그 time slot 을 가져와 챗봇 서버에 알려준다. 그러면 챗봇 서버는 환자에거게 적절한 약체크 질문을 던진다.
+// date 는 unixtime in seconds 한국시
 function getMedicineTimeToCheck (req, res) {
 
 	let kakao_id, time
@@ -476,7 +478,7 @@ function getMedicineTimeToCheck (req, res) {
 		// kakao_id = req.body.kakao_id.toString().trim() || '';
 		// time = req.body.time.toString().trim() || '';
 		kakao_id = req.params.kakao_id
-		time = req.params.time
+		time = parseInt(req.params.time)
 	} else {
 		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, time).',
 			kakao_id: req.body.kakao_id, date: req.body.time})
@@ -498,8 +500,8 @@ function getMedicineTimeToCheck (req, res) {
 				kakao_id: kakao_id,
 				// med_check: {[Op.ne]: null}, // 데이터가 있는 경우 다 가져온다. med_check 가 null 일 수가 없기에 주석처리 함. (환자가 체크를 하지 않았으면 row 자체가 생성되지 않았을 것이기에.)
 				date: {   // 주의: time 은 콜 했을 당시의 유닉스 시간. date 는 medicine_check 데이터 내에서 해당하는 날짜.
-					[Op.lt]: time,
-					[Op.gte]: time - (time % 60*60*24) // 오늘
+					[Op.lte]: time,
+					[Op.gte]: time - (time % 60*60*24) - 60*60*24 // 오늘
 				}
 			},
 			order: [
@@ -513,8 +515,8 @@ function getMedicineTimeToCheck (req, res) {
 			for (let i=0; i<Medicine_time.length; i++){
 				// if (med_check.slot) Medicine_time[i].slot
 				// if (med_check)
-				expectedValues.push({date: time - (time % 60*60*24), slot: Medicine_time[i].slot})  // 오늘
-				expectedValues.push({date: time - (time % 60*60*24) - 60*60*24, slot: Medicine_time[i].slot}) // 어제
+				expectedValues.push({date: time - (time % (60*60*24) + 60*60*9), slot: parseInt(Medicine_time[i].slot)})  // 오늘 + 한국시로 변환
+				expectedValues.push({date: time - (time % (60*60*24)) - 60*60*24  + 60*60*9, slot: parseInt(Medicine_time[i].slot)}) // 어제 + 한국시로 변환
 			}
 
 			for (let j=0; j<med_check.length; j++){
@@ -524,6 +526,9 @@ function getMedicineTimeToCheck (req, res) {
 					}
 				}
 			}
+
+            expectedValues.sort(function(a,b){return a.slot - b.slot});
+            expectedValues.sort(function(a,b){return a.date - b.date});
 
 			return res.status(200).json({success: true, message: 'successfully retrieved data.', med_time: Medicine_time, med_check: med_check, toAskValues: expectedValues})
 		}).catch(err => {
