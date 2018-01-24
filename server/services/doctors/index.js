@@ -563,25 +563,6 @@ function declinePatient(req, res){
 	})
 }
 
-function changePatientVisit(req, res){
-    let kakao_id = req.body.kakao_id
-    models.Patient.update({
-        registered: 1 // What to update
-    }, {
-        where: {kakao_id: kakao_id} // Condition
-    }).then(result => {
-        console.log('result: ' + result.toString())
-        if (result[0] === 1){ // result[0] stores the number of affected rows.
-            return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
-        } else {
-            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id.' +
-				'Result: ' + result.toString()})
-        }
-    }).catch(function (err){
-        return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
-    })
-}
-
 function getMedicineCheck (req, res){
 
 	const kakao_id = req.params.kakao_id
@@ -641,6 +622,39 @@ function getPatientMedicineTime (req, res){
 	})
 }
 
+
+// Date 는 unixtime in seconds 한국시간.
+function createNextPatientVisitDate (req, res) {
+    // Input Parameters
+	let kakao_id, date;
+    if ((req.body.kakao_id !== undefined) && (req.body.date !== undefined)){
+        kakao_id = req.body.kakao_id.toString().trim() || '';
+        date = req.body.date.toString().trim() || '';
+    } else {
+        return res.status(403).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, date).',
+			kakao_id: req.body.kakao_id, date: req.body.date})
+    }
+
+    models.Patient.update({
+        next_hospital_visit_date: date // What to update
+    }, {
+        where: {
+        	kakao_id: kakao_id
+        } // Condition
+    }).then(result => {
+        console.log('result: ' + result.toString())
+        if (result[0] === 1){ // result[0] stores the number of affected rows.
+            return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
+        } else {
+            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. ' +
+                'It is possible the patient is already registered. Result: ' + result.toString()})
+        }
+    }).catch(function (err){
+        return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
+    })
+
+}
+
 module.exports = {
 	addPatient: addPatient,
 	getPatients: getPatients,
@@ -655,6 +669,6 @@ module.exports = {
 	getMedicineCheck: getMedicineCheck,
 	getMoodCheck: getMoodCheck,
 	getPatientMedicineTime: getPatientMedicineTime,
-    changePatientVisit: changePatientVisit,
+    createNextPatientVisitDate: createNextPatientVisitDate,
 
 };
