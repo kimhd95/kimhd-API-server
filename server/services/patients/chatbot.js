@@ -54,7 +54,8 @@ function registerPatient (req, res) {
 			models.Patient.create({
 				kakao_id: kakao_id,
 				scenario: '3',
-				state: 'init'
+				state: 'init',
+                registered: '0'
 			}).then(patient => {
 				return res.status(201).json({success: true, message: 'patient created.', patient: patient})
 			}).catch(function (err){
