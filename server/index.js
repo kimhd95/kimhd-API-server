@@ -25,7 +25,7 @@ module.exports = function() {
 		server.use(function(req, res, next) {
 			// Make sure web app client program use :4000 for its port to make use of the token related APIs.
 			let allowedOrigins = ['http://localhost:4000', 'https://jellyfi.jellylab.io',
-				'http://dev.jellylab.io', 'https://api.jellylab.io', 'http://devapi.jellylab.io', 'https://devapi.jellylab.io']
+				'http://dev.jellylab.io', 'https://api.jellylab.io', 'http://devapi.jellylab.io', 'https://devapi.jellylab.io', 'http://dev-jelly-doctor-dashboard.ap-northeast-2.elasticbeanstalk.com']
 
 			if (req.headers !== undefined){
 				let origin = req.headers.origin || ''
