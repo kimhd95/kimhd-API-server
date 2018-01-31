@@ -421,14 +421,14 @@ function createMedicineCheck (req, res) {
 function createMoodCheck (req, res) {
 
 	let kakao_id, mood_check, type, time, text
-	if ((req.body.kakao_id !== undefined) && (req.body.mood_check !== undefined) && (req.body.time !== undefined) && (req.body.type !== undefined) && (req.body.text !== undefined)){
+	if ((req.body.kakao_id !== undefined) && (req.body.mood_check !== undefined) && (req.body.type !== undefined) && (req.body.time !== undefined)){
 		kakao_id = req.body.kakao_id.toString().trim() || '';
 		mood_check = req.body.mood_check.toString().trim() || '';
 		type = req.body.type.toString().trim() || '';
 		time = req.body.time.toString().trim() || '';
-		text = req.body.text.toString().trim() || '';
+		//text = req.body.text.toString().trim() || '';
 	} else {
-		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, med_check, time, text).',
+		return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, mood_check, type, time).',
 			kakao_id: req.body.kakao_id, mood_check: req.body.mood_check, type: req.body.type, time: req.body.time})
 	}
 
