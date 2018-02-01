@@ -103,9 +103,8 @@ const Medicine_check = sequelize.define('medicine_check', {
 	time: Sequelize.INTEGER,
 	date: Sequelize.INTEGER,
 	slot: Sequelize.INTEGER,
-	med_miss_reason: Sequelize.STRING,
-	med_side: Sequelize.STRING,
-	med_side_degree: Sequelize.STRING,
+	comment_type: Sequelize.INTEGER,
+	comment_text: Sequelize.STRING,
 });
 
 const Medicine_time = sequelize.define('medicine_time', {
