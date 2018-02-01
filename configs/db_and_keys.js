@@ -3,10 +3,10 @@ const productionKeys = require('./production_keys')
 const environments = {
 	local: {
 		mysql: {
-			host: 'dev-jellylab-database-nodered.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
-			username: 'jellylab',
-			password: 'jellylab',
-			database: 'Dev_Jellylab_DB_NodeRed',
+			host: 'dev-dermatology.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
+			username: 'jellyderma',
+			password: 'jelly2018db',
+			database: 'DERMATOLOGY_DEV',
 			logging: console.log
 		},
 		apikey: '9Y3-7bE-Ud3-7Ja',
@@ -14,10 +14,10 @@ const environments = {
 	},
 	dev: {
 		mysql: {
-			host: 'dev-jellylab-database-nodered.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
-			username: 'jellylab',
-			password: 'jellylab',
-			database: 'Dev_Jellylab_DB_NodeRed',
+			host: 'dev-dermatology.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
+            username: 'jellyderma',
+            password: 'jelly2018db',
+            database: 'DERMATOLOGY_DEV',
 			logging: console.log
 		},
 		apikey: '9Y3-7bE-Ud3-7Ja',

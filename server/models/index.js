@@ -124,7 +124,7 @@ const Mood_check = sequelize.define('mood_check', {
 	mood_check: Sequelize.STRING,
 	mood_text: Sequelize.STRING
 });
-
+/*
 const Kakao_text = sequelize.define('kakao_text', {
 	id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
 	kakao_id: Sequelize.STRING,
@@ -132,7 +132,7 @@ const Kakao_text = sequelize.define('kakao_text', {
 	text: Sequelize.STRING,
 	share_doctor: Sequelize.STRING
 });
-
+*/
 module.exports = {
 	sequelize: sequelize,
 	Patient: Patient,
