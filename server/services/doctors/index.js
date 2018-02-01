@@ -504,7 +504,7 @@ function getPatientMedMissReason(req, res){
     models.Medicine_check.findAll({
         where: {
             kakao_id: req.params.kakao_id,
-            med_check: {[Op.ne]: 1}
+            //med_check: {[Op.ne]: 1}
         }
     }).then(med_checks => {
         if (!med_checks) {

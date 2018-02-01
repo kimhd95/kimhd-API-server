@@ -128,7 +128,7 @@ function medicineCheckMissReason(req, res){
         {where: {
                 kakao_id: kakao_id,
                 time: {[Op.between]: [now(new Date(Date.now() - timeGapToCheckMedicineCheckConnection)), now(new Date())]},
-                med_check: {[Op.ne]: 1}
+                //med_check: {[Op.ne]: 1}
             }
         }
     ).then(medicine_check => res.status(200).json({success: true, message: 'Update done. medicine_check: ' + medicine_check.toString()})
@@ -151,7 +151,7 @@ function medicineCheckMedSide(req, res){
         {where: {
                 kakao_id: kakao_id,
                 time: {[Op.between]: [now(new Date(Date.now() - timeGapToCheckMedicineCheckConnection)), now(new Date())]}, // within 30 minutes of api call
-                med_check: {[Op.ne]: 1}
+                //med_check: {[Op.ne]: 1}
             }
         }
     ).then(medicine_check => res.status(200).json({success: true, message: 'Update done. medicine_check: ' + medicine_check.toString()})
