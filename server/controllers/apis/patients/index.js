@@ -45,7 +45,7 @@ router.post('/kakao_text', patientService.kakaoText);
 router.post('/medicine_check', patientService.medicineCheck);
 router.post('/medicine_check_miss_reason', patientService.medicineCheckMissReason);
 router.post('/medicine_check_med_side', patientService.medicineCheckMedSide);
-router.post('/medicine_check_med_side_degree', patientService.medicineCheckMedSideDegree);
+//router.post('/medicine_check_med_side_degree', patientService.medicineCheckMedSideDegree);
 router.post('/mood_check', patientService.moodCheck);
 router.post('/mood_check_reason', patientService.moodCheckReason);
 
