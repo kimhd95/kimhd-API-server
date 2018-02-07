@@ -1,6 +1,7 @@
 const models = require('../../models');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const crypto = require('crypto');
 
 const timeGapToCheckMedicineCheckConnection = 1000 * 60* 30 // 30 minutes.
 
@@ -33,14 +34,18 @@ function getPatientWithId(req, res) {
 
 function registerKakaoId (req, res) {
     let kakao_id, phone, name
+    let key = 'jellyKey';
+    let input = kakao_id;
+
     if (req.body.kakao_id && req.body.phone && req.body.name){
         kakao_id = req.body.kakao_id.toString().trim() || '';
         phone = req.body.phone.toString().trim() || '';
         name = req.body.name.toString().trim() || '';
     } else {
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, phone, name).'
-            , kakao_id: req.body.kakao_id, doctor_cod: req.body.doctor_code})
+            , kakao_id: req.body.kakao_id, doctor_code: req.body.doctor_code})
     }
+
 
     models.Patient.create({
         kakao_id: kakao_id,
@@ -60,14 +65,26 @@ function registerDoctorCode (req, res){
         doctor_code = req.body.doctor_code.toString().trim() || '';
     } else {
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, doctor_code).'
-            , kakao_id: req.body.kakao_id, doctor_cod: req.body.doctor_code})
+            , kakao_id: req.body.kakao_id, doctor_code: req.body.doctor_code})
     }
+    /*
+    models.Doctor.findOne({
+        where: {
+            doctor_code: doctor_code
+        }
+    }).then(doctor => {
+        if (!doctor){
+            return ''
+        }
+        */
 
-    models.Patient.update(
-        {doctor_code: doctor_code},     // What to update
+
+    models.Patient.update({
+            doctor_code: doctor_code,
+        },     // What to update
         {where: {kakao_id: kakao_id}})  // Condition
         .then(result => {
-            res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
+            res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString(), 'doctor_code': 'matched'})
         }).catch(function (err){
         res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
     })

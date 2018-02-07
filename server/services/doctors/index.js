@@ -71,12 +71,13 @@ function getPatientInfo (req, res){
 
     models.Patient.findOne({
         where: {
-            kakao_id: req.params.kakao_id,
+            //kakao_id: req.params.kakao_id,
+            encrypted_kakao_id: req.params.encrypted_kakao_id,
             doctor_code: {[Op.ne]: null}
         }
     }).then(patient => {
         if (!patient){
-            return res.status(403).json({success: false, message: 'No patient found with given kakao_id that has a value for doctor_code.'})
+            return res.status(403).json({success: false, message: 'No patient found with given encrypted kakao_id that has a value for doctor_code.'})
         }
 
         patient.comment_text==''
@@ -85,7 +86,8 @@ function getPatientInfo (req, res){
         const p1 = new Promise(function(resolve, reject) {
             models.Mood_check.findAll({
                 where: {
-                    kakao_id: patient.kakao_id
+                    //kakao_id: patient.kakao_id
+                    encrypted_kakao_id: patient.encrypted_kakao_id
                 }
             }).then(mood => {
                 if(mood) patient.mood_check = mood;
@@ -95,7 +97,8 @@ function getPatientInfo (req, res){
         const p2 = new Promise(function(resolve, reject) {
             models.Medicine_check.findAll({
                 where: {
-                    kakao_id: patient.kakao_id
+                    //kakao_id: patient.kakao_id
+                    encrypted_kakao_id: patient.encrypted_kakao_id,
                 }
                 // 필요할 경우 시간 Descending order 로 데이터 회수 가능.
                 // ,
@@ -121,6 +124,7 @@ function getPatientInfo (req, res){
                 name: patient.name,
                 doctor_code: patient.doctor_code,
                 kakao_id: patient.kakao_id,
+                encrypted_kakao_id: patient.encrypted_kakao_id,
                 phone: patient.phone,
                 medicine_week: patient.medicine_week,
                 medicine_mouth: patient.medicine_mouth,
@@ -147,22 +151,22 @@ function getPatientInfo (req, res){
 }
 
 function getPatientInfoSummary (req, res){
-    const patientKakaoId = req.params.kakao_id;
-
+    //const patientKakaoId = req.params.kakao_id;
+    const patientEncryptedKakaoid = req.params.encrypted_kakao_id;
     models.Patient.findOne({
         where: {
-            kakao_id: patientKakaoId
+            encrypted_kakao_id: patientEncryptedKakaoid
         }
     }).then(patient => {
-
         if (!patient){
-            return res.status(200).json({message: 'No patient found with given kakao_id.'})
+            return res.status(200).json({message: 'No patient found with given encrypted kakao_id.'})
         }
 
         const p1 = new Promise(function(resolve, reject) {
             models.Mood_check.findAll({
                 where: {
-                    kakao_id: patient.kakao_id
+                    //kakao_id: patient.kakao_id
+                    encrypted_kakao_id: patient.encrypted_kakao_id
                 }
             }).then(mood => {
                 if(mood) patient.mood_check = mood;
@@ -173,7 +177,8 @@ function getPatientInfoSummary (req, res){
         const p2 = new Promise(function(resolve, reject) {
             models.Medicine_check.findAll({
                 where: {
-                    kakao_id: patient.kakao_id
+                    //kakao_id: patient.kakao_id
+                    encrypted_kakao_id: patient.encrypted_kakao_id
                 }
             }).then(check => {
                 if(check) patient.medicine_check = check;
@@ -192,14 +197,17 @@ function getPatientInfoSummary (req, res){
 
             for (let iterationCount in patient.mood_check){
                 let moodCheck = patient.mood_check[iterationCount]['mood_check']
-                let datetime = patient.mood_check[iterationCount]['time']
+                let datetime = patient.mood_check[iterationCount]['date']
 
                 // This code converts YYYY-MM-DD hh:mm:ss to YYYY/MM/DD hh:mm:ss that is easily parsed by Date constructor.
-                // let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
-                // let jsDate = Date.parse(datetimeConverted);
+                //let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
+                //let jsDate = Date.parse(datetimeConverted);
                 let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
-                let now = new Date().getTime();
-                let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
+                let nextDay = new Date();
+                nextDay.setHours(23, 59, 59, 999);
+                let nextDaytime = nextDay.getTime();
+
+                let timeDifferenceInDays = (nextDaytime - jsDate) / 1000 / 60 / 60 /24
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     weekMoodChecks.push(moodCheck)
@@ -228,16 +236,19 @@ function getPatientInfoSummary (req, res){
             let takenWeekCount = 0;
             let takenMonthCount = 0;
 
-            let recordDate = new Date().getTime();
+            //let recordDate = new Date().getTime();
 
             for (let iterationCount in patient.medicine_check){
 
                 let medCheck = patient.medicine_check[iterationCount]['med_check']
-                let datetime = patient.medicine_check[iterationCount]['time']
+                let datetime = patient.medicine_check[iterationCount]['date']
 
                 let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
-                let now = new Date().getTime();
-                let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
+                let nextDay = new Date();
+                nextDay.setHours(23, 59, 59, 999);
+                let nextDaytime = nextDay.getTime();
+
+                let timeDifferenceInDays = (nextDaytime - jsDate) / 1000 / 60 / 60 /24
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
@@ -274,14 +285,23 @@ function getPatientInfoSummary (req, res){
             // let nextHospitalVisitDate = now + 1000*60*60*24*(Math.floor(Math.random()*3) + 1)
             let nextHospitalVisitDate = patient.next_hospital_visit_date
             // + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 데이트 + 랜덤 일 수.
+            let now = new Date().getTime();
+            if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
+                nextHospitalVisitDate = null;
+            }
 
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 doctor_code: patient.doctor_code,
                 kakao_id: patient.kakao_id,
+                encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
                 monthTakenRate: monthTakenRate,
+                totalWeekCount: totalWeekCount,
+                totalMonthCount : totalMonthCount,
+                takenWeekCount : takenWeekCount,
+                takenMonthCount : takenMonthCount,
                 weekEmotionEmergencyCount: weekEmergencyMoodCount,
                 monthEmotionEmergencyCount: monthEmergencyMoodCount,
                 weekStandardDeviation: weekSd,
@@ -302,24 +322,26 @@ function getPatientInfoSummary (req, res){
 }
 
 function getPatientInfoAll (req, res){
-    const patientKakaoId = req.params.kakao_id;
+    //const patientKakaoId = req.params.kakao_id;
+    const patientEncryptedKakaoid = req.params.encrypted_kakao_id;
 
     let med_miss_reasons;
 
     models.Patient.findOne({
         where: {
-            kakao_id: patientKakaoId
+            encrypted_kakao_id: patientEncryptedKakaoid
         }
     }).then(patient => {
 
         if (!patient){
-            return res.status(200).json({message: 'No patient found with given kakao_id.'})
+            return res.status(200).json({message: 'No patient found with given encrypted kakao_id.'})
         }
 
         const p1 = new Promise(function(resolve, reject) {
             models.Mood_check.findAll({
                 where: {
-                    kakao_id: patient.kakao_id
+                    //kakao_id: patient.kakao_id
+                    encrypted_kakao_id: patient.encrypted_kakao_id
                 }
             }).then(mood => {
                 if(mood) patient.mood_check = mood;
@@ -330,7 +352,8 @@ function getPatientInfoAll (req, res){
         const p2 = new Promise(function(resolve, reject) {
             models.Medicine_check.findAll({
                 where: {
-                    kakao_id: patient.kakao_id
+                    //kakao_id: patient.kakao_id
+                    encrypted_kakao_id: patient.encrypted_kakao_id
                 }
             }).then(check => {
                 if(check) patient.medicine_check = check;
@@ -341,15 +364,16 @@ function getPatientInfoAll (req, res){
         const p3 = new Promise(function(resolve, reject) {
             models.Medicine_check.findAll({
                 where: {
-                    kakao_id: req.params.kakao_id,
-                    med_check: {[Op.ne]: 1}
+                    //kakao_id: req.params.kakao_id,
+                    encrypted_kakao_id: req.params.encrypted_kakao_id,
+                    //med_check: {[Op.ne]: 1}
                 }
             }).then(med_checks => {
-                if (med_checks) {
-                    med_miss_reasons = med_checks;
-                    resolve();
-                }
+                //if (med_checks) {
+                med_miss_reasons = med_checks;
                 resolve();
+                //}
+                //resolve();
             }).catch(function (err){
                 return res.status(500).json(err)
             })
@@ -371,8 +395,13 @@ function getPatientInfoAll (req, res){
 
                 // This code converts YYYY-MM-DD hh:mm:ss to YYYY/MM/DD hh:mm:ss that is easily parsed by Date constructor.
                 let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
-                let now = new Date().getTime();
-                let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
+
+                let nextDay = new Date();
+                nextDay.setHours(23, 59, 59, 999);
+                let nextDaytime = nextDay.getTime();
+
+
+                let timeDifferenceInDays = (nextDaytime - jsDate) / 1000 / 60 / 60 /24
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     weekMoodChecks.push(moodCheck)
@@ -409,8 +438,11 @@ function getPatientInfoAll (req, res){
                 let datetime = patient.medicine_check[iterationCount]['time']
 
                 let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
-                let now = new Date().getTime();
-                let timeDifferenceInDays = (now - jsDate) / 1000 / 60 / 60 /24
+                let nextDay = new Date();
+                nextDay.setHours(23, 59, 59, 999);
+                let nextDaytime = nextDay.getTime();
+
+                let timeDifferenceInDays = (nextDaytime - jsDate) / 1000 / 60 / 60 /24
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
@@ -442,15 +474,23 @@ function getPatientInfoAll (req, res){
             }
 
             // let nextHospitalVisitDate = recordDate + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 날짜 + 랜덤 일 수.
-            let nextHospitalVisitDate = patient.next_hospital_visit_date
-
+            let nextHospitalVisitDate = patient.next_hospital_visit_date;
+            let now = new Date().getTime();
+            if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
+                nextHospitalVisitDate = null;
+            }
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 doctor_code: patient.doctor_code,
                 kakao_id: patient.kakao_id,
+                encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
                 monthTakenRate: monthTakenRate,
+                totalWeekCount: totalWeekCount,
+                totalMonthCount : totalMonthCount,
+                takenWeekCount : takenWeekCount,
+                takenMonthCount : takenMonthCount,
                 weekEmotionEmergencyCount: weekEmergencyMoodCount,
                 monthEmotionEmergencyCount: monthEmergencyMoodCount,
                 weekStandardDeviation: weekSd,
@@ -469,6 +509,47 @@ function getPatientInfoAll (req, res){
         console.log("Get patient info summary failed: err.status: " + err.status + '\t err.message: ' + err.message)
         return res.status(500).json({message: err.message})
     });
+}
+
+function getPatientGraph (req, res){
+    const encrypted_kakao_id = req.params.encrypted_kakao_id
+    const startTime = req.params.start
+    const endTime = req.params.end
+
+    models.Patient.findOne({
+        where: {
+            encrypted_kakao_id: encrypted_kakao_id
+        }
+    }).then(patient => {
+        if (!patient){
+            return res.status(200).json({message: 'No patient found with given encrypted kakao_id.'})
+        }
+        models.Medicine_check.findAll({
+            where: {
+                encrypted_kakao_id: req.params.encrypted_kakao_id,
+                time: {[Op.lt]: endTime,
+                    [Op.gt]: startTime},
+            }
+        }).then(med_checks => {
+            models.Mood_check.findAll({
+                where: {
+                    encrypted_kakao_id: req.params.encrypted_kakao_id,
+                    time: {[Op.lt]: endTime,
+                        [Op.gt]: startTime},
+                }
+            }).then(mood_checks => {
+                models.Medicine_time.findAll({
+                    where: {
+                        encrypted_kakao_id: req.params.encrypted_kakao_id,
+                    }
+                }).then(med_times => {
+                    return res.status(200).json({success: true, medicine_checks: med_checks, mood_checks: mood_checks, medicine_times: med_times});
+                })
+            })
+        })
+    }).catch(function (err){
+        return res.status(500).json(err)
+    })
 }
 
 function average (data){
@@ -503,13 +584,13 @@ function round(num){
 function getPatientMedMissReason(req, res){
     models.Medicine_check.findAll({
         where: {
-            kakao_id: req.params.kakao_id,
+            encrypted_kakao_id: req.params.encrypted_kakao_id,
             //med_check: {[Op.ne]: 1}
         }
     }).then(med_checks => {
-        if (!med_checks) {
-            return res.status(404).json({error: 'No missed medicine checks associated with kakao_id: ' + req.params.kakao_id});
-        }
+        //if (!med_checks) {
+        //    return res.status(404).json({error: 'No missed medicine checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
+        //}
         return res.status(200).json(med_checks);
     }).catch(function (err){
         return res.status(500).json(err)
@@ -532,17 +613,17 @@ function addPatient (req, res) {
 }
 
 function registerPatient(req, res){
-    let kakao_id = req.body.kakao_id
+    let encrypted_kakao_id = req.body.encrypted_kakao_id
     models.Patient.update({
         registered: 1 // What to update
     }, {
-        where: {kakao_id: kakao_id} // Condition
+        where: {encrypted_kakao_id: encrypted_kakao_id} // Condition
     }).then(result => {
         console.log('result: ' + result.toString())
         if (result[0] === 1){ // result[0] stores the number of affected rows.
             return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
         } else {
-            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. ' +
+            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given encrypted_kakao_id. ' +
                 'It is possible the patient is already registered. Result: ' + result.toString()})
         }
     }).catch(function (err){
@@ -551,17 +632,17 @@ function registerPatient(req, res){
 }
 
 function declinePatient(req, res){
-    let kakao_id = req.body.kakao_id
+    let encrypted_kakao_id = req.body.encrypted_kakao_id
     models.Patient.update({
         registered: 2 // What to update
     }, {
-        where: {kakao_id: kakao_id} // Condition
+        where: {encrypted_kakao_id: encrypted_kakao_id} // Condition
     }).then(result => {
         console.log('result: ' + result.toString())
         if (result[0] === 1){ // result[0] stores the number of affected rows.
             return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
         } else {
-            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. Result: ' + result.toString()})
+            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given encrypted_kakao_id. Result: ' + result.toString()})
         }
     }).catch(function (err){
         return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
@@ -570,20 +651,20 @@ function declinePatient(req, res){
 
 function getMedicineCheck (req, res){
 
-    const kakao_id = req.params.kakao_id
+    const encrypted_kakao_id = req.params.encrypted_kakao_id
     const startTime = req.params.start
     const endTime = req.params.end
 
     models.Medicine_check.findAll({
         where: {
-            kakao_id: req.params.kakao_id,
+            encrypted_kakao_id: req.params.encrypted_kakao_id,
             time: {[Op.lt]: endTime,
                 [Op.gt]: startTime},
         }
     }).then(med_checks => {
-        if (!med_checks) {
-            return res.status(404).json({error: 'No missed medicine checks associated with kakao_id: ' + req.params.kakao_id});
-        }
+        //if (!med_checks) {
+        //    return res.status(404).json({error: 'No missed medicine checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
+        //}
         return res.status(200).json({success: true, medicine_checks: med_checks});
     }).catch(function (err){
         return res.status(500).json(err)
@@ -596,13 +677,13 @@ function getMoodCheck (req, res){
 
     models.Mood_check.findAll({
         where: {
-            kakao_id: req.params.kakao_id,
+            encrypted_kakao_id: req.params.encrypted_kakao_id,
             time: {[Op.lt]: endTime,
                 [Op.gt]: startTime},
         }
     }).then(mood_checks => {
         if (!mood_checks) {
-            return res.status(404).json({error: 'No missed mood checks associated with kakao_id: ' + req.params.kakao_id});
+            return res.status(404).json({error: 'No missed mood checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
         }
         return res.status(200).json({success: true, mood_checks: mood_checks})
     }).catch(function (err){
@@ -611,15 +692,15 @@ function getMoodCheck (req, res){
 }
 
 function getPatientMedicineTime (req, res){
-    const kakao_id = req.params.kakao_id
+    const encrypted_kakao_id = req.params.encrypted_kakao_id
 
     models.Medicine_time.findAll({
         where: {
-            kakao_id: req.params.kakao_id,
+            encrypted_kakao_id: req.params.encrypted_kakao_id,
         }
     }).then(med_times => {
         if (!med_times) {
-            return res.status(404).json({error: 'No medicine times associated with kakao_id: ' + req.params.kakao_id});
+            return res.status(404).json({error: 'No medicine times associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
         }
         return res.status(200).json({success: true, medicine_times: med_times});
     }).catch(function (err){
@@ -631,27 +712,28 @@ function getPatientMedicineTime (req, res){
 // Date 는 unixtime in seconds 한국시간.
 function createNextPatientVisitDate (req, res) {
     // Input Parameters
-    let kakao_id, date;
-    if ((req.body.kakao_id !== undefined) && (req.body.date !== undefined)){
-        kakao_id = req.body.kakao_id.toString().trim() || '';
+    let encrypted_kakao_id, date;
+    let now = new Date().getTime();
+    if ((req.body.encrypted_kakao_id !== undefined) && (req.body.date !== undefined)){
+        encrypted_kakao_id = req.body.encrypted_kakao_id.toString().trim() || '';
         date = req.body.date.toString().trim() || '';
     } else {
-        return res.status(403).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, date).',
-            kakao_id: req.body.kakao_id, date: req.body.date})
+        return res.status(403).json({success: false, message: 'Parameters not properly given. Check parameter names (encrypted_kakao_id, date).',
+            encrypted_kakao_id: req.body.encrypted_kakao_id, date: req.body.date})
     }
 
     models.Patient.update({
         next_hospital_visit_date: date // What to update
     }, {
         where: {
-            kakao_id: kakao_id
+            encrypted_kakao_id: encrypted_kakao_id
         } // Condition
     }).then(result => {
         console.log('result: ' + result.toString())
         if (result[0] === 1){ // result[0] stores the number of affected rows.
             return res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString()})
         } else {
-            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. ' +
+            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given encrypted_kakao_id. ' +
                 'It is possible the patient is already registered. Result: ' + result.toString()})
         }
     }).catch(function (err){
@@ -675,5 +757,6 @@ module.exports = {
     getMoodCheck: getMoodCheck,
     getPatientMedicineTime: getPatientMedicineTime,
     createNextPatientVisitDate: createNextPatientVisitDate,
+    getPatientGraph: getPatientGraph,
 
 };

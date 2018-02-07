@@ -1,17 +1,17 @@
 'use strict';
 
 const
-	express = require('express'),
-	patientService = require('../../../services/patients'),
-	models = require('../../../models'),
-	chatbotService = require('../../../services/patients/chatbot')
+    express = require('express'),
+    patientService = require('../../../services/patients'),
+    models = require('../../../models'),
+    chatbotService = require('../../../services/patients/chatbot')
 
 let router = express.Router();
 
 console.log('apis/patients/index.js called')
 
 // Special request for Dashboard Chart URL for patients from Kakao Chatbot Server.
-router.get('/get_patient_chart_url/:kakao_id', chatbotService.getPatientChartURL)
+router.get('/get_patient_chart_url/:encrypted_kakao_id', chatbotService.getPatientChartURL)
 
 // ------ Kakao chatbot requests ------ //
 // TODO: The below APIs do not follow the convention of making use of POST GET PUT DELETE for general purposes.
@@ -20,6 +20,7 @@ router.get('/get_patient_chart_url/:kakao_id', chatbotService.getPatientChartURL
 router.post('/register_patient', chatbotService.registerPatient)
 router.post('/update_patient', chatbotService.updatePatient)
 router.post('/create_patient_log', chatbotService.createPatientLog)
+router.post('/update_exit', chatbotService.updateExit)
 router.get('/get_patient_info/:kakao_id', chatbotService.getPatientInfo)
 router.get('/get_medicine_time/:kakao_id', chatbotService.getMedicineTime)
 router.post('/create_medicine_time', chatbotService.createMedicineTime)

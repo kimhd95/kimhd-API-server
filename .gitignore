@@ -1,4 +1,10 @@
 node_modules
 .idea/
 jelly-api-server-2018.zip
-configs/production_keys.js
+*.iml
+*.lock
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

@@ -1,9 +1,9 @@
 'use strict';
 
 const
-	express = require('express'),
-	doctorService = require('../../../services/doctors'),
-	authService = require('../../../services/doctors/auth.js');
+    express = require('express'),
+    doctorService = require('../../../services/doctors'),
+    authService = require('../../../services/doctors/auth.js');
 
 let router = express.Router()
 
@@ -29,20 +29,21 @@ router.post('/delete_doctor', authService.deleteDoctor)
 router.get('/get_patients/:doctor_code', doctorService.getPatients)
 router.get('/get_patients_registered/:doctor_code', doctorService.getPatientsRegistered)
 router.get('/get_patients_to_add/:doctor_code', doctorService.getPatientsToAdd)
-router.get('/get_patient_info/:kakao_id', doctorService.getPatientInfo)
-router.get('/get_patient_info_all/:kakao_id', doctorService.getPatientInfoAll)
-router.get('/get_patient_info_summary/:kakao_id', doctorService.getPatientInfoSummary)
-router.get('/get_patient_med_miss_reason/:kakao_id', doctorService.getPatientMedMissReason)
+router.get('/get_patient_info/:encrypted_kakao_id', doctorService.getPatientInfo)
+router.get('/get_patient_info_all/:encrypted_kakao_id', doctorService.getPatientInfoAll)
+router.get('/get_patient_info_summary/:encrypted_kakao_id', doctorService.getPatientInfoSummary)
+router.get('/get_patient_graph/:encrypted_kakao_id/:start/:end', doctorService.getPatientGraph)
+router.get('/get_patient_med_miss_reason/:encrypted_kakao_id', doctorService.getPatientMedMissReason)
 
-router.get('/get_medicine_check/:kakao_id/:start/:end', doctorService.getMedicineCheck)
-router.get('/get_mood_check/:kakao_id/:start/:end', doctorService.getMoodCheck)
+router.get('/get_medicine_check/:encrypted_kakao_id/:start/:end', doctorService.getMedicineCheck)
+router.get('/get_mood_check/:encrypted_kakao_id/:start/:end', doctorService.getMoodCheck)
 
 router.post('/register_patient', doctorService.registerPatient)
 router.post('/decline_patient', doctorService.declinePatient)
 
 router.post('/create_next_patient_visit_date', doctorService.createNextPatientVisitDate)
 
-router.get('/get_patient_medicine_time/:kakao_id', doctorService.getPatientMedicineTime)
+router.get('/get_patient_medicine_time/:encrypted_kakao_id', doctorService.getPatientMedicineTime)
 
 // Not used yet.
 router.get('/add_patient', doctorService.addPatient)

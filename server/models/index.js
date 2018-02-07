@@ -57,6 +57,7 @@ const Patient = sequelize.define('patient', {
     patient_email: Sequelize.STRING,
     patient_password: Sequelize.STRING,
     kakao_id: { type: Sequelize.STRING, allowNull: false, unique: true },
+    encrypted_kakao_id: Sequelize.STRING,
     doctor_code: Sequelize.STRING,
     registered: Sequelize.STRING,
     phone: Sequelize.STRING,
@@ -65,6 +66,7 @@ const Patient = sequelize.define('patient', {
     scenario: Sequelize.STRING,
     state: Sequelize.STRING,
     next_hospital_visit_date: Sequelize.INTEGER,
+    exit: Sequelize.INTEGER,
 
     // medicine_side: Sequelize.STRING,
 
@@ -75,6 +77,7 @@ const Patient = sequelize.define('patient', {
 
 const PatientLog = sequelize.define('patient_log', {
     kakao_id: { type: Sequelize.STRING, allowNull: false},
+    encrypted_kakao_id: Sequelize.STRING,
     scenario: Sequelize.STRING,
     state: Sequelize.STRING,
     content: Sequelize.STRING,
@@ -99,6 +102,7 @@ const Doctor = sequelize.define('doctor', {
 
 const Medicine_check = sequelize.define('medicine_check', {
     kakao_id: Sequelize.STRING,
+    encrypted_kakao_id: Sequelize.STRING,
     med_check: Sequelize.TINYINT,
     time: Sequelize.INTEGER,
     date: Sequelize.INTEGER,
@@ -109,7 +113,8 @@ const Medicine_check = sequelize.define('medicine_check', {
 
 const Medicine_time = sequelize.define('medicine_time', {
     kakao_id: Sequelize.STRING,
-    slot: Sequelize.STRING,
+    encrypted_kakao_id: Sequelize.STRING,
+    slot: Sequelize.INTEGER,
     time: Sequelize.INTEGER,
     mute: Sequelize.STRING,
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
@@ -118,6 +123,7 @@ const Medicine_time = sequelize.define('medicine_time', {
 
 const Mood_check = sequelize.define('mood_check', {
     kakao_id: Sequelize.STRING,
+    encrypted_kakao_id: Sequelize.STRING,
     time: Sequelize.INTEGER,
     type: Sequelize.STRING,
     mood_check: Sequelize.STRING,
@@ -127,6 +133,7 @@ const Mood_check = sequelize.define('mood_check', {
 const Kakao_text = sequelize.define('kakao_text', {
     id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
     kakao_id: Sequelize.STRING,
+    encrypted_kakao_id: Sequelize.STRING,
     time: Sequelize.INTEGER,
     text: Sequelize.STRING,
     share_doctor: Sequelize.STRING
