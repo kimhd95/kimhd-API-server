@@ -2,7 +2,7 @@
 
 let devConfig = {
 	env: 'dev',
-	port: 8081,
+	port: 5001,
 	token_domain: '.jellylab.io',
 };
 
