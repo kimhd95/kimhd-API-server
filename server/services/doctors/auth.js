@@ -48,6 +48,12 @@ function verifyToken (req, res){
     const cookie = req.cookies || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
     let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
+
+    console.log("BODY : ",req.body.token);
+    console.log("QUERY : ",req.query.token);
+    console.log("Headers : ",req.headers['x-access-token']);
+    console.log("Cookies : ",cookies.token);
+
     // const secret = req.app.get('jwt_secret');
     const secret = config.jwt_secret;
 
@@ -415,9 +421,10 @@ function loginDoctor (req, res){
                     } else {
                         console.log('req origin does NOT include localhost')
                         if (req.secure) {
-                            res.cookie('token', token, {domain: '.jellylab.io', maxAge: cookieMaxAge, secure: true})
+                            // TODO : 추후 리팩토링이 필요할 것으로 보임. 정식 배포 전 domain을 false로 설정해놓았음.
+                            res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: true})
                         } else {
-                            res.cookie('token', token, {domain: '.jellylab.io', maxAge: cookieMaxAge, secure: false})
+                            res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: false})
                         }
                     }
                     res.header('Access-Control-Allow-Credentials', 'true');
@@ -450,7 +457,8 @@ function logoutDoctor (req, res) {
                 return res.json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
             } else {
                 res.clearCookie('token');
-                return res.status(200).end();
+                const aftertoken = cookies.token;
+                return res.status(200).json({success: true});
             }
         });
     } else {

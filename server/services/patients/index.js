@@ -67,26 +67,24 @@ function registerDoctorCode (req, res){
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, doctor_code).'
             , kakao_id: req.body.kakao_id, doctor_code: req.body.doctor_code})
     }
-    /*
+
     models.Doctor.findOne({
         where: {
             doctor_code: doctor_code
         }
     }).then(doctor => {
         if (!doctor){
-            return ''
+            return res.status(200).json({success: true, message: 'Given doctor_code does not exist in Doctor table. Plz try again.', 'doctor_code': 'unmatched'})
         }
-        */
-
-
-    models.Patient.update({
-            doctor_code: doctor_code,
-        },     // What to update
-        {where: {kakao_id: kakao_id}})  // Condition
-        .then(result => {
-            res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString(), 'doctor_code': 'matched'})
-        }).catch(function (err){
-        res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
+        models.Patient.update({
+                doctor_code: doctor_code,
+            },     // What to update
+            {where: {kakao_id: kakao_id}})  // Condition
+            .then(result => {
+                res.status(200).json({success: true, message: 'Update complete. Result: ' + result.toString(), 'doctor_code': 'matched'})
+            }).catch(function (err){
+            res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
+        })
     })
 }
 
@@ -103,6 +101,7 @@ function kakaoText (req, res) {
 
     models.Kakao_text.create({
         kakao_id: kakao_id,
+        encrypted_kakao_id: kakao_id,
         text: text,
         time: time,
         share_doctor: type
@@ -122,6 +121,7 @@ function medicineCheck (req, res) {
 
     models.Medicine_check.create({
         kakao_id: kakao_id,
+        encrypted_kakao_id: kakao_id,
         med_check: med_check,
         time: time
     }).then(medicine_check => {
@@ -141,7 +141,7 @@ function medicineCheckMissReason(req, res){
     }
 
     models.Medicine_check.update(
-        {comment_type: '약 미복용 이유', comment_text: text},
+        {comment_type: '약 미복용 이유', comment_text: text, encrypted_kakao_id: kakao_id},
         {where: {
                 kakao_id: kakao_id,
                 time: {[Op.between]: [now(new Date(Date.now() - timeGapToCheckMedicineCheckConnection)), now(new Date())]},
@@ -164,7 +164,7 @@ function medicineCheckMedSide(req, res){
     }
 
     models.Medicine_check.update(
-        {comment_type: '약 부작용',comment_text: text},
+        {comment_type: '약 부작용',comment_text: text, encrypted_kakao_id: kakao_id},
         {where: {
                 kakao_id: kakao_id,
                 time: {[Op.between]: [now(new Date(Date.now() - timeGapToCheckMedicineCheckConnection)), now(new Date())]}, // within 30 minutes of api call
@@ -205,6 +205,7 @@ function moodCheck (req, res) {
 
     models.Mood_check.create({
         kakao_id: kakao_id,
+        encrypted_kakao_id: kakao_id,
         mood_check: mood_check,
         type: type,
         time: time
@@ -220,7 +221,7 @@ function setMoodCheckReason(req, res){
     const text = req.body.text.toString().trim() || '';
 
     models.Mood_check.update(
-        {mood_text: text},
+        {mood_text: text, encrypted_kakao_id: kakao_id},
         {where: {time: {[Op.between]: [now(new Date(Date.now() - timeGapToCheckMedicineCheckConnection)), now(new Date())]}}}
     ).then(mood_check => res.status(200).json({success: true, message: 'Update done. mood_check: ' + mood_check.toString()})
     ).catch(function (err){
@@ -246,6 +247,7 @@ function medicineTime (req, res) {
         if (!medicine_time) {
             models.Medicine_time.create({
                 kakao_id: kakao_id,
+                encrypted_kakao_id: kakao_id,
                 slot: slot,
                 time: time
             }).then(medicine_time => res.status(201).json(medicine_time));

@@ -73,7 +73,7 @@ function getPatientInfo (req, res){
         where: {
             //kakao_id: req.params.kakao_id,
             encrypted_kakao_id: req.params.encrypted_kakao_id,
-            doctor_code: {[Op.ne]: null}
+            doctor_code: {[Op.ne]: null},
         }
     }).then(patient => {
         if (!patient){
@@ -145,7 +145,7 @@ function getPatientInfo (req, res){
             res.status(500).json({ message: 'Server Error. Reason:' + reason.toString()});
         });
     }).catch(function (err){
-        console.log("Get patient info summary failed: err.status: " + err.status + '\t err.message: ' + err.message)
+        console.log("Get patient info failed: err.status: " + err.status + '\t err.message: ' + err.message)
         res.status(500).json({message: err.message})
     });
 }
@@ -223,12 +223,26 @@ function getPatientInfoSummary (req, res){
                 }
             }
 
-            let weekAvg = round(average(weekMoodChecks))
-            let weekSd = round(standardDeviation(weekMoodChecks))
-            let monthAvg = round(average(monthMoodChecks))
-            let monthSd = round(standardDeviation(monthMoodChecks))
-
-
+            let weekAvg1 = average(weekMoodChecks)
+            let weekSd1 = standardDeviation(weekMoodChecks)
+            let monthAvg1 = average(monthMoodChecks)
+            let monthSd1 = standardDeviation(monthMoodChecks)
+            let weekAvg = weekAvg1.toFixed(1)
+            let weekSd = weekSd1.toFixed(1)
+            let monthAvg = monthAvg1.toFixed(1)
+            let monthSd = monthSd1.toFixed(1)
+            if (isNaN(weekAvg)){
+                weekAvg = null;
+            }
+            if (isNaN(weekSd)){
+                weekSd = null;
+            }
+            if (isNaN(monthAvg)){
+                monthAvg = null;
+            }
+            if (isNaN(monthSd)){
+                monthSd = null;
+            }
             // ------------------- Medicine Check ------------------- //
             let totalWeekCount = 0;
             let totalMonthCount = 0;
@@ -417,11 +431,30 @@ function getPatientInfoAll (req, res){
                 }
             }
 
-            let weekAvg = round(average(weekMoodChecks))
-            let weekSd = round(standardDeviation(weekMoodChecks))
-            let monthAvg = round(average(monthMoodChecks))
-            let monthSd = round(standardDeviation(monthMoodChecks))
-
+            //let weekAvg = round(average(weekMoodChecks))
+            //let weekSd = round(standardDeviation(weekMoodChecks))
+            //let monthAvg = round(average(monthMoodChecks))
+            //let monthSd = round(standardDeviation(monthMoodChecks))
+            let weekAvg1 = average(weekMoodChecks)
+            let weekSd1 = standardDeviation(weekMoodChecks)
+            let monthAvg1 = average(monthMoodChecks)
+            let monthSd1 = standardDeviation(monthMoodChecks)
+            let weekAvg = weekAvg1.toFixed(1)
+            let weekSd = weekSd1.toFixed(1)
+            let monthAvg = monthAvg1.toFixed(1)
+            let monthSd = monthSd1.toFixed(1)
+            if (isNaN(weekAvg)){
+                weekAvg = null;
+            }
+            if (isNaN(weekSd)){
+                weekSd = null;
+            }
+            if (isNaN(monthAvg)){
+                monthAvg = null;
+            }
+            if (isNaN(monthSd)){
+                monthSd = null;
+            }
 
             // ------------------- Medicine Check ------------------- //
             let totalWeekCount = 0;
@@ -658,13 +691,13 @@ function getMedicineCheck (req, res){
     models.Medicine_check.findAll({
         where: {
             encrypted_kakao_id: req.params.encrypted_kakao_id,
-            time: {[Op.lt]: endTime,
+            date: {[Op.lt]: endTime,
                 [Op.gt]: startTime},
         }
     }).then(med_checks => {
-        //if (!med_checks) {
-        //    return res.status(404).json({error: 'No missed medicine checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
-        //}
+        if (!med_checks) {
+            return res.status(404).json({error: 'No missed medicine checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
+        }
         return res.status(200).json({success: true, medicine_checks: med_checks});
     }).catch(function (err){
         return res.status(500).json(err)

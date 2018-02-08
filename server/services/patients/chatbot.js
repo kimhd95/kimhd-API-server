@@ -3,23 +3,31 @@ const Op = models.sequelize.Op;
 const crypto = require('crypto');
 
 function getPatientChartURL (req, res){
-    let kakao_id
-    if (req.body){
-        kakao_id = req.params.kakao_id
+    let encrypted_kakao_id
+    if ((req.params.encrypted_kakao_id !== undefined)){
+        encrypted_kakao_id = req.params.encrypted_kakao_id.toString().trim() || '';
     } else {
-        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).'})
+        return res.status(400).json({success: false, message: 'Parameters not properly given. ' +
+            'Check parameter names (encrypted_kakao_id).', encrypted_kakao_id: req.encrypted_params.kakao_id})
     }
-    if (!kakao_id){
-        return res.status(403).json({success: false, message: 'Kakao_id not given in parameter. Check parameters.'})
-    }
+
+    // /let encrypted_kakao_id = req.params.encrypted_kakao_id;
+    //if (req.body){
+    //	encrypted_kakao_id = req.params.encrypted_kakao_id
+    //} else {
+    //	return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).'})
+    //}
+    //if (!encrypted_kakao_id){
+    //	return res.status(403).json({success: false, message: 'Kakao_id not given in parameter. Check parameters.'})
+    //}
 
     models.Patient.findOne({
         where: {
-            kakao_id: kakao_id
+            encrypted_kakao_id: encrypted_kakao_id
         }
     }).then(patient => {
         if (patient){
-            return res.status(403).json({success: false, message: 'patient with same kakao_id already exists'})
+            return res.status(403).json({success: false, message: 'patient with same encrypted_kakao_id already exists'})
         } else {
 
             return res.status(200).json({success: true, message: 'patient found returning url.', url: 'https://jellyfi.jellylab.io/chart/' + patient.encrypted_kakao_id})
@@ -29,7 +37,7 @@ function getPatientChartURL (req, res){
 
         }
     }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Error while searching for Patient with given kakao_id. err: ' + err.message})
+        return res.status(403).json({success: false, message: 'Error while searching for Patient with given encrypted_kakao_id. err: ' + err.message})
     })
 }
 
@@ -185,6 +193,9 @@ function updatePatient (req, res) {
 function getPatientInfo (req, res) {
     console.log('getPatientInfo called.')
     const kakao_id = req.params.kakao_id
+    let nowDate = new Date();
+    nowDate.getTime();
+    const now = nowDate;
 
     if (kakao_id) {
         models.Patient.findOne({
@@ -209,7 +220,7 @@ function getPatientInfo (req, res) {
                     console.log(patientLog);
                     models.Patient.update({
                         exit: 0,
-                        updated_at: new Date().getTime()
+                        //updated_at: now
                     }, {
                         where: {kakao_id: kakao_id} // Condition
                     })
@@ -242,10 +253,13 @@ function updateExit (req, res) {
         return res.status(403).json({success: false, message: 'No input parameters received in body.'})
     }
     const exit = req.body.exit
+    let nowDate = new Date();
+    nowDate.getTime();
+    const now = nowDate;
 
     models.Patient.update({
         exit: exit, // What to update
-        updated_at: new Date().getTime()
+        //updated_at: now
     }, {
         where: {
             kakao_id: kakao_id
@@ -272,9 +286,13 @@ function createPatientLog (req, res){
     const date = req.body.date
     const type = req.body.type
     const answer_num = req.body.answer_num
+    //let nowDate = new Date();
+    //nowDate.getTime();
+    //const now = nowDate;
 
     models.PatientLog.create({
         kakao_id: kakao_id,
+        encrypted_kakao_id: kakao_id,
         scenario: scenario,
         state: state,
         content: content,
@@ -287,7 +305,7 @@ function createPatientLog (req, res){
             {
                 scenario: scenario,
                 state: state,
-                updated_at: new Date().getTime()
+                date: date
             },     // What to update
             {where: {
                     kakao_id: kakao_id}
@@ -324,6 +342,7 @@ function medicineTime (req, res) {
         if (!medicine_time) {
             models.Medicine_time.create({
                 kakao_id: kakao_id,
+                encrypted_kakao_id: kakao_id,
                 slot: slot,
                 time: time
             }).then(medicine_time => res.status(201).json(medicine_time));
@@ -423,6 +442,7 @@ function createMedicineTime (req, res) {
         } else {
             models.Medicine_time.create({
                 kakao_id: kakao_id,
+                encrypted_kakao_id: kakao_id,
                 slot: slot,
                 time: time
             }).then(Medicine_time => {
@@ -502,6 +522,7 @@ function createMedicineCheck (req, res) {
 
     models.Medicine_check.create({
         kakao_id: kakao_id,
+        encrypted_kakao_id: kakao_id,
         med_check: med_check,
         time: time,
         date: parseInt(date), // (챗봇에서 콜을 할 때 이미 한국시로 Date 를 준다.)
@@ -529,6 +550,7 @@ function createMoodCheck (req, res) {
 
     models.Mood_check.create({
         kakao_id: kakao_id,
+        encrypted_kakao_id: kakao_id,
         mood_check: mood_check,
         type: type,
         time: time
@@ -553,7 +575,8 @@ function createMoodCheckText (req, res){
     }
 
     models.Mood_check.update(
-        {mood_text: text},
+        {mood_text: text,
+            encrypted_kakao_id: kakao_id},
         {where: {
                 kakao_id: kakao_id,
                 id: mood_check_id,
