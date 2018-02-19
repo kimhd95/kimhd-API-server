@@ -2,7 +2,7 @@
 
 let devConfig = {
 	env: 'local',
-	port: 5001,
+	port: 6001,
 	token_domain: 'localhost',
 };
 

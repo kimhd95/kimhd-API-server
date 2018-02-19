@@ -2,7 +2,7 @@
 
 let productionConfig = {
 	env: 'production',
-	port: 80,
+	port: 6011,
 	token_domain: '.jellylab.io',
 };
 
