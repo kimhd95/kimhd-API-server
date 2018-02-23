@@ -279,27 +279,26 @@ function loginDoctor (req, res){
                         console.log('req origin is undefined. Probably from postman.')
                         if (req.secure) {
                             console.log('req is secure')
-                            res.cookie('token', token, {domain: config.token_domain, maxAge: cookieMaxAge, secure: true})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
                         } else {
                             console.log('req is NOT secure')
-                            res.cookie('token', token, {domain: config.token_domain, maxAge: cookieMaxAge, secure: false})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
                         }
                     } else if (req.header('origin').includes('localhost')) {
                         console.log('req origin includes localhost OR it is from postman.')
                         if (req.secure) {
                             console.log('req is secure')
-                            res.cookie('token', token, {domain: config.token_domain, maxAge: cookieMaxAge, secure: true})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
                         } else {
                             console.log('req is NOT secure')
-                            res.cookie('token', token, {domain: config.token_domain, maxAge: cookieMaxAge, secure: false})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
                         }
                     } else {
                         console.log('req origin does NOT include localhost')
                         if (req.secure) {
-                            // TODO : 추후 리팩토링이 필요할 것으로 보임. 정식 배포 전 domain을 false로 설정해놓았음.
-                            res.cookie('token', token, {domain: config.token_domain, maxAge: cookieMaxAge, secure: true})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
                         } else {
-                            res.cookie('token', token, {domain: config.token_domain, maxAge: cookieMaxAge, secure: false})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
                         }
                     }
                     res.header('Access-Control-Allow-Credentials', 'true');
