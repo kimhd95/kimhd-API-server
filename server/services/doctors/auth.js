@@ -47,14 +47,8 @@ const userPermission = {
 function verifyToken (req, res){
     const cookie = req.cookies || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-    let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
+    let token = cookies.token;
 
-    console.log("BODY : ",req.body.token);
-    console.log("QUERY : ",req.query.token);
-    console.log("Headers : ",req.headers['x-access-token']);
-    console.log("Cookies : ",cookies.token);
-
-    // const secret = req.app.get('jwt_secret');
     const secret = config.jwt_secret;
 
     console.log('cookie: ' + cookie)
@@ -67,6 +61,8 @@ function verifyToken (req, res){
         // verifies secret and checks exp
         jwt.verify(token, secret, function(err, decoded) {
             if (err) {
+                // remove token in Cookie
+                res.clearCookie('token');
                 return res.status(403).json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
             } else {
                 // if everything is good, renew token in cookie and save decoded payload to request for use in other routes
@@ -76,69 +72,9 @@ function verifyToken (req, res){
                         email: decoded.email
                     }
                 }).then(doctor => {
-                    jwt.sign({
-                            id: doctor.id,
-                            permissions: userPermission.DEVELOPER,
-                            email: doctor.email,
-                            doctor_code: doctor.doctor_code,
-                            hospital: doctor.hospital,
-                            name: doctor.name
-                        },
-                        secret, {
-                            expiresIn: '7d', // Token valid for 7 days. However, Cookie maxAge might be less. Check below.
-                            issuer: 'jellylab.io',
-                            subject: 'userInfo'
-                        }, (err, token) => {
 
-                            if (err){
-                                return res.status(403).json({success: true, message: 'Cookie token renew failed.', error: 'Given Token is successfully verified but new Token has not been issued.'})
-                            }
-
-                            console.log('err: ' + err, ', token: ' + token);
-                            if (err) {
-                                console.log('err.message: ' + err.message);
-                                return res.status(403).json({
-                                    success: false,
-                                    message: err.message
-                                });
-                            }
-                            // Refer to https://stackoverflow.com/questions/1062963/how-do-browser-cookie-domains-work/30676300#30676300 for cookie settings.
-                            // And https://stackoverflow.com/questions/1134290/cookies-on-localhost-with-explicit-domain for localhost config.
-                            console.log('req.header.origin = ' + req.header('origin'))
-
-                            const cookieMaxAge = 1000 * 60 * 60 * 18; // 18 Hours
-                            if (req.header('origin') === undefined){
-                                console.log('req origin is undefined. Probably from postman.')
-                                if (req.secure) {
-                                    console.log('req is secure')
-                                    res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: true})
-                                } else {
-                                    console.log('req is NOT secure')
-                                    res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: false})
-                                }
-                            } else if (req.header('origin').includes('localhost')) {
-                                console.log('req origin includes localhost OR it is from postman.')
-                                if (req.secure) {
-                                    console.log('req is secure')
-                                    res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: true})
-                                } else {
-                                    console.log('req is NOT secure')
-                                    res.cookie('token', token, {domain: 'localhost', maxAge: cookieMaxAge, secure: false})
-                                }
-                            } else {
-                                console.log('req origin does NOT include localhost')
-                                if (req.secure) {
-                                    res.cookie('token', token, {domain: '.jellylab.io', maxAge: cookieMaxAge, secure: true})
-                                } else {
-                                    res.cookie('token', token, {domain: '.jellylab.io', maxAge: cookieMaxAge, secure: false})
-                                }
-                            }
-
-                            res.header('test', 'testCookieValue: cookieValue');
-                            res.header('Access-Control-Allow-Credentials', 'true');
-                            return res.status(200).json({success: true, message: 'Token verified.', email: doctor.email,
-                                doctor_code: doctor.doctor_code, hospital: doctor.hospital, doctor_name: doctor.name, redirect: '/dashboard'})
-                        })
+                    return res.status(200).json({success: true, message: 'Token verified.', email: doctor.email,
+                        doctor_code: doctor.doctor_code, hospital: doctor.hospital, doctor_name: doctor.name, redirect: '/dashboard'})
                 }).catch(function (err){
                     return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
                 })
@@ -157,7 +93,7 @@ function verifyToken (req, res){
 function checkTokenVerified (req, res, next){
     const cookie = req.cookies || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-    let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
+    let token = cookies.token;
     const secret = config.jwt_secret;
 
     // decode token
@@ -181,67 +117,6 @@ function checkTokenVerified (req, res, next){
             message: 'API call not allowed. No token provided.'
         });
     }
-}
-
-// authenticate is not being used for now, but may be used for later.
-function authenticate (req, res) {
-
-    const email = req.body.email;
-    const password = req.body.password;
-    const secret = req.app.get('jwt_secret');
-
-    if (!email) return res.status(400).json({error: 'Incorrect id'});
-
-    // find the user
-    models.Doctor.findOne({
-        where: {email: email}
-    }).then(doctor => {
-        if (!doctor){
-            res.json({ success: false, message: 'Authentication failed. User not found.' });
-        } else {
-            // if user is found and password is right
-            if (doctor.password === password) {
-
-                // create a token with only our given payload
-                // we don't want to pass in the entire user since that has the password
-                const payload = {
-                    id: doctor.id,
-                    permissions: userPermission.DEVELOPER,
-                    email: doctor.email,
-                    doctor_code: doctor.doctor_code
-                    // put in object parameters in here.
-                    // admin: user.admin
-                };
-
-                jwt.sign(
-                    payload,
-                    secret,
-                    {
-                        expiresIn: '7d',
-                        issuer: 'jellylab.io',
-                        subject: 'userInfo'
-                    },
-                    (err, token) => {
-                        console.log(token);
-                        console.log(err);
-                        if (err) res.status(403).json({
-                            message: err.message
-                        });
-                        res.cookie('token', token);
-                        res.status(200).json({
-                            success: true,
-                            message: 'Ok',
-                            token: token
-                        });
-                    });
-            } else {
-                res.status(403).json({
-                    success: true,
-                    message: 'Password wrong'
-                });
-            }
-        }
-    })
 }
 
 function doctorEmailDuplicateCheck (req, res){
@@ -404,27 +279,26 @@ function loginDoctor (req, res){
                         console.log('req origin is undefined. Probably from postman.')
                         if (req.secure) {
                             console.log('req is secure')
-                            res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: true})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
                         } else {
                             console.log('req is NOT secure')
-                            res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: false})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
                         }
                     } else if (req.header('origin').includes('localhost')) {
                         console.log('req origin includes localhost OR it is from postman.')
                         if (req.secure) {
                             console.log('req is secure')
-                            res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: true})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
                         } else {
                             console.log('req is NOT secure')
-                            res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: false})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
                         }
                     } else {
                         console.log('req origin does NOT include localhost')
                         if (req.secure) {
-                            // TODO : 추후 리팩토링이 필요할 것으로 보임. 정식 배포 전 domain을 false로 설정해놓았음.
-                            res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: true})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
                         } else {
-                            res.cookie('token', token, {domain: false, maxAge: cookieMaxAge, secure: false})
+                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
                         }
                     }
                     res.header('Access-Control-Allow-Credentials', 'true');
@@ -448,7 +322,7 @@ function loginDoctor (req, res){
 function logoutDoctor (req, res) {
     const cookie = req.cookies || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-    let token = req.body.token || req.query.token || req.headers['x-access-token'] || cookies.token;
+    let token = cookies.token;
     const secret = config.jwt_secret;
 
     if (token) {
@@ -587,7 +461,6 @@ function deleteDoctor (req, res) {
 module.exports = {
     verifyToken: verifyToken,
     checkTokenVerified: checkTokenVerified,
-    authenticate: authenticate,
     registerDoctor: registerDoctor,
     loginDoctor: loginDoctor,
     logoutDoctor: logoutDoctor,
