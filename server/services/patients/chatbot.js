@@ -139,10 +139,6 @@ function updatePatient (req, res) {
             where: {
                 kakao_id: kakao_id
             }
-        }).then(Medicine_time => {
-            return res.status(201).json({success: true, result: Medicine_time})
-        }).catch(function (err){
-            return res.status(400).json({success: false, message: 'Slot does not exist for given kakao_id. However, create failed.', err: err.message})
         })
 
         models.Medicine_time.create({
@@ -154,10 +150,6 @@ function updatePatient (req, res) {
             where: {
                 kakao_id: kakao_id
             }
-        }).then(Medicine_time => {
-            return res.status(201).json({success: true, result: Medicine_time})
-        }).catch(function (err){
-            return res.status(400).json({success: false, message: 'Slot does not exist for given kakao_id. However, create failed.', err: err.message})
         })
 
         models.Medicine_time.create({
@@ -169,10 +161,6 @@ function updatePatient (req, res) {
             where: {
                 kakao_id: kakao_id
             }
-        }).then(Medicine_time => {
-            return res.status(201).json({success: true, result: Medicine_time})
-        }).catch(function (err){
-            return res.status(400).json({success: false, message: 'Slot does not exist for given kakao_id. However, create failed.', err: err.message})
         })
 
         models.Patient.update({
