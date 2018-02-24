@@ -557,7 +557,8 @@ function createMedicineCheck (req, res) {
         encrypted_kakao_id: kakao_id,
         med_check: med_check,
         time: time,
-        date: parseInt(date), // (챗봇에서 콜을 할 때 이미 한국시로 Date 를 준다.)
+        date: time,
+        //date: parseInt(date), // (챗봇에서 콜을 할 때 이미 한국시로 Date 를 준다.)
         slot: slot
     }).then(medicine_check => {
         res.status(201).json({success: true, result: medicine_check})
