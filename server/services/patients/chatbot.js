@@ -135,6 +135,10 @@ function updatePatient (req, res) {
             encrypted_kakao_id: kakao_id,
             slot: 0,
             time: 5
+        }, {
+            where: {
+                kakao_id: kakao_id
+            }
         }).then(Medicine_time => {
             return res.status(201).json({success: true, result: Medicine_time})
         }).catch(function (err){
@@ -146,6 +150,10 @@ function updatePatient (req, res) {
             encrypted_kakao_id: kakao_id,
             slot: 1,
             time: 12
+        }, {
+            where: {
+                kakao_id: kakao_id
+            }
         }).then(Medicine_time => {
             return res.status(201).json({success: true, result: Medicine_time})
         }).catch(function (err){
@@ -157,6 +165,10 @@ function updatePatient (req, res) {
             encrypted_kakao_id: kakao_id,
             slot: 2,
             time: 17
+        }, {
+            where: {
+                kakao_id: kakao_id
+            }
         }).then(Medicine_time => {
             return res.status(201).json({success: true, result: Medicine_time})
         }).catch(function (err){
