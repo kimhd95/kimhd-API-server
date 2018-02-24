@@ -130,6 +130,15 @@ function updatePatient (req, res) {
 
     if(doctor_code){
 
+        models.sequelize.query('INSERT INTO medicine_times (kakaoid, encrypted_kakaoid, slot, time) ' +
+            'VALUES (' + kakao_id + ", " + kakao_id + ", 0, 5);");
+        models.sequelize.query('INSERT INTO medicine_times (kakaoid, encrypted_kakaoid, slot, time) ' +
+            'VALUES (' + kakao_id + ", " + kakao_id + ", 1, 12);");
+        models.sequelize.query('INSERT INTO medicine_times (kakaoid, encrypted_kakaoid, slot, time) ' +
+            'VALUES (' + kakao_id + ", " + kakao_id + ", 2, 17);");
+
+
+        /*
         models.Medicine_time.create({
             kakao_id: kakao_id,
             encrypted_kakao_id: kakao_id,
@@ -150,7 +159,7 @@ function updatePatient (req, res) {
             slot: 2,
             time: 17
         })
-
+        */
         models.Patient.update({
             doctor_code: doctor_code, // What to update
             registered: 0,
