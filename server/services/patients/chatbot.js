@@ -135,10 +135,6 @@ function updatePatient (req, res) {
             encrypted_kakao_id: kakao_id,
             slot: 0,
             time: 5
-        }, {
-            where: {
-                kakao_id: kakao_id
-            }
         })
 
         models.Medicine_time.create({
@@ -146,10 +142,6 @@ function updatePatient (req, res) {
             encrypted_kakao_id: kakao_id,
             slot: 1,
             time: 12
-        }, {
-            where: {
-                kakao_id: kakao_id
-            }
         })
 
         models.Medicine_time.create({
@@ -157,10 +149,6 @@ function updatePatient (req, res) {
             encrypted_kakao_id: kakao_id,
             slot: 2,
             time: 17
-        }, {
-            where: {
-                kakao_id: kakao_id
-            }
         })
 
         models.Patient.update({
