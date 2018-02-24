@@ -148,6 +148,42 @@ function updatePatient (req, res) {
         }).catch(function (err){
             return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
         })
+
+        models.Medicine_time.create({
+            kakao_id: kakao_id,
+            encrypted_kakao_id: kakao_id,
+            slot: 0,
+            time: 5
+        }).then(Medicine_time => {
+            return res.status(201).json({success: true, result: Medicine_time})
+        }).catch(function (err){
+            return res.status(400).json({success: false, message: 'Slot does not exist for given kakao_id. However, create failed.', err: err.message})
+        })
+
+        models.Medicine_time.create({
+            kakao_id: kakao_id,
+            encrypted_kakao_id: kakao_id,
+            slot: 1,
+            time: 12
+        }).then(Medicine_time => {
+            return res.status(201).json({success: true, result: Medicine_time})
+        }).catch(function (err){
+            return res.status(400).json({success: false, message: 'Slot does not exist for given kakao_id. However, create failed.', err: err.message})
+        })
+
+        models.Medicine_time.create({
+            kakao_id: kakao_id,
+            encrypted_kakao_id: kakao_id,
+            slot: 2,
+            time: 17
+        }).then(Medicine_time => {
+            return res.status(201).json({success: true, result: Medicine_time})
+        }).catch(function (err){
+            return res.status(400).json({success: false, message: 'Slot does not exist for given kakao_id. However, create failed.', err: err.message})
+        })
+        
+
+
     }
 
     let param_name;
