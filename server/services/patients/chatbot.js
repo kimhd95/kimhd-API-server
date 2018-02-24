@@ -129,25 +129,6 @@ function updatePatient (req, res) {
     //const encrypted_kakao_id = kakao_id + '1';
 
     if(doctor_code){
-        models.Patient.update({
-            doctor_code: doctor_code, // What to update
-            registered: 0,
-            encrypted_kakao_id: kakao_id
-        }, {
-            where: {
-                kakao_id: kakao_id
-            } // Condition
-        }).then(result => {
-            console.log('result: ' + result.toString())
-            if (result){
-                return res.status(200).json({success: true, message: 'Update doctor_code and registered complete. Result: ' + result.toString()})
-            } else {
-                return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. ' +
-                    + result.toString()})
-            }
-        }).catch(function (err){
-            return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
-        })
 
         models.Medicine_time.create({
             kakao_id: kakao_id,
@@ -181,8 +162,26 @@ function updatePatient (req, res) {
         }).catch(function (err){
             return res.status(400).json({success: false, message: 'Slot does not exist for given kakao_id. However, create failed.', err: err.message})
         })
-        
 
+        models.Patient.update({
+            doctor_code: doctor_code, // What to update
+            registered: 0,
+            encrypted_kakao_id: kakao_id
+        }, {
+            where: {
+                kakao_id: kakao_id
+            } // Condition
+        }).then(result => {
+            console.log('result: ' + result.toString())
+            if (result){
+                return res.status(200).json({success: true, message: 'Update doctor_code and registered complete. Result: ' + result.toString()})
+            } else {
+                return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. ' +
+                    + result.toString()})
+            }
+        }).catch(function (err){
+            return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
+        })
 
     }
 
