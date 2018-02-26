@@ -166,6 +166,7 @@ function getPatientInfoSummary (req, res){
             models.Mood_check.findAll({
                 where: {
                     //kakao_id: patient.kakao_id
+                    type: 'itchy',
                     encrypted_kakao_id: patient.encrypted_kakao_id
                 }
             }).then(mood => {
@@ -408,6 +409,7 @@ function getPatientInfoAll (req, res){
             models.Mood_check.findAll({
                 where: {
                     //kakao_id: patient.kakao_id
+                    type: 'itchy',
                     encrypted_kakao_id: patient.encrypted_kakao_id
                 }
             }).then(mood => {
