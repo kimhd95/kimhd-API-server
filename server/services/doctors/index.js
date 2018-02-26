@@ -249,6 +249,12 @@ function getPatientInfoSummary (req, res){
 
             let takenWeekCount = 0;
             let takenMonthCount = 0;
+            let moistWeekCount = 0;
+            let moistMonthCount = 0;
+            let protopicWeekCount = 0;
+            let protopicMonthCount = 0;
+            let steroidWeekCount = 0;
+            let steroidMonthCount = 0;
 
             //let recordDate = new Date().getTime();
 
@@ -256,6 +262,7 @@ function getPatientInfoSummary (req, res){
 
                 let medCheck = patient.medicine_check[iterationCount]['med_check']
                 let datetime = patient.medicine_check[iterationCount]['date']
+                let slot = patient.medicine_check[iterationCount]['slot']
 
                 let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
                 let nextDay = new Date();
@@ -276,6 +283,46 @@ function getPatientInfoSummary (req, res){
                         takenMonthCount += 1;
                     }
                 }
+
+                if (timeDifferenceInDays < 7) { // record within 7 days of query
+                    totalWeekCount += 1;
+                    if ((medCheck === 1) && (slot === 0)){
+                        moistWeekCount += 1;
+                    }
+                }
+                if (timeDifferenceInDays < 30) { // record within 30 days of query
+                    totalMonthCount += 1;
+                    if ((medCheck === 1) && (slot === 0)){
+                        moistMonthCount += 1;
+                    }
+                }
+
+                if (timeDifferenceInDays < 7) { // record within 7 days of query
+                    totalWeekCount += 1;
+                    if ((medCheck === 1) && (slot === 1)){
+                        protopicWeekCount += 1;
+                    }
+                }
+                if (timeDifferenceInDays < 30) { // record within 30 days of query
+                    totalMonthCount += 1;
+                    if ((medCheck === 1) && (slot === 1)){
+                        protopicMonthCount += 1;
+                    }
+                }
+
+                if (timeDifferenceInDays < 7) { // record within 7 days of query
+                    totalWeekCount += 1;
+                    if ((medCheck === 1) && (slot === 2)){
+                        steroidWeekCount += 1;
+                    }
+                }
+                if (timeDifferenceInDays < 30) { // record within 30 days of query
+                    totalMonthCount += 1;
+                    if ((medCheck === 1) && (slot === 2)){
+                        steroidMonthCount += 1;
+                    }
+                }
+
             }
 
             // let medTakenRate = (medTakenCount/totalCount *100).toFixed(0);
@@ -316,6 +363,12 @@ function getPatientInfoSummary (req, res){
                 totalMonthCount : totalMonthCount,
                 takenWeekCount : takenWeekCount,
                 takenMonthCount : takenMonthCount,
+                moistWeekCount : moistWeekCount,
+                moistMonthCount : moistMonthCount,
+                protopicWeekCount : protopicWeekCount,
+                protopicMonthCount : protopicMonthCount,
+                steroidWeekCount : steroidWeekCount,
+                steroidMonthCount : steroidMonthCount,
                 weekEmotionEmergencyCount: weekEmergencyMoodCount,
                 monthEmotionEmergencyCount: monthEmergencyMoodCount,
                 weekStandardDeviation: weekSd,
@@ -462,6 +515,12 @@ function getPatientInfoAll (req, res){
 
             let takenWeekCount = 0;
             let takenMonthCount = 0;
+            let moistWeekCount = 0;
+            let moistMonthCount = 0;
+            let protopicWeekCount = 0;
+            let protopicMonthCount = 0;
+            let steroidWeekCount = 0;
+            let steroidMonthCount = 0;
 
             let recordDate = new Date().getTime();
 
@@ -469,6 +528,7 @@ function getPatientInfoAll (req, res){
 
                 let medCheck = patient.medicine_check[iterationCount]['med_check']
                 let datetime = patient.medicine_check[iterationCount]['time']
+                let slot = patient.medicine_check[iterationCount]['slot']
 
                 let jsDate = datetime*1000; // DB stores time in seconds. * 1000 to get in milliseconds.
                 let nextDay = new Date();
@@ -489,6 +549,46 @@ function getPatientInfoAll (req, res){
                         takenMonthCount += 1;
                     }
                 }
+
+                if (timeDifferenceInDays < 7) { // record within 7 days of query
+                    totalWeekCount += 1;
+                    if ((medCheck === 1) && (slot === 0)){
+                        moistWeekCount += 1;
+                    }
+                }
+                if (timeDifferenceInDays < 30) { // record within 30 days of query
+                    totalMonthCount += 1;
+                    if ((medCheck === 1) && (slot === 0)){
+                        moistMonthCount += 1;
+                    }
+                }
+
+                if (timeDifferenceInDays < 7) { // record within 7 days of query
+                    totalWeekCount += 1;
+                    if ((medCheck === 1) && (slot === 1)){
+                        protopicWeekCount += 1;
+                    }
+                }
+                if (timeDifferenceInDays < 30) { // record within 30 days of query
+                    totalMonthCount += 1;
+                    if ((medCheck === 1) && (slot === 1)){
+                        protopicMonthCount += 1;
+                    }
+                }
+
+                if (timeDifferenceInDays < 7) { // record within 7 days of query
+                    totalWeekCount += 1;
+                    if ((medCheck === 1) && (slot === 2)){
+                        steroidWeekCount += 1;
+                    }
+                }
+                if (timeDifferenceInDays < 30) { // record within 30 days of query
+                    totalMonthCount += 1;
+                    if ((medCheck === 1) && (slot === 2)){
+                        steroidMonthCount += 1;
+                    }
+                }
+
             }
 
             let weekTakenRate,
@@ -524,6 +624,12 @@ function getPatientInfoAll (req, res){
                 totalMonthCount : totalMonthCount,
                 takenWeekCount : takenWeekCount,
                 takenMonthCount : takenMonthCount,
+                moistWeekCount : moistWeekCount,
+                moistMonthCount : moistMonthCount,
+                protopicWeekCount : protopicWeekCount,
+                protopicMonthCount : protopicMonthCount,
+                steroidWeekCount : steroidWeekCount,
+                steroidMonthCount : steroidMonthCount,
                 weekEmotionEmergencyCount: weekEmergencyMoodCount,
                 monthEmotionEmergencyCount: monthEmergencyMoodCount,
                 weekStandardDeviation: weekSd,
