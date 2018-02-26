@@ -337,7 +337,8 @@ function createPatientLog (req, res){
             {
                 scenario: scenario,
                 state: state,
-                date: date
+                date: date,
+                updated_at: date
             },     // What to update
             {where: {
                     kakao_id: kakao_id}
