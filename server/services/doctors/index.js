@@ -198,7 +198,7 @@ function getPatientInfoSummary (req, res){
 
             for (let iterationCount in patient.mood_check){
                 let moodCheck = patient.mood_check[iterationCount]['mood_check']
-                let datetime = patient.mood_check[iterationCount]['date']
+                let datetime = patient.mood_check[iterationCount]['time']
 
                 // This code converts YYYY-MM-DD hh:mm:ss to YYYY/MM/DD hh:mm:ss that is easily parsed by Date constructor.
                 //let datetimeConverted = new Date(datetime.replace(/-/g, '/'))
