@@ -26,7 +26,8 @@ function getPatientChartURL (req, res){
             encrypted_kakao_id: encrypted_kakao_id
         }
     }).then(patient => {
-        if (patient){
+        //if (patient){
+        if (!patient){
             return res.status(403).json({success: false, message: 'patient with same encrypted_kakao_id already exists'})
         } else {
 
