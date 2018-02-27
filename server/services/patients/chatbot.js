@@ -30,11 +30,11 @@ function getPatientChartURL (req, res){
         if (!patient){
             return res.status(403).json({success: false, message: 'patient with same encrypted_kakao_id already exists'})
         } else {
-
+            // TODO : url 리턴 주소를 config 파일에서 불러오도록 처리
             return res.status(200).json({success: true, message: 'patient found returning url',
-                url: 'https://jellyfi.jellylab.io/chart/' + patient.encrypted_kakao_id})
+                url: 'http://devatopy.jellylab.io/chart/' + patient.encrypted_kakao_id})
 
-            // TODO: Create encrypted_kakao_id to protect raw kakao_id from being public.
+            // TODO : Create encrypted_kakao_id to protect raw kakao_id from being public.
             // return res.status(200).json({success: true, message: 'patient found returning url.', url: 'https://jellyfi.jellylab.io/' + patient.encrypted_kakao_id})
 
         }
