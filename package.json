@@ -4,10 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node index.js",
-    "qa": "cross-env NODE_ENV=qa node index.js",
-    "dev": "cross-env NODE_ENV=dev node index.js",
-    "local": "cross-env NODE_ENV=local node index.js",
+    "start": "cross-env NODE_ENV=production node api_atopy.js",
+    "dev": "cross-env NODE_ENV=dev node api_atopy.js",
+    "local": "cross-env NODE_ENV=local node api_atopy.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
