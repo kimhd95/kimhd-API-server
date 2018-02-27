@@ -31,7 +31,7 @@ function getPatientChartURL (req, res){
             return res.status(403).json({success: false, message: 'patient with same encrypted_kakao_id already exists'})
         } else {
 
-            return res.status(200).json({success: true, message: 'patient found returning url, url: '+'https://jellyfi.jellylab.io/chart/' + patient.encrypted_kakao_id,
+            return res.status(200).json({success: true, message: 'patient found returning url',
                 url: 'https://jellyfi.jellylab.io/chart/' + patient.encrypted_kakao_id})
 
             // TODO: Create encrypted_kakao_id to protect raw kakao_id from being public.
