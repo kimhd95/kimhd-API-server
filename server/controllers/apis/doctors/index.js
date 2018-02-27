@@ -14,6 +14,7 @@ router.post('/register', authService.registerDoctor)
 router.post('/login', authService.loginDoctor)
 router.get('/logout', authService.logoutDoctor)
 router.post('/email_duplicate_check', authService.doctorEmailDuplicateCheck)
+router.get('/get_patient_graph/:encrypted_kakao_id/:start/:end', doctorService.getPatientGraph)   // 내 그래프 보기 요청의 경우 인증 생략  // TODO : URL 만료설정을 통해 보안강화 필요
 
 // Check if token is verified. Used for Login Page redirect on client side web dashboard.
 router.use(authService.checkTokenVerified)
@@ -32,7 +33,6 @@ router.get('/get_patients_to_add/:doctor_code', doctorService.getPatientsToAdd)
 router.get('/get_patient_info/:encrypted_kakao_id', doctorService.getPatientInfo)
 router.get('/get_patient_info_all/:encrypted_kakao_id', doctorService.getPatientInfoAll)
 router.get('/get_patient_info_summary/:encrypted_kakao_id', doctorService.getPatientInfoSummary)
-router.get('/get_patient_graph/:encrypted_kakao_id/:start/:end', doctorService.getPatientGraph)
 router.get('/get_patient_med_miss_reason/:encrypted_kakao_id', doctorService.getPatientMedMissReason)
 
 router.get('/get_medicine_check/:encrypted_kakao_id/:start/:end', doctorService.getMedicineCheck)
