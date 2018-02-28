@@ -224,6 +224,31 @@ function updatePatient (req, res) {
 }
 
 
+function updateDaily (req, res) {
+    const kakao_id = req.body.kakao_id
+    const scenario = req.body.scenario
+    const state = req.body.state
+    const date = req.body.date
+    //let nowDate = new Date();
+    //nowDate.getTime();
+    //const now = nowDate;
+
+    if ((scenario.indexOf("201") == 0) && (state == 'init')){
+        models.Patient.update(
+            {
+                daily_scenario: date
+            },     // What to update
+            {where: {
+                    kakao_id: kakao_id}
+            })  // Condition
+            .then(result => {
+                return res.status(200).json({success: true, message: 'Patient daily_scenario Update complete.', updateResult: result})
+            }).catch(function (err){
+            return res.status(403).json({success: false, message: 'Patient daily_scenario Update Update failed. Error: ' + err.message})
+        })
+    }
+}
+
 function getPatientInfo (req, res) {
     console.log('getPatientInfo called.')
     const kakao_id = req.params.kakao_id
@@ -700,6 +725,7 @@ module.exports = {
 
     registerPatient: registerPatient,
     updatePatient: updatePatient,
+    updateDaily: updateDaily,
     getPatientInfo: getPatientInfo,
     updateExit: updateExit,
     createPatientLog: createPatientLog,
