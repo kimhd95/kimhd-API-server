@@ -151,6 +151,10 @@ function getPatientInfo (req, res){
 }
 
 function getPatientInfoSummary (req, res){
+
+    // TODO : 불필요한 계산식은 삭제할 필요 있음
+    // TODO : 정신과 명칭 리팩토링 필요
+
     //const patientKakaoId = req.params.kakao_id;
     const patientEncryptedKakaoid = req.params.encrypted_kakao_id;
     models.Patient.findOne({
@@ -192,7 +196,9 @@ function getPatientInfoSummary (req, res){
                 weekEmergencyMoodCount = 0,
                 monthEmergencyMoodCount = 0,
                 weekMoodChecks = [],
-                monthMoodChecks = []
+                weekMoodChecksPrev = [],
+                monthMoodChecks = [],
+                monthMoodChecksPrev = [];
 
 
 
@@ -216,34 +222,37 @@ function getPatientInfoSummary (req, res){
                         weekEmergencyMoodCount += 1;
                     }
                 }
+
+                if ((7 <= timeDifferenceInDays) && (timeDifferenceInDays < 14)) { // 전 주의 가려움 기록
+                    weekMoodChecksPrev.push(moodCheck);
+                }
+
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     monthMoodChecks.push(moodCheck)
                     if (moodCheck <= -3) {
                         monthEmergencyMoodCount += 1;
                     }
                 }
+
+                if ((30 <= timeDifferenceInDays) && (timeDifferenceInDays < 60)) { // 전 월의 가려움 기록
+                    monthMoodChecksPrev.push(moodCheck);
+                }
             }
 
-            let weekAvg1 = average(weekMoodChecks)
-            let weekSd1 = standardDeviation(weekMoodChecks)
-            let monthAvg1 = average(monthMoodChecks)
-            let monthSd1 = standardDeviation(monthMoodChecks)
-            let weekAvg = weekAvg1.toFixed(1)
-            let weekSd = weekSd1.toFixed(1)
-            let monthAvg = monthAvg1.toFixed(1)
-            let monthSd = monthSd1.toFixed(1)
-            if (isNaN(weekAvg)){
-                weekAvg = null;
-            }
-            if (isNaN(weekSd)){
-                weekSd = null;
-            }
-            if (isNaN(monthAvg)){
-                monthAvg = null;
-            }
-            if (isNaN(monthSd)){
-                monthSd = null;
-            }
+            let weekAvg = average(weekMoodChecks).toFixed(1);
+            let weekAvgPrev = average(weekMoodChecksPrev).toFixed(1);
+            let weekAvgChange, weekAvgChangeDirection;
+            let weekSd = standardDeviation(weekMoodChecks).toFixed(1);
+            let monthAvg = average(monthMoodChecks).toFixed(1);
+            let monthAvgPrev = average(monthMoodChecksPrev).toFixed(1);
+            let monthAvgChange, monthAvgChangeDirection;
+            let monthSd = standardDeviation(monthMoodChecks).toFixed(1);
+            if (isNaN(weekAvg)) weekAvg = null;
+            if (isNaN(weekAvgPrev)) weekAvgPrev = null;
+            if (isNaN(weekSd)) weekSd = null;
+            if (isNaN(monthAvg)) monthAvg = null;
+            if (isNaN(monthAvgPrev)) monthAvgPrev = null;
+            if (isNaN(monthSd)) monthSd = null;
             // ------------------- Medicine Check ------------------- //
             let totalWeekCount = 0;
             let totalMonthCount = 0;
@@ -256,6 +265,13 @@ function getPatientInfoSummary (req, res){
             let protopicMonthCount = 0;
             let steroidWeekCount = 0;
             let steroidMonthCount = 0;
+            let steroidWeekCountPrev = 0;
+            let steroidMonthCountPrev = 0;
+
+            let steroidWeekChange;
+            let steroidWeekChangeDirection;
+            let steroidMonthChange;
+            let steroidMonthChangeDirection;
 
             //let recordDate = new Date().getTime();
 
@@ -324,6 +340,17 @@ function getPatientInfoSummary (req, res){
                     }
                 }
 
+                if ((7 <= timeDifferenceInDays) && (timeDifferenceInDays < 14)) { // record query within last week
+                    if ((medCheck === 1) && (slot === 2)){
+                        steroidWeekCountPrev += 1;
+                    }
+                }
+
+                if ((30 <= timeDifferenceInDays) && (timeDifferenceInDays < 60)) { // record query within last month
+                    if ((medCheck === 1) && (slot === 2)){
+                        steroidMonthCountPrev += 1;
+                    }
+                }
             }
 
             // let medTakenRate = (medTakenCount/totalCount *100).toFixed(0);
@@ -341,6 +368,81 @@ function getPatientInfoSummary (req, res){
                 monthTakenRate = (takenMonthCount / totalMonthCount * 100).toFixed(0);
             } else {
                 monthTakenRate = 0;
+            }
+
+            // 스테로이드 사용횟수 증감률 계산
+            if (steroidWeekCountPrev > 0) {
+                console.log("CountPrev Positive");
+                steroidWeekChange = ((steroidWeekCount - steroidWeekCountPrev) / steroidWeekCountPrev * 100).toFixed(0);
+                // 문자열 생성
+                if(steroidWeekChange > 0) {
+                    steroidWeekChange = '▲'+steroidWeekChange+'%';
+                    steroidWeekChangeDirection = 'positive';
+                } else if (steroidWeekChange < 0) {
+                    steroidWeekChange = '▼'+steroidWeekChange+'%';
+                    steroidWeekChangeDirection = 'negative';
+                } else if (steroidWeekChange == 0) {
+                    steroidWeekChange = '-'+steroidWeekChange+'%';
+                    steroidWeekChangeDirection = 'zero';
+                }
+            } else {
+                steroidWeekChange = null;
+                steroidWeekChangeDirection = 'none';
+            }
+
+            if (steroidMonthCountPrev > 0) {
+                steroidMonthChange = ((steroidMonthCount - steroidMonthCountPrev) / steroidMonthCountPrev * 100).toFixed(0);
+
+                // 문자열 생성
+                if(steroidMonthChange > 0) {
+                    steroidMonthChange = '▲'+steroidMonthChange+'%';
+                    steroidMonthChangeDirection = 'positive';
+                } else if (steroidMonthChange < 0) {
+                    steroidMonthChange = '▼'+steroidMonthChange+'%';
+                    steroidMonthChangeDirection = 'negative';
+                } else if (steroidMonthChange == 0) {
+                    steroidMonthChange = '-'+steroidMonthChange+'%';
+                    steroidMonthChangeDirection = 'zero';
+                }
+            } else {
+                steroidMonthChange = null;
+                steroidMonthChangeDirection = 'none';
+            }
+
+            if (weekAvgPrev > 0) {
+                weekAvgChange = ((weekAvg - weekAvgPrev) / weekAvgPrev * 100).toFixed(1);
+
+                if(weekAvgChange > 0) {
+                    weekAvgChange = '▲'+weekAvgChange+'%';
+                    weekAvgChangeDirection = 'positive';
+                } else if (weekAvgChange < 0) {
+                    weekAvgChange = '▼'+weekAvgChange+'%';
+                    weekAvgChangeDirection = 'negative';
+                } else if (weekAvgChange == 0) {
+                    weekAvgChange = '-'+weekAvgChange+'%';
+                    weekAvgChangeDirection = 'zero';
+                }
+            } else {
+                weekAvgChange = null;
+                weekAvgChangeDirection = 'none';
+            }
+
+            if (monthAvgPrev > 0) {
+                monthAvgChange = ((monthAvg - monthAvgPrev) / monthAvgPrev * 100).toFixed(1);
+
+                if(monthAvgChange > 0) {
+                    monthAvgChange = '▲'+monthAvgChange+'%';
+                    monthAvgChangeDirection = 'positive';
+                } else if (monthAvgChange < 0) {
+                    monthAvgChange = '▼'+monthAvgChange+'%';
+                    monthAvgChangeDirection = 'negative';
+                } else if (monthAvgChange == 0) {
+                    monthAvgChange = '-'+monthAvgChange+'%';
+                    monthAvgChangeDirection = 'zero';
+                }
+            } else {
+                monthAvgChange = null;
+                monthAvgChangeDirection = 'none';
             }
 
 
@@ -376,8 +478,16 @@ function getPatientInfoSummary (req, res){
                 monthStandardDeviation: monthSd,
                 weekAverage: weekAvg,
                 monthAverage: monthAvg,
-                nextHospitalVisitDate: nextHospitalVisitDate
-            }
+                nextHospitalVisitDate: nextHospitalVisitDate,
+                steroidWeekChange:steroidWeekChange,
+                steroidMonthChange: steroidMonthChange,
+                steroidWeekChangeDirection:steroidWeekChangeDirection,
+                steroidMonthChangeDirection:steroidMonthChangeDirection,
+                weekAvgChange:weekAvgChange,
+                monthAvgChange:monthAvgChange,
+                weekAvgChangeDirection:weekAvgChangeDirection,
+                monthAvgChangeDirection:monthAvgChangeDirection
+            };
 
             return res.status(200).json(patientinfo);
         }, function(reason) {
