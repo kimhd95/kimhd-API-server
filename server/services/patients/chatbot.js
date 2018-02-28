@@ -242,7 +242,7 @@ function updateDaily (req, res) {
                     kakao_id: kakao_id}
             })  // Condition
             .then(result => {
-                return res.status(200).json({success: true, message: 'Patient daily_scenario Update complete.', updateResult: result[0].info})
+                return res.status(200).json({success: true, message: 'Patient daily_scenario Update complete.', updateResult: result.toString()})
             }).catch(function (err){
             return res.status(403).json({success: false, message: 'Patient daily_scenario Update Update failed. Error: ' + err.message})
         })
