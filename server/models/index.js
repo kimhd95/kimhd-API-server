@@ -58,6 +58,7 @@ const Patient = sequelize.define('patient', {
     patient_password: Sequelize.STRING,
     kakao_id: { type: Sequelize.STRING, allowNull: false, unique: true },
     encrypted_kakao_id: Sequelize.STRING,
+    patient_code: Sequelize.STRING,
     doctor_code: Sequelize.STRING,
     registered: Sequelize.STRING,
     phone: Sequelize.STRING,

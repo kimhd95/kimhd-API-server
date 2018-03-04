@@ -112,6 +112,7 @@ function updatePatient (req, res) {
     const name = req.body.name
     const fullname = req.body.fullname
     const email = req.body.email
+    const patient_code = req.body.patient_code
     const doctor_code = req.body.doctor_code
     const phone = req.body.phone
     const sex = req.body.sex
@@ -192,6 +193,9 @@ function updatePatient (req, res) {
     } else if (fullname){
         param_name = 'fullname'
         param_value = fullname
+    } else if (patient_code){
+        param_name = 'patient_code'
+        param_value = patient_code
     } else if (email) {
         param_name = 'patient_email'
         param_value = email
@@ -219,7 +223,7 @@ function updatePatient (req, res) {
         })
     } else {
         return res.status(403).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
-            'And one more parameter is required among name, fullname, email, phone, sex, birthday'})
+            'And one more parameter is required among name, fullname, patient_code, email, phone, sex, birthday'})
     }
 }
 
