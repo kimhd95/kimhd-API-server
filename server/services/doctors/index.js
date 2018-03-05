@@ -248,12 +248,12 @@ function getPatientInfoSummary (req, res){
             let monthAvgPrev = average(monthMoodChecksPrev).toFixed(1);
             let monthAvgChange, monthAvgChangeDirection;
             let monthSd = standardDeviation(monthMoodChecks).toFixed(1);
-            if (isNaN(weekAvg)) weekAvg = null;
-            if (isNaN(weekAvgPrev)) weekAvgPrev = null;
-            if (isNaN(weekSd)) weekSd = null;
-            if (isNaN(monthAvg)) monthAvg = null;
-            if (isNaN(monthAvgPrev)) monthAvgPrev = null;
-            if (isNaN(monthSd)) monthSd = null;
+            if (isNaN(weekAvg)) weekAvg = '-';
+            if (isNaN(weekAvgPrev)) weekAvgPrev = '-';
+            if (isNaN(weekSd)) weekSd = '-';
+            if (isNaN(monthAvg)) monthAvg = '-';
+            if (isNaN(monthAvgPrev)) monthAvgPrev = '-';
+            if (isNaN(monthSd)) monthSd = '-';
             // ------------------- Medicine Check ------------------- //
             let totalWeekCount = 0;
             let totalMonthCount = 0;
@@ -291,65 +291,65 @@ function getPatientInfoSummary (req, res){
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
-                    if (medCheck === 1){
-                        takenWeekCount += 1;
+                    if (medCheck >= 1){
+                        takenWeekCount += medCheck;
                     }
                 }
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     totalMonthCount += 1;
-                    if (medCheck === 1){
-                        takenMonthCount += 1;
+                    if (medCheck >= 1){
+                        takenMonthCount += medCheck;
                     }
                 }
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
-                    if ((medCheck === 1) && (slot === 0)){
-                        moistWeekCount += 1;
+                    if ((medCheck >= 1) && (slot === 0)){
+                        moistWeekCount += medCheck;
                     }
                 }
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     totalMonthCount += 1;
-                    if ((medCheck === 1) && (slot === 0)){
-                        moistMonthCount += 1;
+                    if ((medCheck >= 1) && (slot === 0)){
+                        moistMonthCount += medCheck;
                     }
                 }
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
-                    if ((medCheck === 1) && (slot === 1)){
-                        protopicWeekCount += 1;
+                    if ((medCheck >= 1) && (slot === 1)){
+                        protopicWeekCount += medCheck;
                     }
                 }
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     totalMonthCount += 1;
-                    if ((medCheck === 1) && (slot === 1)){
-                        protopicMonthCount += 1;
+                    if ((medCheck >= 1) && (slot === 1)){
+                        protopicMonthCount += medCheck;
                     }
                 }
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
-                    if ((medCheck === 1) && (slot === 2)){
-                        steroidWeekCount += 1;
+                    if ((medCheck >= 1) && (slot === 2)){
+                        steroidWeekCount += medCheck;
                     }
                 }
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     totalMonthCount += 1;
-                    if ((medCheck === 1) && (slot === 2)){
-                        steroidMonthCount += 1;
+                    if ((medCheck >= 1) && (slot === 2)){
+                        steroidMonthCount += medCheck;
                     }
                 }
 
                 if ((7 <= timeDifferenceInDays) && (timeDifferenceInDays < 14)) { // record query within last week
-                    if ((medCheck === 1) && (slot === 2)){
-                        steroidWeekCountPrev += 1;
+                    if ((medCheck >= 1) && (slot === 2)){
+                        steroidWeekCountPrev += medCheck;
                     }
                 }
 
                 if ((30 <= timeDifferenceInDays) && (timeDifferenceInDays < 60)) { // record query within last month
-                    if ((medCheck === 1) && (slot === 2)){
-                        steroidMonthCountPrev += 1;
+                    if ((medCheck >= 1) && (slot === 2)){
+                        steroidMonthCountPrev += medCheck;
                     }
                 }
             }
@@ -387,7 +387,7 @@ function getPatientInfoSummary (req, res){
                     steroidWeekChangeDirection = 'zero';
                 }
             } else {
-                steroidWeekChange = null;
+                steroidWeekChange = '-';
                 steroidWeekChangeDirection = 'none';
             }
 
@@ -406,7 +406,7 @@ function getPatientInfoSummary (req, res){
                     steroidMonthChangeDirection = 'zero';
                 }
             } else {
-                steroidMonthChange = null;
+                steroidMonthChange = '-';
                 steroidMonthChangeDirection = 'none';
             }
 
@@ -424,7 +424,7 @@ function getPatientInfoSummary (req, res){
                     weekAvgChangeDirection = 'zero';
                 }
             } else {
-                weekAvgChange = null;
+                weekAvgChange = '-';
                 weekAvgChangeDirection = 'none';
             }
 
@@ -442,7 +442,7 @@ function getPatientInfoSummary (req, res){
                     monthAvgChangeDirection = 'zero';
                 }
             } else {
-                monthAvgChange = null;
+                monthAvgChange = '-';
                 monthAvgChangeDirection = 'none';
             }
 
@@ -452,7 +452,7 @@ function getPatientInfoSummary (req, res){
             // + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 데이트 + 랜덤 일 수.
             let now = new Date().getTime();
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
-                nextHospitalVisitDate = null;
+                nextHospitalVisitDate = '-';
             }
 
             let patientinfo = {
@@ -566,7 +566,9 @@ function getPatientInfoAll (req, res){
                 weekEmergencyMoodCount = 0,
                 monthEmergencyMoodCount = 0,
                 weekMoodChecks = [],
-                monthMoodChecks = []
+                weekMoodChecksPrev = [],
+                monthMoodChecks = [],
+                monthMoodChecksPrev = [];
 
             // ---------- Mood Check ------------ //
 
@@ -590,38 +592,36 @@ function getPatientInfoAll (req, res){
                         weekEmergencyMoodCount += 1;
                     }
                 }
+
+                if ((7 <= timeDifferenceInDays) && (timeDifferenceInDays < 14)) { // 전 주의 가려움 기록
+                    weekMoodChecksPrev.push(moodCheck);
+                }
+
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     monthMoodChecks.push(moodCheck)
                     if (moodCheck <= -3) {
                         monthEmergencyMoodCount += 1;
                     }
                 }
+                if ((30 <= timeDifferenceInDays) && (timeDifferenceInDays < 60)) { // 전 월의 가려움 기록
+                    monthMoodChecksPrev.push(moodCheck);
+                }
             }
 
-            //let weekAvg = round(average(weekMoodChecks))
-            //let weekSd = round(standardDeviation(weekMoodChecks))
-            //let monthAvg = round(average(monthMoodChecks))
-            //let monthSd = round(standardDeviation(monthMoodChecks))
-            let weekAvg1 = average(weekMoodChecks)
-            let weekSd1 = standardDeviation(weekMoodChecks)
-            let monthAvg1 = average(monthMoodChecks)
-            let monthSd1 = standardDeviation(monthMoodChecks)
-            let weekAvg = weekAvg1.toFixed(1)
-            let weekSd = weekSd1.toFixed(1)
-            let monthAvg = monthAvg1.toFixed(1)
-            let monthSd = monthSd1.toFixed(1)
-            if (isNaN(weekAvg)){
-                weekAvg = null;
-            }
-            if (isNaN(weekSd)){
-                weekSd = null;
-            }
-            if (isNaN(monthAvg)){
-                monthAvg = null;
-            }
-            if (isNaN(monthSd)){
-                monthSd = null;
-            }
+            let weekAvg = average(weekMoodChecks).toFixed(1);
+            let weekAvgPrev = average(weekMoodChecksPrev).toFixed(1);
+            let weekAvgChange, weekAvgChangeDirection;
+            let weekSd = standardDeviation(weekMoodChecks).toFixed(1);
+            let monthAvg = average(monthMoodChecks).toFixed(1);
+            let monthAvgPrev = average(monthMoodChecksPrev).toFixed(1);
+            let monthAvgChange, monthAvgChangeDirection;
+            let monthSd = standardDeviation(monthMoodChecks).toFixed(1);
+            if (isNaN(weekAvg)) weekAvg = '-';
+            if (isNaN(weekAvgPrev)) weekAvgPrev = '-';
+            if (isNaN(weekSd)) weekSd = '-';
+            if (isNaN(monthAvg)) monthAvg = '-';
+            if (isNaN(monthAvgPrev)) monthAvgPrev = '-';
+            if (isNaN(monthSd)) monthSd = '-';
 
             // ------------------- Medicine Check ------------------- //
             let totalWeekCount = 0;
@@ -631,10 +631,28 @@ function getPatientInfoAll (req, res){
             let takenMonthCount = 0;
             let moistWeekCount = 0;
             let moistMonthCount = 0;
+            let moistWeekCountPrev = 0;
+            let moistMonthCountPrev = 0;
+            let moistWeekChange;
+            let moistWeekChangeDirection;
+            let moistMonthChange;
+            let moistMonthChangeDirection;
             let protopicWeekCount = 0;
             let protopicMonthCount = 0;
+            let protopicWeekCountPrev = 0;
+            let protopicMonthCountPrev = 0;
+            let protopicWeekChange;
+            let protopicWeekChangeDirection;
+            let protopicMonthChange;
+            let protopicMonthChangeDirection;
             let steroidWeekCount = 0;
             let steroidMonthCount = 0;
+            let steroidWeekCountPrev = 0;
+            let steroidMonthCountPrev = 0;
+            let steroidWeekChange;
+            let steroidWeekChangeDirection;
+            let steroidMonthChange;
+            let steroidMonthChangeDirection;
 
             let recordDate = new Date().getTime();
 
@@ -653,56 +671,88 @@ function getPatientInfoAll (req, res){
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
-                    if (medCheck === 1){
-                        takenWeekCount += 1;
+                    if (medCheck >= 1){
+                        takenWeekCount += medCheck;
                     }
                 }
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     totalMonthCount += 1;
-                    if (medCheck === 1){
-                        takenMonthCount += 1;
+                    if (medCheck >= 1){
+                        takenMonthCount += medCheck;
                     }
                 }
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
-                    if ((medCheck === 1) && (slot === 0)){
-                        moistWeekCount += 1;
+                    if ((medCheck >= 1) && (slot === 0)){
+                        moistWeekCount += medCheck;
                     }
                 }
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     totalMonthCount += 1;
-                    if ((medCheck === 1) && (slot === 0)){
-                        moistMonthCount += 1;
+                    if ((medCheck >= 1) && (slot === 0)){
+                        moistMonthCount += medCheck;
                     }
                 }
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
-                    if ((medCheck === 1) && (slot === 1)){
-                        protopicWeekCount += 1;
+                    if ((medCheck >= 1) && (slot === 1)){
+                        protopicWeekCount += medCheck;
                     }
                 }
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     totalMonthCount += 1;
-                    if ((medCheck === 1) && (slot === 1)){
-                        protopicMonthCount += 1;
+                    if ((medCheck >= 1) && (slot === 1)){
+                        protopicMonthCount += medCheck;
                     }
                 }
 
                 if (timeDifferenceInDays < 7) { // record within 7 days of query
                     totalWeekCount += 1;
-                    if ((medCheck === 1) && (slot === 2)){
-                        steroidWeekCount += 1;
+                    if ((medCheck >= 1) && (slot === 2)){
+                        steroidWeekCount += medCheck;
                     }
                 }
                 if (timeDifferenceInDays < 30) { // record within 30 days of query
                     totalMonthCount += 1;
-                    if ((medCheck === 1) && (slot === 2)){
-                        steroidMonthCount += 1;
+                    if ((medCheck >= 1) && (slot === 2)){
+                        steroidMonthCount += medCheck;
+                    }
+                }
+                if ((7 <= timeDifferenceInDays) && (timeDifferenceInDays < 14)) { // record query within last week
+                    if ((medCheck >= 1) && (slot === 0)){
+                        moistWeekCountPrev += medCheck;
                     }
                 }
 
+                if ((30 <= timeDifferenceInDays) && (timeDifferenceInDays < 60)) { // record query within last month
+                    if ((medCheck >= 1) && (slot === 0)){
+                        moistMonthCountPrev += medCheck;
+                    }
+                }
+                if ((7 <= timeDifferenceInDays) && (timeDifferenceInDays < 14)) { // record query within last week
+                    if ((medCheck >= 1) && (slot === 1)){
+                        protopicWeekCountPrev += medCheck;
+                    }
+                }
+                if ((30 <= timeDifferenceInDays) && (timeDifferenceInDays < 60)) { // record query within last month
+                    if ((medCheck >= 1) && (slot === 1)){
+                        protopicMonthCountPrev += medCheck;
+                    }
+                }
+
+                if ((7 <= timeDifferenceInDays) && (timeDifferenceInDays < 14)) { // record query within last week
+                    if ((medCheck >= 1) && (slot === 2)){
+                        steroidWeekCountPrev += medCheck;
+                    }
+                }
+
+                if ((30 <= timeDifferenceInDays) && (timeDifferenceInDays < 60)) { // record query within last month
+                    if ((medCheck >= 1) && (slot === 2)){
+                        steroidMonthCountPrev += medCheck;
+                    }
+                }
             }
 
             let weekTakenRate,
@@ -719,8 +769,158 @@ function getPatientInfoAll (req, res){
             } else {
                 monthTakenRate = 0;
             }
+            // 보습제 사용횟수 증감률 계산
+            if (moistWeekCountPrev > 0) {
+                console.log("CountPrev Positive");
+                moistWeekChange = ((moistWeekCount - moistWeekCountPrev) / moistWeekCountPrev * 100).toFixed(0);
+                // 문자열 생성
+                if(moistWeekChange > 0) {
+                    moistWeekChange = '▲'+moistWeekChange+'%';
+                    moistWeekChangeDirection = 'positive';
+                } else if (moistWeekChange < 0) {
+                    moistWeekChange = '▼'+moistWeekChange+'%';
+                    moistWeekChangeDirection = 'negative';
+                } else if (moistWeekChange == 0) {
+                    moistWeekChange = '-'+moistWeekChange+'%';
+                    moistWeekChangeDirection = 'zero';
+                }
+            } else {
+                moistWeekChange = '-';
+                moistWeekChangeDirection = 'none';
+            }
 
-            // let nextHospitalVisitDate = recordDate + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 날짜 + 랜덤 일 수.
+            if (moistMonthCountPrev > 0) {
+                moistMonthChange = ((moistMonthCount - moistMonthCountPrev) / moistMonthCountPrev * 100).toFixed(0);
+
+                // 문자열 생성
+                if(moistMonthChange > 0) {
+                    moistMonthChange = '▲'+moistMonthChange+'%';
+                    moistMonthChangeDirection = 'positive';
+                } else if (moistMonthChange < 0) {
+                    moistMonthChange = '▼'+moistMonthChange+'%';
+                    moistMonthChangeDirection = 'negative';
+                } else if (moistMonthChange == 0) {
+                    moistMonthChange = '-'+moistMonthChange+'%';
+                    moistMonthChangeDirection = 'zero';
+                }
+            } else {
+                moistMonthChange = '-';
+                moistMonthChangeDirection = 'none';
+            }
+            // 프로토픽 사용횟수 증감률 계산
+            if (protopicWeekCountPrev > 0) {
+                console.log("CountPrev Positive");
+                protopicWeekChange = ((protopicWeekCount - protopicWeekCountPrev) / protopicWeekCountPrev * 100).toFixed(0);
+                // 문자열 생성
+                if(protopicWeekChange > 0) {
+                    protopicWeekChange = '▲'+protopicWeekChange+'%';
+                    protopicWeekChangeDirection = 'positive';
+                } else if (protopicWeekChange < 0) {
+                    protopicWeekChange = '▼'+protopicWeekChange+'%';
+                    protopicWeekChangeDirection = 'negative';
+                } else if (protopicWeekChange == 0) {
+                    protopicWeekChange = '-'+protopicWeekChange+'%';
+                    protopicWeekChangeDirection = 'zero';
+                }
+            } else {
+                protopicWeekChange = '-';
+                protopicWeekChangeDirection = 'none';
+            }
+
+            if (protopicMonthCountPrev > 0) {
+                protopicMonthChange = ((protopicMonthCount - protopicMonthCountPrev) / protopicMonthCountPrev * 100).toFixed(0);
+
+                // 문자열 생성
+                if(protopicMonthChange > 0) {
+                    protopicMonthChange = '▲'+protopicMonthChange+'%';
+                    protopicMonthChangeDirection = 'positive';
+                } else if (protopicMonthChange < 0) {
+                    protopicMonthChange = '▼'+protopicMonthChange+'%';
+                    protopicMonthChangeDirection = 'negative';
+                } else if (protopicMonthChange == 0) {
+                    protopicMonthChange = '-'+protopicMonthChange+'%';
+                    protopicMonthChangeDirection = 'zero';
+                }
+            } else {
+                protopicMonthChange = '-';
+                protopicMonthChangeDirection = 'none';
+            }
+            // 스테로이드 사용횟수 증감률 계산
+            if (steroidWeekCountPrev > 0) {
+                console.log("CountPrev Positive");
+                steroidWeekChange = ((steroidWeekCount - steroidWeekCountPrev) / steroidWeekCountPrev * 100).toFixed(0);
+                // 문자열 생성
+                if(steroidWeekChange > 0) {
+                    steroidWeekChange = '▲'+steroidWeekChange+'%';
+                    steroidWeekChangeDirection = 'positive';
+                } else if (steroidWeekChange < 0) {
+                    steroidWeekChange = '▼'+steroidWeekChange+'%';
+                    steroidWeekChangeDirection = 'negative';
+                } else if (steroidWeekChange == 0) {
+                    steroidWeekChange = '-'+steroidWeekChange+'%';
+                    steroidWeekChangeDirection = 'zero';
+                }
+            } else {
+                steroidWeekChange = '-';
+                steroidWeekChangeDirection = 'none';
+            }
+
+            if (steroidMonthCountPrev > 0) {
+                steroidMonthChange = ((steroidMonthCount - steroidMonthCountPrev) / steroidMonthCountPrev * 100).toFixed(0);
+
+                // 문자열 생성
+                if(steroidMonthChange > 0) {
+                    steroidMonthChange = '▲'+steroidMonthChange+'%';
+                    steroidMonthChangeDirection = 'positive';
+                } else if (steroidMonthChange < 0) {
+                    steroidMonthChange = '▼'+steroidMonthChange+'%';
+                    steroidMonthChangeDirection = 'negative';
+                } else if (steroidMonthChange == 0) {
+                    steroidMonthChange = '-'+steroidMonthChange+'%';
+                    steroidMonthChangeDirection = 'zero';
+                }
+            } else {
+                steroidMonthChange = '-';
+                steroidMonthChangeDirection = 'none';
+            }
+
+            if (weekAvgPrev > 0) {
+                weekAvgChange = ((weekAvg - weekAvgPrev) / weekAvgPrev * 100).toFixed(1);
+
+                if(weekAvgChange > 0) {
+                    weekAvgChange = '▲'+weekAvgChange+'%';
+                    weekAvgChangeDirection = 'positive';
+                } else if (weekAvgChange < 0) {
+                    weekAvgChange = '▼'+weekAvgChange+'%';
+                    weekAvgChangeDirection = 'negative';
+                } else if (weekAvgChange == 0) {
+                    weekAvgChange = '-'+weekAvgChange+'%';
+                    weekAvgChangeDirection = 'zero';
+                }
+            } else {
+                weekAvgChange = '-';
+                weekAvgChangeDirection = 'none';
+            }
+
+            if (monthAvgPrev > 0) {
+                monthAvgChange = ((monthAvg - monthAvgPrev) / monthAvgPrev * 100).toFixed(1);
+
+                if(monthAvgChange > 0) {
+                    monthAvgChange = '▲'+monthAvgChange+'%';
+                    monthAvgChangeDirection = 'positive';
+                } else if (monthAvgChange < 0) {
+                    monthAvgChange = '▼'+monthAvgChange+'%';
+                    monthAvgChangeDirection = 'negative';
+                } else if (monthAvgChange == 0) {
+                    monthAvgChange = '-'+monthAvgChange+'%';
+                    monthAvgChangeDirection = 'zero';
+                }
+            } else {
+                monthAvgChange = '-';
+                monthAvgChangeDirection = 'none';
+            }
+
+        // let nextHospitalVisitDate = recordDate + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 날짜 + 랜덤 일 수.
             let nextHospitalVisitDate = patient.next_hospital_visit_date;
             let now = new Date().getTime();
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
@@ -752,7 +952,23 @@ function getPatientInfoAll (req, res){
                 weekAverage: weekAvg,
                 monthAverage: monthAvg,
                 nextHospitalVisitDate: nextHospitalVisitDate,
-                med_check_reason: med_miss_reasons
+                med_check_reason: med_miss_reasons,
+                moistWeekChange:moistWeekChange,
+                moistMonthChange: moistMonthChange,
+                moistWeekChangeDirection:moistWeekChangeDirection,
+                moistMonthChangeDirection:moistMonthChangeDirection,
+                protopicWeekChange:protopicWeekChange,
+                protopicMonthChange: protopicMonthChange,
+                protopicWeekChangeDirection:protopicWeekChangeDirection,
+                protopicMonthChangeDirection:protopicMonthChangeDirection,
+                steroidWeekChange:steroidWeekChange,
+                steroidMonthChange: steroidMonthChange,
+                steroidWeekChangeDirection:steroidWeekChangeDirection,
+                steroidMonthChangeDirection:steroidMonthChangeDirection,
+                weekAvgChange:weekAvgChange,
+                monthAvgChange:monthAvgChange,
+                weekAvgChangeDirection:weekAvgChangeDirection,
+                monthAvgChangeDirection:monthAvgChangeDirection
             }
 
             return res.status(200).json(patientinfo);
