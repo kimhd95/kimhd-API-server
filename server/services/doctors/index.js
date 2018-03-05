@@ -752,7 +752,9 @@ function getPatientInfoAll (req, res){
                 weekAverage: weekAvg,
                 monthAverage: monthAvg,
                 nextHospitalVisitDate: nextHospitalVisitDate,
-                med_check_reason: med_miss_reasons
+                med_check_reason: med_miss_reasons,
+                patientCode: patient.patient_code,
+                patientName: patient.fullname
             }
 
             return res.status(200).json(patientinfo);
