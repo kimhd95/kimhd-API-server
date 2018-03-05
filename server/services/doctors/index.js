@@ -122,6 +122,7 @@ function getPatientInfo (req, res){
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
+                patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
@@ -457,6 +458,7 @@ function getPatientInfoSummary (req, res){
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
+                patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
@@ -727,6 +729,7 @@ function getPatientInfoAll (req, res){
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
+                patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
