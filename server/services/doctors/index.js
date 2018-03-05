@@ -249,11 +249,11 @@ function getPatientInfoSummary (req, res){
             let monthAvgChange, monthAvgChangeDirection;
             let monthSd = standardDeviation(monthMoodChecks).toFixed(1);
             if (isNaN(weekAvg)) weekAvg = '-';
-            if (isNaN(weekAvgPrev)) weekAvgPrev = '-';
-            if (isNaN(weekSd)) weekSd = '-';
+            if (isNaN(weekAvgPrev)) weekAvgPrev = null;
+            if (isNaN(weekSd)) weekSd = null;
             if (isNaN(monthAvg)) monthAvg = '-';
-            if (isNaN(monthAvgPrev)) monthAvgPrev = '-';
-            if (isNaN(monthSd)) monthSd = '-';
+            if (isNaN(monthAvgPrev)) monthAvgPrev = null;
+            if (isNaN(monthSd)) monthSd = null;
             // ------------------- Medicine Check ------------------- //
             let totalWeekCount = 0;
             let totalMonthCount = 0;
@@ -385,9 +385,12 @@ function getPatientInfoSummary (req, res){
                 } else if (steroidWeekChange == 0) {
                     steroidWeekChange = '-'+steroidWeekChange+'%';
                     steroidWeekChangeDirection = 'zero';
+                } else if (isNaN(steroidWeekChange)) {
+                    steroidWeekChange = null;
+                    steroidWeekChangeDirection = 'none';
                 }
             } else {
-                steroidWeekChange = '-';
+                steroidWeekChange = null;
                 steroidWeekChangeDirection = 'none';
             }
 
@@ -404,9 +407,12 @@ function getPatientInfoSummary (req, res){
                 } else if (steroidMonthChange == 0) {
                     steroidMonthChange = '-'+steroidMonthChange+'%';
                     steroidMonthChangeDirection = 'zero';
+                } else if (isNaN(steroidMonthChange)) {
+                    steroidMonthChange = null;
+                    steroidMonthChangeDirection = 'none';
                 }
             } else {
-                steroidMonthChange = '-';
+                steroidMonthChange = null;
                 steroidMonthChangeDirection = 'none';
             }
 
@@ -422,9 +428,12 @@ function getPatientInfoSummary (req, res){
                 } else if (weekAvgChange == 0) {
                     weekAvgChange = '-'+weekAvgChange+'%';
                     weekAvgChangeDirection = 'zero';
+                } else if (isNaN(weekAvgChange)) {
+                    weekAvgChange = null;
+                    weekAvgChangeDirection = 'none';
                 }
             } else {
-                weekAvgChange = '-';
+                weekAvgChange = null;
                 weekAvgChangeDirection = 'none';
             }
 
@@ -440,9 +449,12 @@ function getPatientInfoSummary (req, res){
                 } else if (monthAvgChange == 0) {
                     monthAvgChange = '-'+monthAvgChange+'%';
                     monthAvgChangeDirection = 'zero';
+                } else if (isNaN(monthAvgChange)) {
+                    monthAvgChange = null;
+                    monthAvgChangeDirection = 'none';
                 }
             } else {
-                monthAvgChange = '-';
+                monthAvgChange = null;
                 monthAvgChangeDirection = 'none';
             }
 
@@ -452,7 +464,7 @@ function getPatientInfoSummary (req, res){
             // + 1000*60*60*24*(Math.floor(Math.random()*3) + 1) // 레코드에 있는 데이트 + 랜덤 일 수.
             let now = new Date().getTime();
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
-                nextHospitalVisitDate = '-';
+                nextHospitalVisitDate = null;
             }
 
             let patientinfo = {
@@ -617,11 +629,11 @@ function getPatientInfoAll (req, res){
             let monthAvgChange, monthAvgChangeDirection;
             let monthSd = standardDeviation(monthMoodChecks).toFixed(1);
             if (isNaN(weekAvg)) weekAvg = '-';
-            if (isNaN(weekAvgPrev)) weekAvgPrev = '-';
-            if (isNaN(weekSd)) weekSd = '-';
+            if (isNaN(weekAvgPrev)) weekAvgPrev = null;
+            if (isNaN(weekSd)) weekSd = null;
             if (isNaN(monthAvg)) monthAvg = '-';
-            if (isNaN(monthAvgPrev)) monthAvgPrev = '-';
-            if (isNaN(monthSd)) monthSd = '-';
+            if (isNaN(monthAvgPrev)) monthAvgPrev = null;
+            if (isNaN(monthSd)) monthSd = null;
 
             // ------------------- Medicine Check ------------------- //
             let totalWeekCount = 0;
@@ -783,9 +795,12 @@ function getPatientInfoAll (req, res){
                 } else if (moistWeekChange == 0) {
                     moistWeekChange = '-'+moistWeekChange+'%';
                     moistWeekChangeDirection = 'zero';
+                } else if (isNaN(moistWeekChange)) {
+                    moistWeekChange = null;
+                    moistWeekChangeDirection = 'none';
                 }
             } else {
-                moistWeekChange = '-';
+                moistWeekChange = null;
                 moistWeekChangeDirection = 'none';
             }
 
@@ -802,9 +817,12 @@ function getPatientInfoAll (req, res){
                 } else if (moistMonthChange == 0) {
                     moistMonthChange = '-'+moistMonthChange+'%';
                     moistMonthChangeDirection = 'zero';
+                } else if (isNaN(moistMonthChange)) {
+                    moistMonthChange = null;
+                    moistMonthChangeDirection = 'none';
                 }
             } else {
-                moistMonthChange = '-';
+                moistMonthChange = null;
                 moistMonthChangeDirection = 'none';
             }
             // 프로토픽 사용횟수 증감률 계산
@@ -821,9 +839,12 @@ function getPatientInfoAll (req, res){
                 } else if (protopicWeekChange == 0) {
                     protopicWeekChange = '-'+protopicWeekChange+'%';
                     protopicWeekChangeDirection = 'zero';
+                } else if (isNaN(protopicWeekChange)) {
+                    protopicWeekChange = null;
+                    protopicWeekChangeDirection = 'none';
                 }
             } else {
-                protopicWeekChange = '-';
+                protopicWeekChange = null;
                 protopicWeekChangeDirection = 'none';
             }
 
@@ -840,9 +861,12 @@ function getPatientInfoAll (req, res){
                 } else if (protopicMonthChange == 0) {
                     protopicMonthChange = '-'+protopicMonthChange+'%';
                     protopicMonthChangeDirection = 'zero';
+                } else if (isNaN(protopicMonthChange)) {
+                    protopicMonthChange = null;
+                    protopicMonthChangeDirection = 'none';
                 }
             } else {
-                protopicMonthChange = '-';
+                protopicMonthChange = null;
                 protopicMonthChangeDirection = 'none';
             }
             // 스테로이드 사용횟수 증감률 계산
@@ -859,9 +883,12 @@ function getPatientInfoAll (req, res){
                 } else if (steroidWeekChange == 0) {
                     steroidWeekChange = '-'+steroidWeekChange+'%';
                     steroidWeekChangeDirection = 'zero';
+                } else if (isNaN(steroidWeekChange)) {
+                    steroidWeekChange = null;
+                    steroidWeekChangeDirection = 'none';
                 }
             } else {
-                steroidWeekChange = '-';
+                steroidWeekChange = null;
                 steroidWeekChangeDirection = 'none';
             }
 
@@ -878,9 +905,12 @@ function getPatientInfoAll (req, res){
                 } else if (steroidMonthChange == 0) {
                     steroidMonthChange = '-'+steroidMonthChange+'%';
                     steroidMonthChangeDirection = 'zero';
+                } else if (isNaN(steroidMonthChange)) {
+                    steroidMonthChange = null;
+                    steroidMonthChangeDirection = 'none';
                 }
             } else {
-                steroidMonthChange = '-';
+                steroidMonthChange = null;
                 steroidMonthChangeDirection = 'none';
             }
 
@@ -896,9 +926,12 @@ function getPatientInfoAll (req, res){
                 } else if (weekAvgChange == 0) {
                     weekAvgChange = '-'+weekAvgChange+'%';
                     weekAvgChangeDirection = 'zero';
+                } else if (isNaN(weekAvgChange)) {
+                    weekAvgChange = null;
+                    weekAvgChangeDirection = 'none';
                 }
             } else {
-                weekAvgChange = '-';
+                weekAvgChange = null;
                 weekAvgChangeDirection = 'none';
             }
 
@@ -914,9 +947,12 @@ function getPatientInfoAll (req, res){
                 } else if (monthAvgChange == 0) {
                     monthAvgChange = '-'+monthAvgChange+'%';
                     monthAvgChangeDirection = 'zero';
+                } else if (isNaN(monthAvgChange)) {
+                    monthAvgChange = null;
+                    monthAvgChangeDirection = 'none';
                 }
             } else {
-                monthAvgChange = '-';
+                monthAvgChange = null;
                 monthAvgChangeDirection = 'none';
             }
 
