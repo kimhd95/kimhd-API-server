@@ -968,7 +968,8 @@ function getPatientInfoAll (req, res){
                 weekAvgChange:weekAvgChange,
                 monthAvgChange:monthAvgChange,
                 weekAvgChangeDirection:weekAvgChangeDirection,
-                monthAvgChangeDirection:monthAvgChangeDirection
+                monthAvgChangeDirection:monthAvgChangeDirection,
+                patientName: patient.fullname
             }
 
             return res.status(200).json(patientinfo);
