@@ -166,6 +166,7 @@ function updatePatient (req, res) {
         models.Patient.update({
             doctor_code: doctor_code, // What to update
             registered: 0,
+            daily_scenario: 0,
             encrypted_kakao_id: kakao_id
         }, {
             where: {
