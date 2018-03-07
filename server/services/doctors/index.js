@@ -118,6 +118,7 @@ function getPatientInfo (req, res){
             // 	res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
             // 	return;
             // }
+            /*
             let sex;
             if (patient.sex === '남성'){
                 sex = 'M';
@@ -137,14 +138,16 @@ function getPatientInfo (req, res){
             }
             let age1 = nowymd - birthday; //25****
             let age = (age1 - (age1%10000))/10000;
-
+*/
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                birthday: age,
-                sex: sex,
+                //birthday: age,
+                //sex: sex,
+                birthday: patient.birthday,
+                sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 phone: patient.phone,
@@ -487,6 +490,7 @@ function getPatientInfoSummary (req, res){
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
                 nextHospitalVisitDate = null;
             }
+            /*
             let sex;
             if (patient.sex === '남성'){
                 sex = 'M';
@@ -507,14 +511,16 @@ function getPatientInfoSummary (req, res){
             }
             let age1 = nowymd - birthday;
             let age = (age1 - (age1%10000))/10000;
-
+*/
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                birthday: age,
-                sex: sex,
+                //birthday: age,
+                //sex: sex,
+                birthday: patient.birthday,
+                sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
@@ -1005,6 +1011,7 @@ function getPatientInfoAll (req, res){
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
                 nextHospitalVisitDate = null;
             }
+            /*
             let sex;
             if (patient.sex === '남성'){
                 sex = 'M';
@@ -1024,15 +1031,17 @@ function getPatientInfoAll (req, res){
             }
             let age1 = nowymd - birthday;
             let age = (age1 - (age1%10000))/10000;
-
+*/
 
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                birthday: age,
-                sex: sex,
+                //birthday: age,
+                //sex: sex,
+                birthday: patient.birthday,
+                sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
