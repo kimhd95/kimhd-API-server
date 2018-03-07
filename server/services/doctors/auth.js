@@ -274,7 +274,7 @@ function loginDoctor (req, res){
                     // And https://stackoverflow.com/questions/1134290/cookies-on-localhost-with-explicit-domain for localhost config.
                     console.log('req.header.origin = ' + req.header('origin'))
 
-                    const cookieMaxAge = 1000 * 60 * 60 * 18;
+                    const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
                     if (req.header('origin') === undefined){
                         console.log('req origin is undefined. Probably from postman.')
                         if (req.secure) {
