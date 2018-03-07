@@ -123,10 +123,10 @@ function getPatientInfo (req, res){
             } else {
                 let sex = 'F';
             }
-            let now = new Date();
-            let nowyear = now.getFullYear();
-            let nowmonth = now.getMonth() + 1;
-            let nowdate = now.getDate();
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
             let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
 
             if (patient.birthday > 300000) { //1900년대생들
@@ -492,10 +492,10 @@ function getPatientInfoSummary (req, res){
             } else {
                 let sex = 'F';
             }
-            let now = new Date();
-            let nowyear = now.getFullYear();
-            let nowmonth = now.getMonth() + 1;
-            let nowdate = now.getDate();
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
             let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
 
             if (patient.birthday > 300000) { //1900년대생들
@@ -1008,10 +1008,10 @@ function getPatientInfoAll (req, res){
             } else {
                 let sex = 'F';
             }
-            let now = new Date();
-            let nowyear = now.getFullYear();
-            let nowmonth = now.getMonth() + 1;
-            let nowdate = now.getDate();
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
             let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
 
             if (patient.birthday > 300000) { //1900년대생들
