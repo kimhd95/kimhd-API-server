@@ -118,14 +118,32 @@ function getPatientInfo (req, res){
             // 	res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
             // 	return;
             // }
+            if (patient.sex === '남성'){
+                let sex = 'M';
+            } else {
+                let sex = 'F';
+            }
+            let now = new Date();
+            let nowyear = now.getFullYear();
+            let nowmonth = now.getMonth() + 1;
+            let nowdate = now.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+
+            if (patient.birthday > 300000) { //1900년대생들
+                let birthday = patient.birthday + 19000000;
+            } else{
+                let birthday = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birthday;
+            let age = (age1 - (age%10000))/10000;
 
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                birthday: patient.birthday,
-                sex: patient.sex,
+                birthday: age,
+                sex: sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 phone: patient.phone,
@@ -469,13 +487,32 @@ function getPatientInfoSummary (req, res){
                 nextHospitalVisitDate = null;
             }
 
+            if (patient.sex === '남성'){
+                let sex = 'M';
+            } else {
+                let sex = 'F';
+            }
+            let now = new Date();
+            let nowyear = now.getFullYear();
+            let nowmonth = now.getMonth() + 1;
+            let nowdate = now.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+
+            if (patient.birthday > 300000) { //1900년대생들
+                let birthday = patient.birthday + 19000000;
+            } else{
+                let birthday = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birthday;
+            let age = (age1 - (age%10000))/10000;
+
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                birthday: patient.birthday,
-                sex: patient.sex,
+                birthday: age,
+                sex: sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
@@ -966,13 +1003,33 @@ function getPatientInfoAll (req, res){
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
                 nextHospitalVisitDate = null;
             }
+            if (patient.sex === '남성'){
+                let sex = 'M';
+            } else {
+                let sex = 'F';
+            }
+            let now = new Date();
+            let nowyear = now.getFullYear();
+            let nowmonth = now.getMonth() + 1;
+            let nowdate = now.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+
+            if (patient.birthday > 300000) { //1900년대생들
+                let birthday = patient.birthday + 19000000;
+            } else{
+                let birthday = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birthday;
+            let age = (age1 - (age%10000))/10000;
+
+
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                birthday: patient.birthday,
-                sex: patient.sex,
+                birthday: age,
+                sex: sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
