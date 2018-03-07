@@ -128,11 +128,11 @@ function getPatientInfo (req, res){
             let nowmonth = now_b.getMonth() + 1;
             let nowdate = now_b.getDate();
             let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
-
+            let birthday;
             if (patient.birthday > 300000) { //1900년대생들
-                let birthday = patient.birthday + 19000000;
+                birthday = patient.birthday + 19000000;
             } else{
-                let birthday = patient.birthday + 20000000;
+                birthday = patient.birthday + 20000000;
             }
             let age1 = nowymd - birthday;
             let age = (age1 - (age%10000))/10000;
@@ -498,10 +498,11 @@ function getPatientInfoSummary (req, res){
             let nowdate = now_b.getDate();
             let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
 
+            let birthday;
             if (patient.birthday > 300000) { //1900년대생들
-                let birthday = patient.birthday + 19000000;
+                birthday = patient.birthday + 19000000;
             } else{
-                let birthday = patient.birthday + 20000000;
+                birthday = patient.birthday + 20000000;
             }
             let age1 = nowymd - birthday;
             let age = (age1 - (age%10000))/10000;
@@ -1013,11 +1014,11 @@ function getPatientInfoAll (req, res){
             let nowmonth = now_b.getMonth() + 1;
             let nowdate = now_b.getDate();
             let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
-
+            let birthday;
             if (patient.birthday > 300000) { //1900년대생들
-                let birthday = patient.birthday + 19000000;
+                birthday = patient.birthday + 19000000;
             } else{
-                let birthday = patient.birthday + 20000000;
+                birthday = patient.birthday + 20000000;
             }
             let age1 = nowymd - birthday;
             let age = (age1 - (age%10000))/10000;
