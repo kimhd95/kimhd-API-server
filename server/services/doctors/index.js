@@ -118,10 +118,11 @@ function getPatientInfo (req, res){
             // 	res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
             // 	return;
             // }
+            let sex;
             if (patient.sex === '남성'){
-                let sex = 'M';
+                sex = 'M';
             } else {
-                let sex = 'F';
+                sex = 'F';
             }
             let now_b = new Date();
             let nowyear = now_b.getFullYear();
@@ -486,11 +487,11 @@ function getPatientInfoSummary (req, res){
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
                 nextHospitalVisitDate = null;
             }
-
+            let sex;
             if (patient.sex === '남성'){
-                let sex = 'M';
+                sex = 'M';
             } else {
-                let sex = 'F';
+                sex = 'F';
             }
             let now_b = new Date();
             let nowyear = now_b.getFullYear();
@@ -1004,10 +1005,11 @@ function getPatientInfoAll (req, res){
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
                 nextHospitalVisitDate = null;
             }
+            let sex;
             if (patient.sex === '남성'){
-                let sex = 'M';
+                sex = 'M';
             } else {
-                let sex = 'F';
+                sex = 'F';
             }
             let now_b = new Date();
             let nowyear = now_b.getFullYear();
