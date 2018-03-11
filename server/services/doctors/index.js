@@ -118,27 +118,7 @@ function getPatientInfo (req, res){
             // 	res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
             // 	return;
             // }
-            /*
-            let sex;
-            if (patient.sex === '남성'){
-                sex = 'M';
-            } else {
-                sex = 'F';
-            }
-            let now_b = new Date();
-            let nowyear = now_b.getFullYear();
-            let nowmonth = now_b.getMonth() + 1;
-            let nowdate = now_b.getDate();
-            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
-            let birthday;
-            if (patient.birthday > 300000) { //1900년대생들
-                birthday = patient.birthday + 19000000; //19920629
-            } else{
-                birthday = patient.birthday + 20000000;
-            }
-            let age1 = nowymd - birthday; //25****
-            let age = (age1 - (age1%10000))/10000;
-*/
+
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
@@ -490,28 +470,7 @@ function getPatientInfoSummary (req, res){
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
                 nextHospitalVisitDate = null;
             }
-            /*
-            let sex;
-            if (patient.sex === '남성'){
-                sex = 'M';
-            } else {
-                sex = 'F';
-            }
-            let now_b = new Date();
-            let nowyear = now_b.getFullYear();
-            let nowmonth = now_b.getMonth() + 1;
-            let nowdate = now_b.getDate();
-            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
 
-            let birthday;
-            if (patient.birthday > 300000) { //1900년대생들
-                birthday = patient.birthday + 19000000;
-            } else{
-                birthday = patient.birthday + 20000000;
-            }
-            let age1 = nowymd - birthday;
-            let age = (age1 - (age1%10000))/10000;
-*/
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
@@ -567,6 +526,7 @@ function getPatientInfoAll (req, res){
     const patientEncryptedKakaoid = req.params.encrypted_kakao_id;
 
     let med_miss_reasons;
+    let kakao_text_all;
 
     models.Patient.findOne({
         where: {
@@ -621,8 +581,24 @@ function getPatientInfoAll (req, res){
             })
         });
 
+        const p4 = new Promise(function(resolve, reject) {
+            models.Kakao_text.findAll({
+                where: {
+                    //kakao_id: req.params.kakao_id,
+                    encrypted_kakao_id: req.params.encrypted_kakao_id,
+                }
+            }).then(kakao_texts => {
+                //if (kakao_texts) {
+                kakao_text_all = kakao_texts;
+                resolve();
+                //}
+                //resolve();
+            }).catch(function (err){
+                return res.status(500).json(err)
+            })
+        });
 
-        Promise.all([p1, p2, p3]).then(function(value) {
+        Promise.all([p1, p2, p3, p4]).then(function(value) {
             let
                 weekEmergencyMoodCount = 0,
                 monthEmergencyMoodCount = 0,
@@ -1011,27 +987,6 @@ function getPatientInfoAll (req, res){
             if ((nextHospitalVisitDate*1000) < now){ // DB stores time in seconds. * 1000 to get in milliseconds.
                 nextHospitalVisitDate = null;
             }
-            /*
-            let sex;
-            if (patient.sex === '남성'){
-                sex = 'M';
-            } else {
-                sex = 'F';
-            }
-            let now_b = new Date();
-            let nowyear = now_b.getFullYear();
-            let nowmonth = now_b.getMonth() + 1;
-            let nowdate = now_b.getDate();
-            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
-            let birthday;
-            if (patient.birthday > 300000) { //1900년대생들
-                birthday = patient.birthday + 19000000;
-            } else{
-                birthday = patient.birthday + 20000000;
-            }
-            let age1 = nowymd - birthday;
-            let age = (age1 - (age1%10000))/10000;
-*/
 
             let patientinfo = {
                 id: patient.id,
@@ -1080,7 +1035,8 @@ function getPatientInfoAll (req, res){
                 monthAvgChange:monthAvgChange,
                 weekAvgChangeDirection:weekAvgChangeDirection,
                 monthAvgChangeDirection:monthAvgChangeDirection,
-                patientName: patient.fullname
+                patientName: patient.fullname,
+                kakao_text: kakao_text_all
             }
 
             return res.status(200).json(patientinfo);

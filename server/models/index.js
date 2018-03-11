@@ -137,6 +137,7 @@ const Kakao_text = sequelize.define('kakao_text', {
     kakao_id: Sequelize.STRING,
     encrypted_kakao_id: Sequelize.STRING,
     time: Sequelize.INTEGER,
+    type: Sequelize.STRING,
     text: Sequelize.STRING,
     share_doctor: Sequelize.STRING
 });

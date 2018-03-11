@@ -89,14 +89,16 @@ function registerDoctorCode (req, res){
 }
 
 function kakaoText (req, res) {
-    let kakao_id, text, time, type
-    if (req.body.kakao_id && req.body.text && req.body.time && (req.body.type !== undefined)){
+    let kakao_id, text, time, type, share_doctor;
+    if (req.body.kakao_id && req.body.text && req.body.time && (req.body.type !== undefined) && req.body.share_doctor){
         kakao_id = req.body.kakao_id.toString().trim() || '';
         text = req.body.text.toString().trim() || '';
         time = req.body.time.toString().trim() || '';
         type = req.body.type.toString().trim() || '';
+        share_doctor = req.body.share_doctor.toString().trim() || '';
     } else {
-        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text, time, type).', kakao_id: req.body.kakao_id, text: req.body.text, time: req.body.time, type: req.body.type})
+        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, text, time, type, share_doctor).',
+            kakao_id: req.body.kakao_id, text: req.body.text, time: req.body.time, type: req.body.type, share_doctor: req.body.share_doctor})
     }
 
     models.Kakao_text.create({
@@ -104,7 +106,8 @@ function kakaoText (req, res) {
         encrypted_kakao_id: kakao_id,
         text: text,
         time: time,
-        share_doctor: type
+        type: type,
+        share_doctor: share_doctor
     }).then(patient => res.status(201).json(patient));
 }
 
