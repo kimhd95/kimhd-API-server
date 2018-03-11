@@ -586,6 +586,7 @@ function getPatientInfoAll (req, res){
                 where: {
                     //kakao_id: req.params.kakao_id,
                     encrypted_kakao_id: req.params.encrypted_kakao_id,
+                    share_doctor: 1,
                 }
             }).then(kakao_texts => {
                 //if (kakao_texts) {
