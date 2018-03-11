@@ -8,7 +8,7 @@ const verifyAPIKEY = (req, res, next) => {
         return res.status(400).send('API key not given.');
     }
 
-    console.log(req.body);
+    //console.log(req.body);
     const apikey = req.body.apikey.toString().trim() || '';
     if(apikey!=config.apikey)
         return res.status(400).send('API key is invalid.');

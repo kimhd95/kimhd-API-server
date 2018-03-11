@@ -280,7 +280,7 @@ function getPatientInfo (req, res) {
             }).then(patientLog => {
                 console.log('patientLog findAll finished.')
                 if (patientLog){
-                    console.log(patientLog);
+                    //console.log(patientLog);
                     models.Patient.update({
                         exit: 0,
                         //updated_at: now
