@@ -1,5 +1,5 @@
 'use strict';
-
+var logger = require('./config/winston.js');
 const
 	express = require('express'),
 	bodyParser = require('body-parser'),
@@ -75,8 +75,8 @@ module.exports = function() {
 
 	start = function(){
 		server.listen(process.env.PORT || server.get('port'), function (){
-			console.log('Environment: ' + server.get('env') + ', Express server listening on: ' + (process.env.PORT || server.get('port') || 5000))
-			syncDatabase().then(() => {console.log('Database Sync Complete')})
+			logger.info('Environment: ' + server.get('env') + ', Express server listening on: ' + (process.env.PORT || server.get('port') || 5000))
+			syncDatabase().then(() => {logger.debug('Database Sync Complete')})
 		})
 	}
 
