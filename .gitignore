@@ -3,6 +3,8 @@ node_modules
 jelly-api-server-2018.zip
 *.iml
 *.lock
+logs/
+package-lock.json
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

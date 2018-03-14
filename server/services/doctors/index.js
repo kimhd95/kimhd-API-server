@@ -118,16 +118,37 @@ function getPatientInfo (req, res){
             // 	res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
             // 	return;
             // }
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+            let birth;
+            if (patient.birthday > 300000) { //1900년대생들
+                birth = patient.birthday + 19000000;
+            } else{
+                birth = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birth;
+            let age = (age1 - (age1%10000))/10000;
+            console.log(patient.birthday, now_b, nowyear, nowmonth, nowdate, nowymd, birth, age1, age);
+
+            let sex;
+            if (patient.sex === '남성'){
+                sex = 'M';
+            } else {
+                sex = 'F';
+            }
 
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                //birthday: age,
-                //sex: sex,
-                birthday: patient.birthday,
-                sex: patient.sex,
+                birthday: age,
+                sex: sex,
+                //birthday: patient.birthday,
+                //sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 phone: patient.phone,
@@ -471,15 +492,37 @@ function getPatientInfoSummary (req, res){
                 nextHospitalVisitDate = null;
             }
 
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+            let birth;
+            if (patient.birthday > 300000) { //1900년대생들
+                birth = patient.birthday + 19000000;
+            } else{
+                birth = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birth;
+            let age = (age1 - (age1%10000))/10000;
+            console.log(patient.birthday, now_b, nowyear, nowmonth, nowdate, nowymd, birth, age1, age);
+
+            let sex;
+            if (patient.sex === '남성'){
+                sex = 'M';
+            } else {
+                sex = 'F';
+            }
+
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                //birthday: age,
-                //sex: sex,
-                birthday: patient.birthday,
-                sex: patient.sex,
+                birthday: age,
+                sex: sex,
+                //birthday: patient.birthday,
+                //sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
@@ -989,15 +1032,37 @@ function getPatientInfoAll (req, res){
                 nextHospitalVisitDate = null;
             }
 
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+            let birth;
+            if (patient.birthday > 300000) { //1900년대생들
+                birth = patient.birthday + 19000000;
+            } else{
+                birth = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birth;
+            let age = (age1 - (age1%10000))/10000;
+            console.log(patient.birthday, now_b, nowyear, nowmonth, nowdate, nowymd, birth, age1, age);
+
+            let sex;
+            if (patient.sex === '남성'){
+                sex = 'M';
+            } else {
+                sex = 'F';
+            }
+
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                //birthday: age,
-                //sex: sex,
-                birthday: patient.birthday,
-                sex: patient.sex,
+                birthday: age,
+                sex: sex,
+                //birthday: patient.birthday,
+                //sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
