@@ -10,7 +10,8 @@
 'use strict';
 
 const models = require('../../models');
-const Op = require('sequelize').Op
+const Op = require('sequelize').Op;
+var logger = require('../../config/winston');
 
 function getPatientsRegistered(req, res){
     let doctorCode = req.params.doctor_code
@@ -23,6 +24,37 @@ function getPatientsRegistered(req, res){
         if (!patients) {
             return res.status(404).json({error: 'No patient registered with doctor code: ' + doctorCode});
         }
+
+
+        patients.forEach((patient) => {
+
+
+            // TODO : 변환 기능은 다른 API에서도 중복적으로 사용되므로 추후 리팩토링 필요
+            // 성별 변환
+            if (patient.se === '남성'){
+                patient.sex = 'M';
+            } else {
+                patient.sex = 'F';
+            }
+
+            // 나이 변환
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+            let birth;
+            if (patient.birthday > 300000) { //1900년대생들
+                birth = patient.birthday + 19000000;
+            } else{
+                birth = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birth;
+            let age = (age1 - (age1%10000))/10000;
+
+            patient.birthday = age;
+        });
+
         res.json(patients);
     }).catch(function (err){
         return res.status(500).json(err)
@@ -1101,7 +1133,7 @@ function getPatientInfoAll (req, res){
                 monthAvgChange:monthAvgChange,
                 weekAvgChangeDirection:weekAvgChangeDirection,
                 monthAvgChangeDirection:monthAvgChangeDirection,
-                patientName: patient.fullname,
+                patientInitials: patient.initials,
                 kakao_text: kakao_text_all
             }
 
@@ -1217,9 +1249,11 @@ function addPatient (req, res) {
 }
 
 function registerPatient(req, res){
-    let encrypted_kakao_id = req.body.encrypted_kakao_id
+    let encrypted_kakao_id = req.body.encrypted_kakao_id;
+    let patientName = req.body.patientName;
     models.Patient.update({
-        registered: 1 // What to update
+        registered: 1,
+        fullname:patientName// What to update
     }, {
         where: {encrypted_kakao_id: encrypted_kakao_id} // Condition
     }).then(result => {

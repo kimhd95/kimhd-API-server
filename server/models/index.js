@@ -54,6 +54,7 @@ const sequelize = new Sequelize(
 const Patient = sequelize.define('patient', {
     name: Sequelize.STRING,
     fullname: Sequelize.STRING,
+    initials: Sequelize.STRING,
     patient_email: Sequelize.STRING,
     patient_password: Sequelize.STRING,
     kakao_id: { type: Sequelize.STRING, allowNull: false, unique: true },
