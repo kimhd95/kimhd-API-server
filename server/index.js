@@ -4,7 +4,9 @@ const
 	express = require('express'),
 	bodyParser = require('body-parser'),
 	syncDatabase = require('./database'),
-	morgan = require('morgan')
+	morgan = require('morgan');
+
+const batch = require('./services/batch');
 
 module.exports = function() {
 	let
@@ -77,8 +79,9 @@ module.exports = function() {
 		server.listen(process.env.PORT || server.get('port'), function (){
 			logger.info('Environment: ' + server.get('env') + ', Express server listening on: ' + (process.env.PORT || server.get('port') || 5000))
 			syncDatabase().then(() => {logger.debug('Database Sync Complete')})
-		})
-	}
+		});
+		batch.startMicroDustBatch();
+	};
 
 	return {
 		create: create,
