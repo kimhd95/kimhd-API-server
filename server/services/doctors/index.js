@@ -1289,24 +1289,50 @@ function declinePatient(req, res){
 
 function getMedicineCheck (req, res){
 
-    const encrypted_kakao_id = req.params.encrypted_kakao_id
-    const startTime = req.params.start
-    const endTime = req.params.end
+    const encrypted_kakao_id = req.params.encrypted_kakao_id;
+    const startTime = req.params.start;
+    const endTime = req.params.end;
 
-    models.Medicine_check.findAll({
-        where: {
-            encrypted_kakao_id: req.params.encrypted_kakao_id,
-            date: {[Op.lt]: endTime,
-                [Op.gt]: startTime},
-        }
-    }).then(med_checks => {
-        if (!med_checks) {
-            return res.status(404).json({error: 'No missed medicine checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
-        }
-        return res.status(200).json({success: true, medicine_checks: med_checks});
-    }).catch(function (err){
-        return res.status(500).json(err)
-    })
+    // 약복용 불러오기
+    const p1 = new Promise(function(resolve, reject) {
+        models.Medicine_check.findAll({
+            where: {
+                encrypted_kakao_id: encrypted_kakao_id,
+                date: {[Op.lt]: endTime,
+                    [Op.gt]: startTime},
+            }
+        }).then(med_checks => {
+            if (!med_checks) {
+                reject('No missed medicine checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id);
+            }
+            resolve(med_checks);
+        }).catch(function (err){
+            reject(err);
+        })
+    });
+
+    // 미세먼지 불러오기
+    const p2 = new Promise(function(resolve, reject) {
+        models.Weather.findAll({
+            // TODO : Where 조건 설정 필요
+
+        }).then(result => {
+            if (!result) {
+                reject('No dust information found ');
+            }
+            resolve(result);
+        }).catch(function (err){
+            reject(err);
+        })
+    });
+
+    Promise.all([p1, p2]).then(value => {
+        logger.debug("Promise Value :",JSON.stringify(value,null,2));
+        res.status(200).json({success: true, medicine_checks: value[0], dust: value[1]});
+    }).catch(err => {
+        logger.error("Promise Error : ",JSON.stringify(err,null,2));
+        res.status(500).json({error:err});
+    });
 }
 
 function getMoodCheck (req, res){
