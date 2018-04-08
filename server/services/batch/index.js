@@ -24,7 +24,7 @@ let pageSize = '10';
 function startMicroDustBatch() {
     logger.info("MicroDustBatch started !!");
 
-    cron.schedule('* * 5 * * *', function () {
+    cron.schedule('0 0 5 * * *', function () {
         logger.info('running MicroDustAPI call every 5:00 AM / ' + new Date());
 
         let tasks = [
