@@ -1316,11 +1316,20 @@ function getMedicineCheck (req, res){
         models.Weather.findAll({
             // TODO : Where 조건 설정 필요
 
-        }).then(result => {
-            if (!result) {
+        }).then(results => {
+            if (!results) {
                 reject('No dust information found ');
+            } else {
+                results.forEach(function (result,i) {
+                    let convertedDate = moment(result.date).valueOf();
+                    results[i] = {
+                        "date": convertedDate,
+                        "pm10": result.pm10,
+                        "pm25": result.pm25
+                    };
+                });
+                resolve(results);
             }
-            resolve(result);
         }).catch(function (err){
             reject(err);
         })
