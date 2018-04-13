@@ -11,6 +11,7 @@
 
 const models = require('../../models');
 const Op = require('sequelize').Op;
+const moment = require('moment');
 var logger = require('../../config/winston');
 
 function getPatientsRegistered(req, res){
@@ -1147,6 +1148,9 @@ function getPatientInfoAll (req, res){
     });
 }
 
+// TODO : Promise로 가독성 확보
+// TODO : 웹 대시보드에서 dashboard_personal과 chart페이지에서 호출하는 API 가 다른데 규격을 맞출 필요가 있음
+
 function getPatientGraph (req, res){
     const encrypted_kakao_id = req.params.encrypted_kakao_id
     const startTime = req.params.start
@@ -1179,7 +1183,26 @@ function getPatientGraph (req, res){
                         encrypted_kakao_id: req.params.encrypted_kakao_id,
                     }
                 }).then(med_times => {
-                    return res.status(200).json({success: true, medicine_checks: med_checks, mood_checks: mood_checks, medicine_times: med_times});
+                    models.Weather.findAll({
+                        // TODO : Where 조건 설정 필요
+
+                    }).then(dusts => {
+                        dusts.forEach(function (result, i) {
+                            let convertedDate = moment(result.date).valueOf();
+                            dusts[i] = {
+                                "date": convertedDate,
+                                "pm10": result.pm10,
+                                "pm25": result.pm25
+                            };
+                        });
+                        return res.status(200).json({
+                            success: true,
+                            medicine_checks: med_checks,
+                            mood_checks: mood_checks,
+                            medicine_times: med_times,
+                            dust: dusts
+                        });
+                    })
                 })
             })
         })
