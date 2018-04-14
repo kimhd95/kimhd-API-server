@@ -2,6 +2,7 @@ const models = require('../../models');
 const config = require('../../../configs');
 const Op = models.sequelize.Op;
 const crypto = require('crypto');
+var logger = require('../../config/winston');
 
 function getPatientChartURL (req, res){
     let encrypted_kakao_id
@@ -110,7 +111,7 @@ function updatePatient (req, res) {
     }
 
     const name = req.body.name
-    const fullname = req.body.fullname
+    const initials = req.body.initials
     const email = req.body.email
     const patient_code = req.body.patient_code
     const doctor_code = req.body.doctor_code
@@ -191,9 +192,9 @@ function updatePatient (req, res) {
     if (name){
         param_name = 'name'
         param_value = name
-    } else if (fullname){
-        param_name = 'fullname'
-        param_value = fullname
+    } else if (initials){
+        param_name = 'initials'
+        param_value = initials
     } else if (patient_code){
         param_name = 'patient_code'
         param_value = patient_code
@@ -224,7 +225,7 @@ function updatePatient (req, res) {
         })
     } else {
         return res.status(403).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
-            'And one more parameter is required among name, fullname, patient_code, email, phone, sex, birthday'})
+            'And one more parameter is required among name, initials, patient_code, email, phone, sex, birthday'})
     }
 }
 
@@ -723,6 +724,30 @@ function getMedicineTimeToCheck (req, res) {
     })
 }
 
+function verifyDoctorCode (req, res) {
+    let doctorCode;
+    if ((req.body.doctor_code !== undefined)){
+        doctorCode = req.body.doctor_code;
+    } else {
+        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (doctor_code).',
+            doctor_code: req.body.doctor_code});
+    }
+
+    models.Doctor.findOne({
+        where: {
+            doctor_code: doctorCode
+        }
+    }).then(result => {
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
+        } else {
+            res.status(200).json({result: 'no doc'})
+        }
+    }).catch(err => {
+        logger.error("DB Error in verifyDoctorCode :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
+}
 
 module.exports = {
     getPatientChartURL: getPatientChartURL,
@@ -743,4 +768,5 @@ module.exports = {
     createMoodCheck: createMoodCheck,
     createMoodCheckText: createMoodCheckText,
     getMedicineTimeToCheck: getMedicineTimeToCheck,
+    verifyDoctorCode: verifyDoctorCode
 }

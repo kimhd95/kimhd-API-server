@@ -54,6 +54,7 @@ const sequelize = new Sequelize(
 const Patient = sequelize.define('patient', {
     name: Sequelize.STRING,
     fullname: Sequelize.STRING,
+    initials: Sequelize.STRING,
     patient_email: Sequelize.STRING,
     patient_password: Sequelize.STRING,
     kakao_id: { type: Sequelize.STRING, allowNull: false, unique: true },
@@ -142,6 +143,13 @@ const Kakao_text = sequelize.define('kakao_text', {
     share_doctor: Sequelize.STRING
 });
 
+const Weather = sequelize.define('weather', {
+    id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
+    date: Sequelize.INTEGER,
+    pm10: Sequelize.INTEGER,
+    pm25: Sequelize.INTEGER
+});
+
 module.exports = {
     sequelize: sequelize,
     Patient: Patient,
@@ -151,5 +159,6 @@ module.exports = {
     Mood_check: Mood_check,
     Kakao_text: Kakao_text,
     PatientLog: PatientLog,
+    Weather: Weather,
     verifyAPIKEY: verifyAPIKEY
-}
+};

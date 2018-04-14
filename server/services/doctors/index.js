@@ -10,7 +10,9 @@
 'use strict';
 
 const models = require('../../models');
-const Op = require('sequelize').Op
+const Op = require('sequelize').Op;
+const moment = require('moment');
+var logger = require('../../config/winston');
 
 function getPatientsRegistered(req, res){
     let doctorCode = req.params.doctor_code
@@ -23,6 +25,37 @@ function getPatientsRegistered(req, res){
         if (!patients) {
             return res.status(404).json({error: 'No patient registered with doctor code: ' + doctorCode});
         }
+
+
+        patients.forEach((patient) => {
+
+
+            // TODO : 변환 기능은 다른 API에서도 중복적으로 사용되므로 추후 리팩토링 필요
+            // 성별 변환
+            if (patient.se === '남성'){
+                patient.sex = 'M';
+            } else {
+                patient.sex = 'F';
+            }
+
+            // 나이 변환
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+            let birth;
+            if (patient.birthday > 300000) { //1900년대생들
+                birth = patient.birthday + 19000000;
+            } else{
+                birth = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birth;
+            let age = (age1 - (age1%10000))/10000;
+
+            patient.birthday = age;
+        });
+
         res.json(patients);
     }).catch(function (err){
         return res.status(500).json(err)
@@ -118,16 +151,37 @@ function getPatientInfo (req, res){
             // 	res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
             // 	return;
             // }
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+            let birth;
+            if (patient.birthday > 300000) { //1900년대생들
+                birth = patient.birthday + 19000000;
+            } else{
+                birth = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birth;
+            let age = (age1 - (age1%10000))/10000;
+            console.log(patient.birthday, now_b, nowyear, nowmonth, nowdate, nowymd, birth, age1, age);
+
+            let sex;
+            if (patient.sex === '남성'){
+                sex = 'M';
+            } else {
+                sex = 'F';
+            }
 
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                //birthday: age,
-                //sex: sex,
-                birthday: patient.birthday,
-                sex: patient.sex,
+                birthday: age,
+                sex: sex,
+                //birthday: patient.birthday,
+                //sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 phone: patient.phone,
@@ -471,15 +525,37 @@ function getPatientInfoSummary (req, res){
                 nextHospitalVisitDate = null;
             }
 
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+            let birth;
+            if (patient.birthday > 300000) { //1900년대생들
+                birth = patient.birthday + 19000000;
+            } else{
+                birth = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birth;
+            let age = (age1 - (age1%10000))/10000;
+            console.log(patient.birthday, now_b, nowyear, nowmonth, nowdate, nowymd, birth, age1, age);
+
+            let sex;
+            if (patient.sex === '남성'){
+                sex = 'M';
+            } else {
+                sex = 'F';
+            }
+
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                //birthday: age,
-                //sex: sex,
-                birthday: patient.birthday,
-                sex: patient.sex,
+                birthday: age,
+                sex: sex,
+                //birthday: patient.birthday,
+                //sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
@@ -989,15 +1065,37 @@ function getPatientInfoAll (req, res){
                 nextHospitalVisitDate = null;
             }
 
+            let now_b = new Date();
+            let nowyear = now_b.getFullYear();
+            let nowmonth = now_b.getMonth() + 1;
+            let nowdate = now_b.getDate();
+            let nowymd = nowyear*10000 + nowmonth*100 + nowdate;
+            let birth;
+            if (patient.birthday > 300000) { //1900년대생들
+                birth = patient.birthday + 19000000;
+            } else{
+                birth = patient.birthday + 20000000;
+            }
+            let age1 = nowymd - birth;
+            let age = (age1 - (age1%10000))/10000;
+            console.log(patient.birthday, now_b, nowyear, nowmonth, nowdate, nowymd, birth, age1, age);
+
+            let sex;
+            if (patient.sex === '남성'){
+                sex = 'M';
+            } else {
+                sex = 'F';
+            }
+
             let patientinfo = {
                 id: patient.id,
                 name: patient.name,
                 patient_code: patient.patient_code,
                 doctor_code: patient.doctor_code,
-                //birthday: age,
-                //sex: sex,
-                birthday: patient.birthday,
-                sex: patient.sex,
+                birthday: age,
+                sex: sex,
+                //birthday: patient.birthday,
+                //sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
@@ -1036,7 +1134,7 @@ function getPatientInfoAll (req, res){
                 monthAvgChange:monthAvgChange,
                 weekAvgChangeDirection:weekAvgChangeDirection,
                 monthAvgChangeDirection:monthAvgChangeDirection,
-                patientName: patient.fullname,
+                patientInitials: patient.initials,
                 kakao_text: kakao_text_all
             }
 
@@ -1050,10 +1148,15 @@ function getPatientInfoAll (req, res){
     });
 }
 
+// TODO : Promise로 가독성 확보
+// TODO : 웹 대시보드에서 dashboard_personal과 chart페이지에서 호출하는 API 가 다른데 규격을 맞출 필요가 있음
+
 function getPatientGraph (req, res){
     const encrypted_kakao_id = req.params.encrypted_kakao_id
     const startTime = req.params.start
     const endTime = req.params.end
+    let startTimeDate = moment(startTime*1000).format('YYYY-MM-DD');
+    let endTimeDate = moment(endTime*1000).format('YYYY-MM-DD');
 
     models.Patient.findOne({
         where: {
@@ -1082,7 +1185,27 @@ function getPatientGraph (req, res){
                         encrypted_kakao_id: req.params.encrypted_kakao_id,
                     }
                 }).then(med_times => {
-                    return res.status(200).json({success: true, medicine_checks: med_checks, mood_checks: mood_checks, medicine_times: med_times});
+                    models.Weather.findAll({
+                        date: {[Op.lt]: endTimeDate,
+                            [Op.gt]: startTimeDate},
+
+                    }).then(dusts => {
+                        dusts.forEach(function (result, i) {
+                            let convertedDate = moment(result.date).valueOf();
+                            dusts[i] = {
+                                "date": convertedDate,
+                                "pm10": result.pm10,
+                                "pm25": result.pm25
+                            };
+                        });
+                        return res.status(200).json({
+                            success: true,
+                            medicine_checks: med_checks,
+                            mood_checks: mood_checks,
+                            medicine_times: med_times,
+                            dust: dusts
+                        });
+                    })
                 })
             })
         })
@@ -1152,9 +1275,11 @@ function addPatient (req, res) {
 }
 
 function registerPatient(req, res){
-    let encrypted_kakao_id = req.body.encrypted_kakao_id
+    let encrypted_kakao_id = req.body.encrypted_kakao_id;
+    let patientName = req.body.patientName;
     models.Patient.update({
-        registered: 1 // What to update
+        registered: 1,
+        fullname:patientName// What to update
     }, {
         where: {encrypted_kakao_id: encrypted_kakao_id} // Condition
     }).then(result => {
@@ -1190,24 +1315,61 @@ function declinePatient(req, res){
 
 function getMedicineCheck (req, res){
 
-    const encrypted_kakao_id = req.params.encrypted_kakao_id
-    const startTime = req.params.start
-    const endTime = req.params.end
+    const encrypted_kakao_id = req.params.encrypted_kakao_id;
+    const startTime = req.params.start;
+    const endTime = req.params.end;
+    let startTimeDate = moment(startTime*1000).format('YYYY-MM-DD');
+    let endTimeDate = moment(endTime*1000).format('YYYY-MM-DD');
 
-    models.Medicine_check.findAll({
-        where: {
-            encrypted_kakao_id: req.params.encrypted_kakao_id,
-            date: {[Op.lt]: endTime,
-                [Op.gt]: startTime},
-        }
-    }).then(med_checks => {
-        if (!med_checks) {
-            return res.status(404).json({error: 'No missed medicine checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
-        }
-        return res.status(200).json({success: true, medicine_checks: med_checks});
-    }).catch(function (err){
-        return res.status(500).json(err)
-    })
+    // 약복용 불러오기
+    const p1 = new Promise(function(resolve, reject) {
+        models.Medicine_check.findAll({
+            where: {
+                encrypted_kakao_id: encrypted_kakao_id,
+                date: {[Op.lt]: endTime,
+                    [Op.gt]: startTime},
+            }
+        }).then(med_checks => {
+            if (!med_checks) {
+                reject('No missed medicine checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id);
+            }
+            resolve(med_checks);
+        }).catch(function (err){
+            reject(err);
+        })
+    });
+
+    // 미세먼지 불러오기
+    const p2 = new Promise(function(resolve, reject) {
+        models.Weather.findAll({
+            date: {[Op.lt]: endTimeDate,
+                [Op.gt]: startTimeDate},
+
+        }).then(results => {
+            if (!results) {
+                reject('No dust information found ');
+            } else {
+                results.forEach(function (result,i) {
+                    let convertedDate = moment(result.date).valueOf();
+                    results[i] = {
+                        "date": convertedDate,
+                        "pm10": result.pm10,
+                        "pm25": result.pm25
+                    };
+                });
+                resolve(results);
+            }
+        }).catch(function (err){
+            reject(err);
+        })
+    });
+
+    Promise.all([p1, p2]).then(value => {
+        res.status(200).json({success: true, medicine_checks: value[0], dust: value[1]});
+    }).catch(err => {
+        logger.error("Promise Error : ",JSON.stringify(err,null,2));
+        res.status(500).json({error:err});
+    });
 }
 
 function getMoodCheck (req, res){
