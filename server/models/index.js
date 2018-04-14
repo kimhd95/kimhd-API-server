@@ -145,7 +145,7 @@ const Kakao_text = sequelize.define('kakao_text', {
 
 const Weather = sequelize.define('weather', {
     id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
-    date: Sequelize.INTEGER,
+    date: Sequelize.DATE,
     pm10: Sequelize.INTEGER,
     pm25: Sequelize.INTEGER
 });
