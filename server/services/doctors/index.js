@@ -1155,6 +1155,8 @@ function getPatientGraph (req, res){
     const encrypted_kakao_id = req.params.encrypted_kakao_id
     const startTime = req.params.start
     const endTime = req.params.end
+    let startTimeDate = moment(startTime*1000).format('YYYY-MM-DD');
+    let endTimeDate = moment(endTime*1000).format('YYYY-MM-DD');
 
     models.Patient.findOne({
         where: {
@@ -1184,7 +1186,8 @@ function getPatientGraph (req, res){
                     }
                 }).then(med_times => {
                     models.Weather.findAll({
-                        // TODO : Where 조건 설정 필요
+                        date: {[Op.lt]: endTimeDate,
+                            [Op.gt]: startTimeDate},
 
                     }).then(dusts => {
                         dusts.forEach(function (result, i) {
@@ -1315,6 +1318,8 @@ function getMedicineCheck (req, res){
     const encrypted_kakao_id = req.params.encrypted_kakao_id;
     const startTime = req.params.start;
     const endTime = req.params.end;
+    let startTimeDate = moment(startTime*1000).format('YYYY-MM-DD');
+    let endTimeDate = moment(endTime*1000).format('YYYY-MM-DD');
 
     // 약복용 불러오기
     const p1 = new Promise(function(resolve, reject) {
@@ -1337,7 +1342,8 @@ function getMedicineCheck (req, res){
     // 미세먼지 불러오기
     const p2 = new Promise(function(resolve, reject) {
         models.Weather.findAll({
-            // TODO : Where 조건 설정 필요
+            date: {[Op.lt]: endTimeDate,
+                [Op.gt]: startTimeDate},
 
         }).then(results => {
             if (!results) {
@@ -1359,7 +1365,6 @@ function getMedicineCheck (req, res){
     });
 
     Promise.all([p1, p2]).then(value => {
-        logger.debug("Promise Value :",JSON.stringify(value,null,2));
         res.status(200).json({success: true, medicine_checks: value[0], dust: value[1]});
     }).catch(err => {
         logger.error("Promise Error : ",JSON.stringify(err,null,2));
