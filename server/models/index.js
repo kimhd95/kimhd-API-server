@@ -70,6 +70,7 @@ const Patient = sequelize.define('patient', {
     state: Sequelize.STRING,
     next_hospital_visit_date: Sequelize.INTEGER,
     exit: Sequelize.INTEGER,
+    stamp: Sequelize.INTEGER,
 
     // medicine_side: Sequelize.STRING,
 

@@ -168,6 +168,7 @@ function updatePatient (req, res) {
             doctor_code: doctor_code, // What to update
             registered: 0,
             daily_scenario: 0,
+            stamp: 0,
             encrypted_kakao_id: kakao_id
         }, {
             where: {
@@ -229,6 +230,29 @@ function updatePatient (req, res) {
     }
 }
 
+function updateStamp (req, res) {
+    const kakao_id = req.body.kakao_id
+    const stamp = req.body.stamp
+
+    //let nowDate = new Date();
+    //nowDate.getTime();
+    //const now = nowDate;
+
+    //if ((scenario.indexOf("201") == 0) && (state == 'init')){
+    models.Patient.update(
+        {
+            stamp: stamp
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'Patient Stamp Update complete.', stamp: stamp})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'Patient Stamp Update Update failed. Error: ' + err.message})
+    })
+    //}
+}
 
 function updateDaily (req, res) {
     const kakao_id = req.body.kakao_id
@@ -755,6 +779,7 @@ module.exports = {
     registerPatient: registerPatient,
     updatePatient: updatePatient,
     updateDaily: updateDaily,
+    updateStamp: updateStamp,
     getPatientInfo: getPatientInfo,
     updateExit: updateExit,
     createPatientLog: createPatientLog,
