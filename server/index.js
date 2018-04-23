@@ -34,7 +34,8 @@ module.exports = function() {
                 'http://devpsy.jellylab.io',
                 'http://devatopy.jellylab.io',
                 'http://psy.jellylab.io',
-                'http://atopy.jellylab.io'
+                'http://atopy.jellylab.io',
+				'https://stage.jellylab.io'
             ];
 			if (req.headers !== undefined){
 				let origin = req.headers.origin || ''
