@@ -23,12 +23,12 @@ const environments = {
 		apikey: '9Y3-7bE-Ud3-7Ja',
 		jwt_secret: "9Y3-7bE-Ud3-7Ja"
 	},
-	qa: {
+	stage: {
 		mysql: {
-			host: '<QA DB SERVER HOST HERE>',
-			username: 'jellylab',
-			password: '<QA PASSWORD HERE>',
-			database: '<QA DB SERVER DB NAME HERE>',
+			host: 'stage-dermatology.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
+			username: 'jellyderma',
+			password: 'jelly2018db',
+			database: 'DERMATOLOGY_STAGE',
 			logging: console.log
 		},
 		apikey: '9Y3-7bE-Ud3-7Ja',

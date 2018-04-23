@@ -7,6 +7,7 @@
     "start": "cross-env NODE_ENV=production node api_atopy.js",
     "dev": "cross-env NODE_ENV=dev node api_atopy.js",
     "local": "cross-env NODE_ENV=local node api_atopy.js",
+    "stage": "cross-env NODE_ENV=state node api_atopy.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
