@@ -32,9 +32,9 @@ function getPatientsRegistered(req, res){
 
             // TODO : 변환 기능은 다른 API에서도 중복적으로 사용되므로 추후 리팩토링 필요
             // 성별 변환
-            if (patient.se === '남성'){
+            if (patient.sex == '남성'){
                 patient.sex = 'M';
-            } else {
+            } else if(patient.sex == '여성') {
                 patient.sex = 'F';
             }
 
@@ -167,9 +167,9 @@ function getPatientInfo (req, res){
             console.log(patient.birthday, now_b, nowyear, nowmonth, nowdate, nowymd, birth, age1, age);
 
             let sex;
-            if (patient.sex === '남성'){
+            if (patient.sex == '남성'){
                 sex = 'M';
-            } else {
+            } else if (patient.sex == '여성') {
                 sex = 'F';
             }
 
@@ -180,8 +180,6 @@ function getPatientInfo (req, res){
                 doctor_code: patient.doctor_code,
                 birthday: age,
                 sex: sex,
-                //birthday: patient.birthday,
-                //sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 phone: patient.phone,
@@ -541,9 +539,9 @@ function getPatientInfoSummary (req, res){
             console.log(patient.birthday, now_b, nowyear, nowmonth, nowdate, nowymd, birth, age1, age);
 
             let sex;
-            if (patient.sex === '남성'){
+            if (patient.sex == '남성'){
                 sex = 'M';
-            } else {
+            } else if(patient.sex == '여성') {
                 sex = 'F';
             }
 
@@ -554,8 +552,6 @@ function getPatientInfoSummary (req, res){
                 doctor_code: patient.doctor_code,
                 birthday: age,
                 sex: sex,
-                //birthday: patient.birthday,
-                //sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
@@ -1081,9 +1077,9 @@ function getPatientInfoAll (req, res){
             console.log(patient.birthday, now_b, nowyear, nowmonth, nowdate, nowymd, birth, age1, age);
 
             let sex;
-            if (patient.sex === '남성'){
+            if (patient.sex == '남성'){
                 sex = 'M';
-            } else {
+            } else if (patient.sex == '여성') {
                 sex = 'F';
             }
 
@@ -1094,8 +1090,6 @@ function getPatientInfoAll (req, res){
                 doctor_code: patient.doctor_code,
                 birthday: age,
                 sex: sex,
-                //birthday: patient.birthday,
-                //sex: patient.sex,
                 kakao_id: patient.kakao_id,
                 encrypted_kakao_id: patient.encrypted_kakao_id,
                 weekTakenRate: weekTakenRate,
