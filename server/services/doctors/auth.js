@@ -15,7 +15,8 @@
 const qs = require('qs');
 const jwt = require('jsonwebtoken');
 const models = require('../../models');
-const config = require('../../../configs')
+const config = require('../../../configs');
+const bcrypt = require('bcrypt');
 
 // Constants
 const EnumRoleType = {
@@ -207,22 +208,37 @@ function registerDoctor (req, res){
         }
         doctor_code = generateUniqueDoctorCode(doctor_code)
     }).then(function (doctor_code){
-        models.Doctor.create({
-            email: email,
-            password: password,
-            doctor_code: doctor_code,
-            hospital: hospital,
-            name: name
-        }).then(doctor => {
-            res.status(201).json({success: true, message: 'Ok'})
-        }).catch(function (err) {
-            if (err) res.status(500).json({
-                success: false,
-                message: err.message,
-                log: 'Error while creating doctor row in db. check uniqueness of parameters.'
-            });
-        });
 
+        var SALT_FACTOR = 5;
+        bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
+            if(err) {
+                console.log('ERROR WHILE SALT FACTOR',err);
+                reject(err)
+            } else {
+                bcrypt.hash(password, salt, null, function(err, hash) {
+                    if(err) {
+                        console.log('ERROR WHILE GENERATING PASSWORD',err);
+                        reject(err)
+                    } else {
+                        models.Doctor.create({
+                            email: email,
+                            password: hash,
+                            doctor_code: doctor_code,
+                            hospital: hospital,
+                            name: name
+                        }).then(doctor => {
+                            res.status(201).json({success: true, message: 'Ok'})
+                        }).catch(function (err) {
+                            if (err) res.status(500).json({
+                                success: false,
+                                message: err.message,
+                                log: 'Error while creating doctor row in db. check uniqueness of parameters.'
+                            });
+                        });
+                    }
+                });
+            }
+        });
     }).catch(function (err){
         res.status(500).json({
             success: false,
