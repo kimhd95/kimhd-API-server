@@ -33,8 +33,8 @@ module.exports = function() {
                 'http://localhost:8011',
                 'http://devpsy.jellylab.io',
                 'http://devatopy.jellylab.io',
-                'http://psy.jellylab.io',
-                'http://atopy.jellylab.io'
+                'https://psy.jellylab.io',
+                'https://atopy.jellylab.io'
             ];
 			if (req.headers !== undefined){
 				let origin = req.headers.origin || ''
