@@ -26,6 +26,7 @@ router.post('/register_patient', chatbotService.registerPatient);
 router.post('/verify_doctor_code', chatbotService.verifyDoctorCode);
 router.post('/update_patient', chatbotService.updatePatient);
 router.post('/update_daily', chatbotService.updateDaily);
+router.post('/update_stamp', chatbotService.updateStamp);
 router.post('/create_patient_log', chatbotService.createPatientLog);
 router.post('/update_exit', chatbotService.updateExit);
 router.get('/get_patient_info/:kakao_id', chatbotService.getPatientInfo);
