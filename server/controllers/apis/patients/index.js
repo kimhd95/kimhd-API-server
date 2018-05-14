@@ -48,7 +48,6 @@ router.get('/:id', patientService.getPatientWithId);
 router.use('/*', models.verifyAPIKEY);
 // ^Middleware. Make sure to put all the routes which needs authentication below this middleware.
 
-router.post('/register_kakao_id', patientService.registerKakaoId);
 router.post('/register_doctor_code', patientService.registerDoctorCode);
 router.post('/kakao_text', patientService.kakaoText);
 router.post('/medicine_check', patientService.medicineCheck);

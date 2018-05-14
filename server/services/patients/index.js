@@ -32,32 +32,6 @@ function getPatientWithId(req, res) {
     })
 }
 
-function registerKakaoId (req, res) {
-    let kakao_id, phone, name
-    let key = 'jellyKey';
-    let input = kakao_id;
-
-    if (req.body.kakao_id && req.body.phone && req.body.name){
-        kakao_id = req.body.kakao_id.toString().trim() || '';
-        phone = req.body.phone.toString().trim() || '';
-        name = req.body.name.toString().trim() || '';
-    } else {
-        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id, phone, name).'
-            , kakao_id: req.body.kakao_id, doctor_code: req.body.doctor_code})
-    }
-
-
-    models.Patient.create({
-        kakao_id: kakao_id,
-        phone: phone,
-        name: name
-    }).then(patient => {
-        return res.status(201).json(patient)
-    }).catch(function (err){
-        return res.status(500).json({error: err.message})
-    });
-}
-
 function registerDoctorCode (req, res){
     let kakao_id, doctor_code;
     if (!(req.body.kakao_id && req.body.doctor_code)){
@@ -301,7 +275,6 @@ module.exports = {
     getPatientWithId: getPatientWithId,
 
     // Below methods requires APIKey.
-    registerKakaoId: registerKakaoId,
     registerDoctorCode: registerDoctorCode,
     kakaoText: kakaoText,
 
