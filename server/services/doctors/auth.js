@@ -210,7 +210,7 @@ function registerDoctor (req, res){
         doctor_code = generateUniqueDoctorCode(doctor_code)
     }).then(function (doctor_code){
 
-        var SALT_FACTOR = 5;
+        let SALT_FACTOR = 5;
         bcrypt.hash(password, SALT_FACTOR, function(err, hash) {
             if(err) {
                 console.log('ERROR WHILE GENERATING PASSWORD',err);
@@ -257,68 +257,79 @@ function loginDoctor (req, res){
         if (!doctor) {
             return res.status(403).json({success: false, message: 'No doctor account found with given email address.'});
         }
-        if (doctor.password === password) {
-            jwt.sign({
-                    id: doctor.id,
-                    permissions: userPermission.DEVELOPER,
-                    email: doctor.email,
-                    doctor_code: doctor.doctor_code,
-                    hospital: doctor.hospital,
-                    name: doctor.name
-                },
-                secret, {
-                    expiresIn: '7d',
-                    issuer: 'jellylab.io',
-                    subject: 'userInfo'
-                }, (err, token) => {
-                    console.log('err: ' + err, ', token: ' + token);
-                    if (err) {
-                        console.log('err.message: ' + err.message);
-                        return res.status(403).json({
-                            success: false,
-                            message: err.message
-                        });
-                    }
-                    // Refer to https://stackoverflow.com/questions/1062963/how-do-browser-cookie-domains-work/30676300#30676300 for cookie settings.
-                    // And https://stackoverflow.com/questions/1134290/cookies-on-localhost-with-explicit-domain for localhost config.
-                    console.log('req.header.origin = ' + req.header('origin'))
-
-                    const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
-                    if (req.header('origin') === undefined){
-                        console.log('req origin is undefined. Probably from postman.')
-                        if (req.secure) {
-                            console.log('req is secure')
-                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
-                        } else {
-                            console.log('req is NOT secure')
-                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
-                        }
-                    } else if (req.header('origin').includes('localhost')) {
-                        console.log('req origin includes localhost OR it is from postman.')
-                        if (req.secure) {
-                            console.log('req is secure')
-                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
-                        } else {
-                            console.log('req is NOT secure')
-                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
-                        }
-                    } else {
-                        console.log('req origin does NOT include localhost')
-                        if (req.secure) {
-                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
-                        } else {
-                            res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
-                        }
-                    }
-                    res.header('Access-Control-Allow-Credentials', 'true');
-                    return res.status(200).json({success: true, message: 'Ok', token: token, redirect:'/dashboard'});
+        bcrypt.compare(password, doctor.password, function(err, isMatch) {
+            if(err) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Error while login'
                 });
-        } else {
-            return res.status(403).json({
-                success: false,
-                message: 'Password wrong'
-            });
-        }
+            } else {
+                if(isMatch) {
+                    jwt.sign({
+                            id: doctor.id,
+                            permissions: userPermission.DEVELOPER,
+                            email: doctor.email,
+                            doctor_code: doctor.doctor_code,
+                            hospital: doctor.hospital,
+                            name: doctor.name
+                        },
+                        secret, {
+                            expiresIn: '7d',
+                            issuer: 'jellylab.io',
+                            subject: 'userInfo'
+                        }, (err, token) => {
+                            console.log('err: ' + err, ', token: ' + token);
+                            if (err) {
+                                console.log('err.message: ' + err.message);
+                                return res.status(403).json({
+                                    success: false,
+                                    message: err.message
+                                });
+                            }
+                            // Refer to https://stackoverflow.com/questions/1062963/how-do-browser-cookie-domains-work/30676300#30676300 for cookie settings.
+                            // And https://stackoverflow.com/questions/1134290/cookies-on-localhost-with-explicit-domain for localhost config.
+                            console.log('req.header.origin = ' + req.header('origin'))
+
+                            const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
+                            if (req.header('origin') === undefined){
+                                console.log('req origin is undefined. Probably from postman.')
+                                if (req.secure) {
+                                    console.log('req is secure')
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
+                                } else {
+                                    console.log('req is NOT secure')
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
+                                }
+                            } else if (req.header('origin').includes('localhost')) {
+                                console.log('req origin includes localhost OR it is from postman.')
+                                if (req.secure) {
+                                    console.log('req is secure')
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
+                                } else {
+                                    console.log('req is NOT secure')
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
+                                }
+                            } else {
+                                console.log('req origin does NOT include localhost')
+                                if (req.secure) {
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: true})
+                                } else {
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: false})
+                                }
+                            }
+                            res.header('Access-Control-Allow-Credentials', 'true');
+                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect:'/dashboard'});
+                        });
+                } else {
+                    return res.status(403).json({
+                        success: false,
+                        message: 'Password wrong'
+                    });
+                }
+
+
+            }
+        });
     }).catch(function (err){
         console.log('err.message: ' + err.message);
         return res.status(403).json({
@@ -414,14 +425,27 @@ function updatePassword (req, res) {
             return res.status(404).json({error: 'No user with given email address.'});
         }
 
-        if (doctor.password === curPassword){
-            doctor.password = newPassword
-            doctor.save().then(_ => {
-                return res.status(200).json({success: true, message: 'Password successfully updated.'})
-            })
-        } else {
-            return res.status(403).json({success: false, message: 'Given current password is wrong.'})
-        }
+        bcrypt.compare(curPassword, doctor.password, function(err, isMatch) {
+            if(err) {
+                return res.status(403).json({success: false, message: 'encryption error'})
+            } else {
+                if(isMatch) {
+                    let SALT_FACTOR = 5;
+                    bcrypt.hash(newPassword, SALT_FACTOR, function(err, hash) {
+                        if(err) {
+                            console.log('ERROR WHILE GENERATING PASSWORD',err);
+                            return res.status(403).json({success: false, message: 'ERROR WHILE GENERATING PASSWORD'})
+                        }
+                        doctor.password = hash;
+                        doctor.save().then(_ => {
+                            return res.status(200).json({success: true, message: 'Password successfully updated.'})
+                        })
+                    });
+                } else {
+                    return res.status(403).json({success: false, message: 'Given current password is wrong.'})
+                }
+            }
+        });
     });
 }
 
