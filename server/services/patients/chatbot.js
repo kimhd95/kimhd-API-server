@@ -410,8 +410,7 @@ function createPatientImage (req, res) {
     }).then(result => {
         return res.status(200).json({
             success: true,
-            message: 'Patient image Create complete.',
-            daily_scenario: daily_scenario
+            message: 'Patient image Create complete.'
         })
     }).catch(function (err) {
         return res.status(403).json({success: false, message: 'Patient image Create failed. Error: ' + err.message})
