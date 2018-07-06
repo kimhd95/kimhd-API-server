@@ -134,6 +134,15 @@ const Mood_check = sequelize.define('mood_check', {
     mood_text: Sequelize.STRING
 });
 
+const Patient_image = sequelize.define('patient_image', {
+    kakao_id: Sequelize.STRING,
+    encrypted_kakao_id: Sequelize.STRING,
+    image_link: Sequelize.STRING,
+    medical_image: Sequelize.INTEGER,
+    date: Sequelize.INTEGER
+});
+
+
 const Kakao_text = sequelize.define('kakao_text', {
     id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
     kakao_id: Sequelize.STRING,
@@ -158,6 +167,7 @@ module.exports = {
     Medicine_check: Medicine_check,
     Medicine_time: Medicine_time,
     Mood_check: Mood_check,
+    Patient_image: Patient_image,
     Kakao_text: Kakao_text,
     PatientLog: PatientLog,
     Weather: Weather,

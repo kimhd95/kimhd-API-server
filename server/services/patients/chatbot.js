@@ -387,29 +387,33 @@ function createPatientLog (req, res){
         date: date,
         type: type,
         answer_num: answer_num
-    }).then(patientLog => {
-
-        models.Patient.update(
-            {
-                scenario: scenario,
-                state: state,
-                date: date,
-                updated_at: date
-            },     // What to update
-            {where: {
-                    kakao_id: kakao_id}
-            })  // Condition
-            .then(result => {
-                return res.status(200).json({success: true, message: 'Patient Log and Patient both Update complete.', updateResult: result, patientLog: patientLog})
-            }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Patient Log updated. However Patient Update failed. Error: ' + err.message, patientLog: patientLog})
-        })
-
-        // return res.status(201).json({success: true, patientLog})
     }).catch(function (err){
         return res.status(500).json({success: false, error: err.message})
     })
 }
+
+function createPatientImage (req, res){
+    const kakao_id = req.body.kakao_id
+    const image_link = req.body.image_link
+    const medical_image = req.body.medical_image
+    const date = req.body.date
+    //let nowDate = new Date();
+    //nowDate.getTime();
+    //const now = nowDate;
+
+    models.Patient_image.create({
+        kakao_id: kakao_id,
+        encrypted_kakao_id: kakao_id,
+        image_link: image_link,
+        medical_image: medical_image,
+        date: date,
+    }).then(result => {
+        return res.status(200).json({success: true, message: 'Patient image Create complete.', daily_scenario: daily_scenario})
+    }).catch(function (err){
+        return res.status(403).json({success: false, message: 'Patient image Create failed. Error: ' + err.message})
+    })
+
+
 
 
 // Legacy code left here for reference.
@@ -780,6 +784,7 @@ module.exports = {
     updatePatient: updatePatient,
     updateDaily: updateDaily,
     updateStamp: updateStamp,
+    createPatientImage: createPatientImage,
     getPatientInfo: getPatientInfo,
     updateExit: updateExit,
     createPatientLog: createPatientLog,
