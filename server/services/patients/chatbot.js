@@ -392,7 +392,7 @@ function createPatientLog (req, res){
     })
 }
 
-function createPatientImage (req, res){
+function createPatientImage (req, res) {
     const kakao_id = req.body.kakao_id
     const image_link = req.body.image_link
     const medical_image = req.body.medical_image
@@ -408,10 +408,15 @@ function createPatientImage (req, res){
         medical_image: medical_image,
         date: date,
     }).then(result => {
-        return res.status(200).json({success: true, message: 'Patient image Create complete.', daily_scenario: daily_scenario})
-    }).catch(function (err){
+        return res.status(200).json({
+            success: true,
+            message: 'Patient image Create complete.',
+            daily_scenario: daily_scenario
+        })
+    }).catch(function (err) {
         return res.status(403).json({success: false, message: 'Patient image Create failed. Error: ' + err.message})
     })
+}
 
 
 
