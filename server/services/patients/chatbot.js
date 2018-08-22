@@ -414,6 +414,8 @@ function createPatientImage (req, res) {
     const image_link = req.body.image_link
     const medical_image = req.body.medical_image
     const date = req.body.date
+    const check_skin = req.body.check_skin
+    const check_atopy = req.body.check_atopy
     //let nowDate = new Date();
     //nowDate.getTime();
     //const now = nowDate;
@@ -423,7 +425,9 @@ function createPatientImage (req, res) {
         encrypted_kakao_id: kakao_id,
         image_link: image_link,
         medical_image: medical_image,
-        date: date
+        date: date,
+        check_skin: check_skin,
+        check_atopy: check_atopy
     }).catch(function (err) {
         return res.status(403).json({success: false, message: 'Patient image Create failed. Error: ' + err.message})
     })

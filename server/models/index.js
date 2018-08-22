@@ -139,7 +139,9 @@ const Patient_image = sequelize.define('patient_image', {
     encrypted_kakao_id: Sequelize.STRING,
     image_link: Sequelize.STRING,
     medical_image: Sequelize.INTEGER,
-    date: Sequelize.INTEGER
+    date: Sequelize.INTEGER,
+    check_skin : Sequelize.FLOAT,
+    check_atopy : Sequelize.FLOAT
 });
 
 
