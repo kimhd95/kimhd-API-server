@@ -1207,6 +1207,18 @@ function getPatientGraph (req, res){
         return res.status(500).json(err)
     })
 }
+function getPatientImage (req, res) {
+    console.log(req);
+    models.Patient_image.findAll({
+        where: {
+            encrypted_kakao_id: req.params.encrypted_kakao_id,
+        }
+    }).then(data => {
+        console.log(data);
+    }).catch(err => {
+        console.log(err);
+    });
+}
 
 function average (data){
     let sum = data.reduce(function(sum, value){
@@ -1453,5 +1465,5 @@ module.exports = {
     getPatientMedicineTime: getPatientMedicineTime,
     createNextPatientVisitDate: createNextPatientVisitDate,
     getPatientGraph: getPatientGraph,
-
+    getPatientImage: getPatientImage
 };

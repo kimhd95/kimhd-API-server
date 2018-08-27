@@ -44,7 +44,7 @@ router.post('/decline_patient', doctorService.declinePatient)
 router.post('/create_next_patient_visit_date', doctorService.createNextPatientVisitDate)
 
 router.get('/get_patient_medicine_time/:encrypted_kakao_id', doctorService.getPatientMedicineTime)
-
+router.get("/get_patient_image/:encrypted_kakao_id", doctorService.getPatientImage)
 // Not used yet.
 router.get('/add_patient', doctorService.addPatient)
 
