@@ -37,6 +37,7 @@ router.get('/get_patient_med_miss_reason/:encrypted_kakao_id', doctorService.get
 
 router.get('/get_medicine_check/:encrypted_kakao_id/:start/:end', doctorService.getMedicineCheck)
 router.get('/get_mood_check/:encrypted_kakao_id/:start/:end', doctorService.getMoodCheck)
+router.get('/get_patient_image/:encrypted_kakao_id/:start/:end', doctorService.getPatientImage)
 
 router.post('/register_patient', doctorService.registerPatient)
 router.post('/decline_patient', doctorService.declinePatient)

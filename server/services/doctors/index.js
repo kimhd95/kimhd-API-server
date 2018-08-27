@@ -145,7 +145,19 @@ function getPatientInfo (req, res){
             });
         });
 
-        Promise.all([p1, p2]).then(function(value) {
+        const p3 = new Promise(function(resolve, reject) {
+            models.Patient_image.findAll({
+                where: {
+                    //kakao_id: patient.kakao_id
+                    encrypted_kakao_id: patient.encrypted_kakao_id
+                }
+            }).then(image => {
+                if(image) patient.patient_image = image;
+                resolve()
+            })
+        });
+
+        Promise.all([p1, p2, p3]).then(function(value) {
             // 환자의 닥터코드와 해당 API 콜을 하는 클라이언트에 로그인을 한 닥터의 닥터코드가 일치하는지 확인하는 코드.
             // if(patient.doctor_code !== decoded.doctor_code.toString()) {
             // 	res.status(403).json({ message: 'Permission Error. Patient and logged in doctor\'s Doctor Code does not match.' });
@@ -190,6 +202,7 @@ function getPatientInfo (req, res){
                 //medicine_side: patient.medicine_side,
                 //medicine_miss: patient.medicine_miss,
                 mood_check: patient.mood_check,
+                patient_image: patient.patient_image,
                 //medicine_check: patient.medicine_check,
                 comment_type: patient.comment_type,
                 comment_text: patient.comment_text,
@@ -671,7 +684,19 @@ function getPatientInfoAll (req, res){
             })
         });
 
-        Promise.all([p1, p2, p3, p4]).then(function(value) {
+        const p5 = new Promise(function(resolve, reject) {
+            models.Patient_image.findAll({
+                where: {
+                    //kakao_id: patient.kakao_id
+                    encrypted_kakao_id: patient.encrypted_kakao_id
+                }
+            }).then(image => {
+                if(image) patient.patient_image = image;
+                resolve()
+            })
+        })
+
+        Promise.all([p1, p2, p3, p4, p5]).then(function(value) {
             let
                 weekEmergencyMoodCount = 0,
                 monthEmergencyMoodCount = 0,
@@ -1386,6 +1411,26 @@ function getMoodCheck (req, res){
     })
 }
 
+function getPatientImage (req, res){
+    const startTime = req.params.start
+    const endTime = req.params.end
+
+    models.Patient_image.findAll({
+        where: {
+            encrypted_kakao_id: req.params.encrypted_kakao_id,
+            time: {[Op.lt]: endTime,
+                [Op.gt]: startTime},
+        }
+    }).then(patient_images => {
+        if (!patient_images) {
+            return res.status(404).json({error: 'No missed images associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
+        }
+        return res.status(200).json({success: true, patient_images: patient_images})
+    }).catch(function (err){
+        return res.status(500).json(err)
+    })
+}
+
 function getPatientMedicineTime (req, res){
     const encrypted_kakao_id = req.params.encrypted_kakao_id
 
@@ -1450,6 +1495,7 @@ module.exports = {
     declinePatient: declinePatient,
     getMedicineCheck: getMedicineCheck,
     getMoodCheck: getMoodCheck,
+    getPatientImage: getPatientImage,
     getPatientMedicineTime: getPatientMedicineTime,
     createNextPatientVisitDate: createNextPatientVisitDate,
     getPatientGraph: getPatientGraph,
