@@ -413,7 +413,7 @@ function createPatientImage (req, res) {
     const kakao_id = req.body.kakao_id
     const image_link = req.body.image_link
     const medical_image = req.body.medical_image
-    const date = req.body.date
+    //const date = req.body.date
     const check_skin = req.body.check_skin
     const check_atopy = req.body.check_atopy
     //let nowDate = new Date();
@@ -425,7 +425,7 @@ function createPatientImage (req, res) {
         encrypted_kakao_id: kakao_id,
         image_link: image_link,
         medical_image: medical_image,
-        date: date,
+        date: Date.now()/1000,
         check_skin: check_skin,
         check_atopy: check_atopy
     }).catch(function (err) {
