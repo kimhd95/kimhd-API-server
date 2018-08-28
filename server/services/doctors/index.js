@@ -1403,6 +1403,7 @@ function getMoodCheck (req, res){
                 [Op.gt]: startTime},
         }
     }).then(mood_checks => {
+        console.log(mood_checks);
         if (!mood_checks) {
             return res.status(404).json({error: 'No missed mood checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
         }
@@ -1413,8 +1414,6 @@ function getMoodCheck (req, res){
 }
 
 function getPatientImage (req, res){
-    console.log(req);
-    console.log(res);
     const startTime = req.params.start
     const endTime = req.params.end
 
@@ -1431,7 +1430,8 @@ function getPatientImage (req, res){
         }
         return res.status(200).json({success: true, patient_images: patient_images})
     }).catch(function (err){
-        return res.status(500).json(err)
+        console.log(err);
+        return res.status(500).json(err);
     })
 }
 
