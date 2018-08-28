@@ -1403,7 +1403,6 @@ function getMoodCheck (req, res){
                 [Op.gt]: startTime},
         }
     }).then(mood_checks => {
-        console.log(mood_checks);
         if (!mood_checks) {
             return res.status(404).json({error: 'No missed mood checks associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
         }
@@ -1424,13 +1423,17 @@ function getPatientImage (req, res){
                 [Op.gt]: startTime},
         }
     }).then(patient_images => {
+        console.log('----------------------------------------------------------------------------------------------------');
         console.log(patient_images);
+        console.log('----------------------------------------------------------------------------------------------------');
         if (!patient_images) {
             return res.status(404).json({error: 'No missed images associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
         }
         return res.status(200).json({success: true, patient_images: patient_images})
     }).catch(function (err){
+        console.log('----------------------------------------------------------------------------------------------------');
         console.log(err);
+        console.log('----------------------------------------------------------------------------------------------------');
         return res.status(500).json(err);
     })
 }
