@@ -1413,6 +1413,8 @@ function getMoodCheck (req, res){
 }
 
 function getPatientImage (req, res){
+    console.log(req);
+    console.log(res);
     const startTime = req.params.start
     const endTime = req.params.end
 
@@ -1423,6 +1425,7 @@ function getPatientImage (req, res){
                 [Op.gt]: startTime},
         }
     }).then(patient_images => {
+        console.log(patient_images);
         if (!patient_images) {
             return res.status(404).json({error: 'No missed images associated with encrypted_kakao_id: ' + req.params.encrypted_kakao_id});
         }
