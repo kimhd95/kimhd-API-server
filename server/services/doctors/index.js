@@ -1420,7 +1420,7 @@ function getPatientImage (req, res){
     models.Patient_image.findAll({
         where: {
             encrypted_kakao_id: req.params.encrypted_kakao_id,
-            time: {[Op.lt]: endTime,
+            date: {[Op.lt]: endTime,
                 [Op.gt]: startTime},
         }
     }).then(patient_images => {
