@@ -15,15 +15,15 @@ function now(date) {
     return date.getFullYear()+'-'+m+'-'+d+' '+h+':'+i+':'+s;
 }
 
-function getPatients(req, res) {
-    models.Patient.findAll({
+function getUsers(req, res) {
+    models.User.findAll({
     }).then(result => {
         res.json(result);
     })
 }
 
-function getPatientWithId(req, res) {
-    models.Patient.findOne({
+function getUserWithId(req, res) {
+    models.User.findOne({
         where: {
             kakao_id: req.body.kakao_id
         }
@@ -50,7 +50,7 @@ function registerDoctorCode (req, res){
         if (!doctor){
             return res.status(200).json({success: true, message: 'Given doctor_code does not exist in Doctor table. Plz try again.', 'doctor_code': 'unmatched'})
         }
-        models.Patient.update({
+        models.User.update({
                 doctor_code: doctor_code,
             },     // What to update
             {where: {kakao_id: kakao_id}})  // Condition
@@ -82,7 +82,7 @@ function kakaoText (req, res) {
         time: time,
         type: type,
         share_doctor: share_doctor
-    }).then(patient => res.status(201).json(patient));
+    }).then(user => res.status(201).json(user));
 }
 
 function medicineCheck (req, res) {
@@ -271,8 +271,8 @@ function medicineTime (req, res) {
 }
 
 module.exports = {
-    getPatients: getPatients,
-    getPatientWithId: getPatientWithId,
+    getUsers: getUsers,
+    getUserWithId: getUserWithId,
 
     // Below methods requires APIKey.
     registerDoctorCode: registerDoctorCode,

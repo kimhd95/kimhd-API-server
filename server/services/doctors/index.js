@@ -62,7 +62,7 @@ function getPatientsRegistered(req, res){
     })
 }
 
-// Return all patients associated with given doctor code
+// Return all users associated with given doctor code
 function getPatients(req, res){
     let doctorCode = req.params.doctor_code
     models.Patient.findAll({
@@ -79,7 +79,7 @@ function getPatients(req, res){
     })
 }
 
-// Return all patients associated with given doctor code
+// Return all users associated with given doctor code
 // && only those who have not already registered with a doctor (patient.registered != 1).
 function getPatientsToAdd(req, res){
     let doctorCode = req.params.doctor_code

@@ -11,7 +11,7 @@ let router = express.Router();
 console.log('apis/users/index.js called');
 
 // Special request for Dashboard Chart URL for users from Kakao Chatbot Server.
-router.get('/get_user_chart_url/:encrypted_kakao_id', chatbotService.getPatientChartURL);
+router.get('/get_user_chart_url/:encrypted_kakao_id', chatbotService.getUserChartURL);
 
 // ------ Kakao chatbot requests ------ //
 // TODO: The below APIs do not follow the convention of making use of POST GET PUT DELETE for general purposes.
@@ -22,15 +22,15 @@ router.get('/get_user_chart_url/:encrypted_kakao_id', chatbotService.getPatientC
  * api/v1/users/
  */
 
-router.post('/register_user', chatbotService.registerPatient);
+router.post('/register_user', chatbotService.registerUser);
 router.post('/verify_doctor_code', chatbotService.verifyDoctorCode);
-router.post('/update_user', chatbotService.updatePatient);
+router.post('/update_user', chatbotService.updateUser);
 router.post('/update_daily', chatbotService.updateDaily);
 router.post('/update_stamp', chatbotService.updateStamp);
-router.post('/create_user_image', chatbotService.createPatientImage);
-router.post('/create_user_log', chatbotService.createPatientLog);
+router.post('/create_user_image', chatbotService.createUserImage);
+router.post('/create_user_log', chatbotService.createUserLog);
 router.post('/update_exit', chatbotService.updateExit);
-router.get('/get_user_info/:kakao_id', chatbotService.getPatientInfo);
+router.get('/get_user_info/:kakao_id', chatbotService.getUserInfo);
 router.get('/get_restaurant_info/:kakao_id', chatbotService.getRestaurantInfo);
 router.get('/get_medicine_time/:kakao_id', chatbotService.getMedicineTime);
 router.post('/create_medicine_time', chatbotService.createMedicineTime);
@@ -43,8 +43,8 @@ router.post('/create_mood_check_text', chatbotService.createMoodCheckText);
 router.get('/get_medicine_time_to_check/:kakao_id/:time', chatbotService.getMedicineTimeToCheck);
 
 
-router.get('/get_users', userService.getPatients);
-router.get('/:id', userService.getPatientWithId);
+router.get('/get_users', userService.getUsers);
+router.get('/:id', userService.getUserWithId);
 
 
 router.use('/*', models.verifyAPIKEY);
