@@ -6,7 +6,7 @@ const
 	syncDatabase = require('./database'),
 	morgan = require('morgan');
 
-const batch = require('./services/batch');
+//const batch = require('./services/batch');
 
 module.exports = function() {
 	let
@@ -80,7 +80,7 @@ module.exports = function() {
 			logger.info('Environment: ' + server.get('env') + ', Express server listening on: ' + (process.env.PORT || server.get('port') || 5000))
 			syncDatabase().then(() => {logger.debug('Database Sync Complete')})
 		});
-		batch.startMicroDustBatch();
+		//batch.startMicroDustBatch();
 	};
 
 	return {
