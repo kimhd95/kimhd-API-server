@@ -12,7 +12,7 @@
 const models = require('../../models');
 const Op = require('sequelize').Op;
 const moment = require('moment');
-var logger = require('../../config/winston');
+//var logger = require('../../config/winston');
 
 function getPatientsRegistered(req, res){
     let doctorCode = req.params.doctor_code

@@ -1,5 +1,5 @@
 'use strict';
-var logger = require('./config/winston.js');
+//var logger = require('./config/winston.js');
 const
 	express = require('express'),
 	bodyParser = require('body-parser'),

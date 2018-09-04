@@ -14,7 +14,7 @@ const async = require('async');
 var cron = require('node-cron');
 var request = require('request');
 var moment = require('moment');
-var logger = require('../../config/winston');
+//var logger = require('../../config/winston');
 
 let serviceKey = 'AuD1lSRzmSkPUA8g67GQ7j401ZJUfoehNzRCdam9Kvh37WR1klQgqoLKrdjvWR8RvuCvXe991jEcjAzn%2BjyPJA%3D%3D';
 let numOfRows = '10';
