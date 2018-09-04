@@ -3,7 +3,7 @@
 const
 	express = require('express'),
 	doctorsController = require('../../../controllers/apis/doctors'),
-	patientsController = require('../../../controllers/apis/patients');
+	usersController = require('../../../controllers/apis/users');
 
 let router = express.Router();
 
