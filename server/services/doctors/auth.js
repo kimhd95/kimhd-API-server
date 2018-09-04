@@ -17,7 +17,7 @@ const jwt = require('jsonwebtoken');
 const models = require('../../models');
 const config = require('../../../configs');
 const bcrypt = require('bcrypt');
-var logger = require('../../config/winston');
+//var logger = require('../../config/winston');
 
 // Constants
 const EnumRoleType = {
