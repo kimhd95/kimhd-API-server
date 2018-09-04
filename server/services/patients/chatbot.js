@@ -2,7 +2,7 @@ const models = require('../../models');
 const config = require('../../../configs');
 const Op = models.sequelize.Op;
 const crypto = require('crypto');
-var logger = require('../../config/winston');
+//var logger = require('../../config/winston');
 
 function getUserChartURL (req, res){
     let encrypted_kakao_id
