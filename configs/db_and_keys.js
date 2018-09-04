@@ -3,27 +3,27 @@ const productionKeys = require('./production_keys')
 const environments = {
 	local: {
 		mysql: {
-			host: 'dev-food.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
-			username: 'jellyfood',
+            host: 'dev-dermatology.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
+            username: 'jellyderma',
 			password: 'jelly2018db',
-			database: 'DEV_FOOD',
-			logging: console.log
+            database: 'DERMATOLOGY_DEV',
+            logging: console.log
 		},
 		apikey: '9Y3-7bE-Ud3-7Ja',
 		jwt_secret: "9Y3-7bE-Ud3-7Ja"
 	},
 	dev: {
 		mysql: {
-			host: 'dev-food.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
-            username: 'jellyfood',
+            host: 'dev-dermatology.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
+            username: 'jellyderma',
             password: 'jelly2018db',
-            database: 'DEV_FOOD',
-			logging: console.log
+            database: 'DERMATOLOGY_DEV',
+            logging: console.log
 		},
 		apikey: '9Y3-7bE-Ud3-7Ja',
 		jwt_secret: "9Y3-7bE-Ud3-7Ja"
 	},
-	//todo: stage server
+	//todo: stage server ??
 	stage: {
 		mysql: {
 			host: 'stage-dermatology.cgrre2ngqldq.ap-northeast-2.rds.amazonaws.com',
