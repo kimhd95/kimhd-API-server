@@ -77,11 +77,11 @@ module.exports = function() {
 
 	start = function(){
 		server.listen(process.env.PORT || server.get('port'), function (){
-			//logger.info('Environment: ' + server.get('env') + ', Express server listening on: ' + (process.env.PORT || server.get('port') || 5000))
-			syncDatabase().then(() => {logger.debug('Database Sync Complete')})
-		});
-		//batch.startMicroDustBatch();
-	};
+            console.log('Environment: ' + server.get('env') + ', Express server listening on: ' + (process.env.PORT || server.get('port') || 5000))
+            syncDatabase().then(() => {console.log('Database Sync Complete')})
+        })
+    }
+
 
 	return {
 		create: create,
