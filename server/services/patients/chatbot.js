@@ -4,7 +4,7 @@ const Op = models.sequelize.Op;
 const crypto = require('crypto');
 var logger = require('../../config/winston');
 
-function getPatientChartURL (req, res){
+function getUserChartURL (req, res){
     let encrypted_kakao_id
     if ((req.params.encrypted_kakao_id !== undefined)){
         encrypted_kakao_id = req.params.encrypted_kakao_id.toString().trim() || '';
@@ -23,28 +23,28 @@ function getPatientChartURL (req, res){
     //	return res.status(403).json({success: false, message: 'Kakao_id not given in parameter. Check parameters.'})
     //}
 
-    models.Patient.findOne({
+    models.User.findOne({
         where: {
             encrypted_kakao_id: encrypted_kakao_id
         }
-    }).then(patient => {
-        //if (patient){
-        if (!patient){
-            return res.status(403).json({success: false, message: 'patient with same encrypted_kakao_id already exists'})
+    }).then(user => {
+        //if (user){
+        if (!user){
+            return res.status(403).json({success: false, message: 'user with same encrypted_kakao_id already exists'})
         } else {
-            return res.status(200).json({success: true, message: 'patient found returning url',
-                url: config.dashboard_url+'/chart/' + patient.encrypted_kakao_id})
+            return res.status(200).json({success: true, message: 'user found returning url',
+                url: config.dashboard_url+'/chart/' + user.encrypted_kakao_id})
 
             // TODO : Create encrypted_kakao_id to protect raw kakao_id from being public.
-            // return res.status(200).json({success: true, message: 'patient found returning url.', url: 'https://jellyfi.jellylab.io/' + patient.encrypted_kakao_id})
+            // return res.status(200).json({success: true, message: 'user found returning url.', url: 'https://jellyfi.jellylab.io/' + user.encrypted_kakao_id})
 
         }
     }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Error while searching for Patient with given encrypted_kakao_id. err: ' + err.message})
+        return res.status(403).json({success: false, message: 'Error while searching for User with given encrypted_kakao_id. err: ' + err.message})
     })
 }
 
-function registerPatient (req, res) {
+function registerUser (req, res) {
     let kakao_id
     if (req.body){
         kakao_id = req.body.kakao_id
@@ -54,55 +54,35 @@ function registerPatient (req, res) {
     if (!kakao_id){
         return res.status(403).json({success: false, message: 'Kakao_id not given in Body. Check parameters.'})
     }
-    /*
-    let key = 'jellyKey';
-    let input = kakao_id;
-
-    // 암호화
-    let cipher = crypto.createCipher('aes192', key);    // Cipher 객체 생성
-    cipher.update(input, 'utf8', 'base64');             // 인코딩 방식에 따라 암호화
-    let encrypted_kakao_id = cipher.final('base64');        // 암호화된 결과 값
-    */
-    /*
-        // 복호화
-        let decipher = crypto.createDecipher('aes192', key); // Decipher 객체 생성
-        decipher.update(encrypted_kakao_id, 'base64', 'utf8');   // 인코딩 방식에 따라 복호화
-        let decipheredOutput = decipher.final('utf8');       // 복호화된 결과 값
-
-        // 출력
-        console.log('기존 문자열: ' + input);
-        console.log('암호화된 문자열: ' + encrypted_kakao_id);
-        console.log('복호화된 문자열: ' + decipheredOutput);
-    */
-    models.Patient.findOne({
+    models.User.findOne({
         where: {
             kakao_id: kakao_id
         }
-    }).then(patient => {
-        if (patient){
-            return res.status(403).json({success: false, message: 'patient with same kakao_id already exists'})
+    }).then(user => {
+        if (user){
+            return res.status(403).json({success: false, message: 'user with same kakao_id already exists'})
         } else {
-            models.Patient.create({
+            models.User.create({
                 kakao_id: kakao_id,
                 //encrypted_kakao_id: encrypted_kakao_id,
                 scenario: '1',
                 state: 'init',
                 registered: '0'
-            }).then(patient => {
-                return res.status(201).json({success: true, message: 'patient created.', patient: patient})
+            }).then(user => {
+                return res.status(201).json({success: true, message: 'user created.', user: user})
             }).catch(function (err){
-                return res.status(500).json({success: false, message: 'Error while creating Patient in DB.', error: err.message, err: err})
+                return res.status(500).json({success: false, message: 'Error while creating User in DB.', error: err.message, err: err})
             });
         }
     })
 }
 
-function updatePatient (req, res) {
-    console.log('updatePatient called.')
-    let kakao_id
+function updateUser (req, res) {
+    console.log('updateUser called.');
+    let kakao_id;
 
     if (req.body){
-        kakao_id = req.body.kakao_id
+        kakao_id = req.body.kakao_id;
         if (!kakao_id){
             return res.status(403).json({success: false, message: 'kakao_id not provided.'})
         }
@@ -110,66 +90,47 @@ function updatePatient (req, res) {
         return res.status(403).json({success: false, message: 'No input parameters received in body.'})
     }
 
-    const name = req.body.name
-    const initials = req.body.initials
-    const email = req.body.email
-    const patient_code = req.body.patient_code
-    const doctor_code = req.body.doctor_code
-    const phone = req.body.phone
-    const sex = req.body.sex
-    const birthday = req.body.birthday
-    /*
-        // 암호화
-        let cipher = crypto.createCipher('aes192', key);    // Cipher 객체 생성
-        cipher.update(input, 'utf8', 'base64');             // 인코딩 방식에 따라 암호화
-        let encrypted_kakao_id = cipher.final('base64');        // 암호화된 결과 값
-        console.log('암호화된 문자열: ' + encrypted_kakao_id);
+    const nickname = req.body.nickname;
+    const birthday = req.body.birthday;
+    const sex = req.body.sex;
+    const allergy = req.body.allergy;
+    const vegi = req.body.vegi;
+    const snack = req.body.snack;
+    const serving_size = req.body.serving_size;
+    const disease = req.body.disease;
+    const diet = req.body.diet;
+    const alone_level = req.body.alone_level;
+    const job = req.body.job;
+    const register = req.body.register;
 
-        if (encrypted_kakao_id==null){
-            encrypted_kakao_id = '123456';
-        }
 
-       */
-    //const encrypted_kakao_id = kakao_id + '1';
+    if(nickname){
+        // models.Medicine_time.create({
+        //     kakao_id: kakao_id,
+        //     encrypted_kakao_id: kakao_id,
+        //     slot: 0,
+        //     time: 5
+        // });
+        //
+        // models.Medicine_time.create({
+        //     kakao_id: kakao_id,
+        //     encrypted_kakao_id: kakao_id,
+        //     slot: 1,
+        //     time: 12
+        // });
+        //
+        // models.Medicine_time.create({
+        //     kakao_id: kakao_id,
+        //     encrypted_kakao_id: kakao_id,
+        //     slot: 2,
+        //     time: 17
+        // });
 
-    if(doctor_code){
-
-        /*
-        models.sequelize.query('INSERT INTO medicine_times (kakaoid, encrypted_kakaoid, slot, time) ' +
-            'VALUES (' + kakao_id + ", " + kakao_id + ", 0, 5);");
-        models.sequelize.query('INSERT INTO medicine_times (kakaoid, encrypted_kakaoid, slot, time) ' +
-            'VALUES (' + kakao_id + ", " + kakao_id + ", 1, 12);");
-        models.sequelize.query('INSERT INTO medicine_times (kakaoid, encrypted_kakaoid, slot, time) ' +
-            'VALUES (' + kakao_id + ", " + kakao_id + ", 2, 17);");
-        */
-
-        models.Medicine_time.create({
-            kakao_id: kakao_id,
-            encrypted_kakao_id: kakao_id,
-            slot: 0,
-            time: 5
-        });
-
-        models.Medicine_time.create({
-            kakao_id: kakao_id,
-            encrypted_kakao_id: kakao_id,
-            slot: 1,
-            time: 12
-        });
-
-        models.Medicine_time.create({
-            kakao_id: kakao_id,
-            encrypted_kakao_id: kakao_id,
-            slot: 2,
-            time: 17
-        });
-
-        models.Patient.update({
-            doctor_code: doctor_code, // What to update
+        models.User.update({
             registered: 0,
             daily_scenario: 0,
             stamp: 0,
-            encrypted_kakao_id: kakao_id
+            encrypted_kakao_id: kakao_id //todo: 카카오아이디 암호화
         }, {
             where: {
                 kakao_id: kakao_id
@@ -177,9 +138,9 @@ function updatePatient (req, res) {
         }).then(result => {
             console.log('result: ' + result.toString())
             if (result){
-                return res.status(200).json({success: true, message: 'Update doctor_code and registered complete. Result: ' + result.toString()})
+                return res.status(200).json({success: true, message: 'Update registered complete. Result: ' + result.toString()})
             } else {
-                return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. ' +
+                return res.status(200).json({success: true, message: 'No user found to update or User does not exist with given kakao_id. ' +
                     + result.toString()})
             }
         }).catch(function (err){
@@ -190,43 +151,58 @@ function updatePatient (req, res) {
 
     let param_name;
     let param_value;
-    if (name){
-        param_name = 'name'
-        param_value = name
-    } else if (initials){
-        param_name = 'initials'
-        param_value = initials
-    } else if (patient_code){
-        param_name = 'patient_code'
-        param_value = patient_code
-    } else if (email) {
-        param_name = 'patient_email'
-        param_value = email
-    }  else if (phone) {
-        param_name = 'phone'
-        param_value = phone
-    } else if (sex) {
-        param_name = 'sex'
-        param_value = sex
+    if (nickname){
+        param_name = 'nickname';
+        param_value = nickname
     } else if (birthday) {
-        param_name = 'birthday'
+        param_name = 'birthday';
         param_value = birthday
+    } else if (sex) {
+        param_name = 'sex';
+        param_value = sex
+    } else if (allergy){
+        param_name = 'allergy';
+        param_value = allergy
+    } else if (vegi){
+        param_name = 'vegi';
+        param_value = vegi
+    } else if (email) {
+        param_name = 'snack';
+        param_value = snack
+    }  else if (serving_size) {
+        param_name = 'serving_size';
+        param_value = serving_size
+    } else if (disease){
+        param_name = 'disease';
+        param_value = disease
+    } else if (diet){
+        param_name = 'diet';
+        param_value = diet
+    } else if (alone_level){
+        param_name = 'alone_level';
+        param_value = alone_level
+    } else if (job){
+        param_name = 'job';
+        param_value = job
+    } else if (register){
+        param_name = 'register';
+        param_value = register
     }
 
     if (param_value){
-        models.sequelize.query('UPDATE patients SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
+        models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
             if (result){
                 console.log('result: ' + result.toString())
-                return res.status(200).json({success: true, message: 'patient data updated. Result info: ' + result[0].info})
+                return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
             } else {
-                return res.status(403).json({success: false, message: 'patient update query failed.'})
+                return res.status(403).json({success: false, message: 'user update query failed.'})
             }
         }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying patients table for update from ChatBot server. err: ' + err.message})
+            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
         })
     } else {
         return res.status(403).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
-            'And one more parameter is required among name, initials, patient_code, email, phone, sex, birthday'})
+            'And one more parameter is required among name, initials, user_code, email, phone, sex, birthday'})
     }
 }
 
@@ -239,7 +215,7 @@ function updateStamp (req, res) {
     //const now = nowDate;
 
     //if ((scenario.indexOf("201") == 0) && (state == 'init')){
-    models.Patient.update(
+    models.User.update(
         {
             stamp: stamp
         },     // What to update
@@ -247,9 +223,9 @@ function updateStamp (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
-            return res.status(200).json({success: true, message: 'Patient Stamp Update complete.', stamp: stamp})
+            return res.status(200).json({success: true, message: 'User Stamp Update complete.', stamp: stamp})
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Patient Stamp Update Update failed. Error: ' + err.message})
+        return res.status(403).json({success: false, message: 'User Stamp Update Update failed. Error: ' + err.message})
     })
     //}
 }
@@ -263,7 +239,7 @@ function updateDaily (req, res) {
     //const now = nowDate;
 
     //if ((scenario.indexOf("201") == 0) && (state == 'init')){
-    models.Patient.update(
+    models.User.update(
         {
             daily_scenario: daily_scenario
         },     // What to update
@@ -271,30 +247,30 @@ function updateDaily (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
-            return res.status(200).json({success: true, message: 'Patient daily_scenario Update complete.', daily_scenario: daily_scenario})
+            return res.status(200).json({success: true, message: 'User daily_scenario Update complete.', daily_scenario: daily_scenario})
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Patient daily_scenario Update Update failed. Error: ' + err.message})
+        return res.status(403).json({success: false, message: 'User daily_scenario Update Update failed. Error: ' + err.message})
     })
     //}
 }
 
-function getPatientInfo (req, res) {
-    console.log('getPatientInfo called.')
+function getUserInfo (req, res) {
+    console.log('getUserInfo called.')
     const kakao_id = req.params.kakao_id
     let nowDate = new Date();
     nowDate.getTime();
     const now = nowDate;
 
     if (kakao_id) {
-        models.Patient.findOne({
+        models.User.findOne({
             where: {
                 kakao_id: kakao_id
             }
-        }).then(patient => {
-            if (!patient){
-                return res.status(403).json({success: false, message: 'patient not found with kakao_id: ' + kakao_id})
+        }).then(user => {
+            if (!user){
+                return res.status(403).json({success: false, message: 'user not found with kakao_id: ' + kakao_id})
             }
-            models.PatientLog.findAll({
+            models.UserLog.findAll({
                 where: {
                     kakao_id: kakao_id
                 },
@@ -302,23 +278,23 @@ function getPatientInfo (req, res) {
                     // Will escape username and validate DESC against a list of valid direction parameters
                     ['id', 'DESC']
                 ]
-            }).then(patientLog => {
-                console.log('patientLog findAll finished.')
-                if (patientLog){
-                    //console.log(patientLog);
-                    models.Patient.update({
+            }).then(userLog => {
+                console.log('userLog findAll finished.')
+                if (userLog){
+                    //console.log(userLog);
+                    models.User.update({
                         exit: 0,
                         //updated_at: now
                     }, {
                         where: {kakao_id: kakao_id} // Condition
                     })
-                    return res.status(200).json({success: true, message: 'patient and patient_log both found.', patient_info: patient, patient_log: patientLog})
+                    return res.status(200).json({success: true, message: 'user and user_log both found.', user_info: user, user_log: userLog})
                 } else {
                     // Return when no data found
-                    return res.status(403).json({success: false, message: 'No patientLog found with given kakao_id.'})
+                    return res.status(403).json({success: false, message: 'No userLog found with given kakao_id.'})
                 }
             }).catch(function (err){
-                return res.status(403).json({success: false, patient_info: patient, message: 'patient info found. But error occured while retrieving logs.', error: err.message})
+                return res.status(403).json({success: false, user_info: user, message: 'user info found. But error occured while retrieving logs.', error: err.message})
             })
         }).catch(function (err){
             return res.status(403).json({success: false, message: err.message})
@@ -327,6 +303,36 @@ function getPatientInfo (req, res) {
         return res.status(403).json({success: false, message: 'kakao_id not given.'})
     }
 }
+
+
+function getRestaurantInfo (req, res) {
+    console.log('getRestaurantInfo called.')
+    const kakao_id = req.params.kakao_id
+    let nowDate = new Date();
+    nowDate.getTime();
+    const now = nowDate;
+
+    if (kakao_id) {
+        models.Restaurant.findOne({
+            where: {
+                kakao_id: kakao_id
+            }
+        }).then(restaurant => {
+            console.log('restaurant findAll finished.')
+            if (restaurant) {
+                return res.status(200).json({success: true, message: 'restaurant both found.',restaurant_info: restaurant
+                })
+            } else if (!restaurant){
+                return res.status(403).json({success: false, message: 'restaurant not found with kakao_id: ' + kakao_id})
+            }
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: err.message})
+        })
+    } else {
+        return res.status(403).json({success: false, message: 'kakao_id not given.'})
+    }
+}
+
 
 function updateExit (req, res) {
     console.log('updateExit called.')
@@ -345,7 +351,7 @@ function updateExit (req, res) {
     nowDate.getTime();
     const now = nowDate;
 
-    models.Patient.update({
+    models.User.update({
         exit: exit, // What to update
         //updated_at: now
     }, {
@@ -357,7 +363,7 @@ function updateExit (req, res) {
         if (result){
             return res.status(200).json({success: true, message: 'Update Exit complete. Result: ' + result.toString()})
         } else {
-            return res.status(200).json({success: true, message: 'No patient found to update or Patient does not exist with given kakao_id. ' +
+            return res.status(200).json({success: true, message: 'No user found to update or User does not exist with given kakao_id. ' +
                 + result.toString()})
         }
     }).catch(function (err){
@@ -366,7 +372,7 @@ function updateExit (req, res) {
 
 }
 
-function createPatientLog (req, res){
+function createUserLog (req, res){
     const kakao_id = req.body.kakao_id
     const scenario = req.body.scenario
     const state = req.body.state
@@ -378,7 +384,7 @@ function createPatientLog (req, res){
     //nowDate.getTime();
     //const now = nowDate;
 
-    models.PatientLog.create({
+    models.UserLog.create({
         kakao_id: kakao_id,
         encrypted_kakao_id: kakao_id,
         scenario: scenario,
@@ -387,8 +393,8 @@ function createPatientLog (req, res){
         date: date,
         type: type,
         answer_num: answer_num
-    }).then(patientLog => {
-        models.Patient.update(
+    }).then(userLog => {
+        models.User.update(
             {
                 scenario: scenario,
                 state: state,
@@ -399,17 +405,17 @@ function createPatientLog (req, res){
                     kakao_id: kakao_id}
             })  // Condition
             .then(result => {
-                return res.status(200).json({success: true, message: 'Patient Log and Patient both Update complete.', updateResult: result, patientLog: patientLog})
+                return res.status(200).json({success: true, message: 'User Log and User both Update complete.', updateResult: result, userLog: userLog})
             }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Patient Log updated. However Patient Update failed. Error: ' + err.message, patientLog: patientLog})
+            return res.status(403).json({success: false, message: 'User Log updated. However User Update failed. Error: ' + err.message, userLog: userLog})
         })
-        // return res.status(201).json({success: true, patientLog})
+        // return res.status(201).json({success: true, userLog})
     }).catch(function (err){
         return res.status(500).json({success: false, error: err.message})
     })
 }
 
-function createPatientImage (req, res) {
+function createUserImage (req, res) {
     const kakao_id = req.body.kakao_id
     const image_link = req.body.image_link
     const medical_image = req.body.medical_image
@@ -420,7 +426,7 @@ function createPatientImage (req, res) {
     //nowDate.getTime();
     //const now = nowDate;
 
-    models.Patient_image.create({
+    models.User_image.create({
         kakao_id: kakao_id,
         encrypted_kakao_id: kakao_id,
         image_link: image_link,
@@ -429,7 +435,7 @@ function createPatientImage (req, res) {
         check_skin: check_skin,
         check_atopy: check_atopy
     }).catch(function (err) {
-        return res.status(403).json({success: false, message: 'Patient image Create failed. Error: ' + err.message})
+        return res.status(403).json({success: false, message: 'User image Create failed. Error: ' + err.message})
     })
 }
 
@@ -583,14 +589,14 @@ function updateMedicineTimeMute (req, res) {
     }
 
     if (param_value){
-        models.sequelize.query('UPDATE patients SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
+        models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
             if (result){
-                return res.status(200).json({success: true, message: 'patient data updated. Result info: ' + result[0].info})
+                return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
             } else {
-                return res.status(403).json({success: false, message: 'patient update query failed.'})
+                return res.status(403).json({success: false, message: 'user update query failed.'})
             }
         }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying patients table for update from ChatBot server. err: ' + err.message})
+            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
         })
     }
 }
@@ -798,16 +804,17 @@ function verifyDoctorCode (req, res) {
 }
 
 module.exports = {
-    getPatientChartURL: getPatientChartURL,
+    getUserChartURL: getUserChartURL,
 
-    registerPatient: registerPatient,
-    updatePatient: updatePatient,
+    registerUser: registerUser,
+    updateUser: updateUser,
     updateDaily: updateDaily,
     updateStamp: updateStamp,
-    createPatientImage: createPatientImage,
-    getPatientInfo: getPatientInfo,
+    createUserImage: createUserImage,
+    getUserInfo: getUserInfo,
+    getRestaurantInfo: getRestaurantInfo,
     updateExit: updateExit,
-    createPatientLog: createPatientLog,
+    createUserLog: createUserLog,
 
     createMedicineTime: createMedicineTime,
     getMedicineTime: getMedicineTime,

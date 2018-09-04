@@ -206,7 +206,7 @@ function setMoodCheckReason(req, res){
     })
 }
 
-// TODO: Develop later. Not used now
+// TODO: Develop later. Not used now: 알림톡
 function medicineTime (req, res) {
 
     const kakao_id = req.body.kakao_id.toString().trim() || '';

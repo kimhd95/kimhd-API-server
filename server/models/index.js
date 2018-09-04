@@ -51,35 +51,35 @@ const sequelize = new Sequelize(
 
 );
 
-const Patient = sequelize.define('patient', {
-    name: Sequelize.STRING,
-    fullname: Sequelize.STRING,
-    initials: Sequelize.STRING,
-    patient_email: Sequelize.STRING,
-    patient_password: Sequelize.STRING,
+const User = sequelize.define('user', {
     kakao_id: { type: Sequelize.STRING, allowNull: false, unique: true },
     encrypted_kakao_id: Sequelize.STRING,
-    patient_code: Sequelize.STRING,
-    doctor_code: Sequelize.STRING,
+    nickname: Sequelize.STRING,
     registered: Sequelize.STRING,
-    phone: Sequelize.STRING,
-    sex: Sequelize.STRING,
-    birthday: Sequelize.INTEGER,
     daily_scenario: Sequelize.INTEGER,
     scenario: Sequelize.STRING,
     state: Sequelize.STRING,
-    next_hospital_visit_date: Sequelize.INTEGER,
     exit: Sequelize.INTEGER,
+    phone: Sequelize.STRING,
+    sex: Sequelize.STRING,
+    birthday: Sequelize.INTEGER,
+    job: Sequelize.STRING,
+    serving_size: Sequelize.INTEGER,
+    snack: Sequelize.INTEGER,
+    allergy: Sequelize.STRING,
+    vegi: Sequelize.STRING,
+    diet: Sequelize.INTEGER,
+    disease: Sequelize.STRING,
+    alone_level: Sequelize.INTEGER,
     stamp: Sequelize.INTEGER,
 
-    // medicine_side: Sequelize.STRING,
-
+    //next_hospital_visit_date: Sequelize.INTEGER,
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
 
-const PatientLog = sequelize.define('patient_log', {
+const UserLog = sequelize.define('user_log', {
     kakao_id: { type: Sequelize.STRING, allowNull: false},
     encrypted_kakao_id: Sequelize.STRING,
     scenario: Sequelize.STRING,
@@ -93,85 +93,90 @@ const PatientLog = sequelize.define('patient_log', {
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
-
-const Doctor = sequelize.define('doctor', {
-    doctor_code: { type: Sequelize.STRING, allowNull: false, unique: true },
-    email:Sequelize.STRING,
-    password: Sequelize.STRING,
-    hospital: Sequelize.STRING,
-    name: Sequelize.STRING,
-    created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-    updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
-});
-
-const Medicine_check = sequelize.define('medicine_check', {
-    kakao_id: Sequelize.STRING,
-    encrypted_kakao_id: Sequelize.STRING,
-    med_check: Sequelize.TINYINT,
-    time: Sequelize.INTEGER,
-    date: Sequelize.INTEGER,
-    slot: Sequelize.INTEGER,
-    comment_type: Sequelize.INTEGER,
-    comment_text: Sequelize.STRING,
-});
-
-const Medicine_time = sequelize.define('medicine_time', {
-    kakao_id: Sequelize.STRING,
-    encrypted_kakao_id: Sequelize.STRING,
-    slot: Sequelize.INTEGER,
-    time: Sequelize.INTEGER,
-    mute: Sequelize.STRING,
-    created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-    updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
-});
-
-const Mood_check = sequelize.define('mood_check', {
-    kakao_id: Sequelize.STRING,
-    encrypted_kakao_id: Sequelize.STRING,
-    time: Sequelize.INTEGER,
-    type: Sequelize.STRING,
-    mood_check: Sequelize.STRING,
-    mood_text: Sequelize.STRING
-});
-
-const Patient_image = sequelize.define('patient_image', {
+const User_image = sequelize.define('user_image', {
     kakao_id: Sequelize.STRING,
     encrypted_kakao_id: Sequelize.STRING,
     image_link: Sequelize.STRING,
-    medical_image: Sequelize.INTEGER,
+    image_info: Sequelize.STRING,
     date: Sequelize.INTEGER,
-    check_skin : Sequelize.FLOAT,
-    check_atopy : Sequelize.FLOAT
+    // check_skin : Sequelize.FLOAT,
+    // check_atopy : Sequelize.FLOAT
 });
 
+//
+// const Doctor = sequelize.define('doctor', {
+//     doctor_code: { type: Sequelize.STRING, allowNull: false, unique: true },
+//     email:Sequelize.STRING,
+//     password: Sequelize.STRING,
+//     hospital: Sequelize.STRING,
+//     name: Sequelize.STRING,
+//     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+//     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+// });
+//
+// const Medicine_check = sequelize.define('medicine_check', {
+//     kakao_id: Sequelize.STRING,
+//     encrypted_kakao_id: Sequelize.STRING,
+//     med_check: Sequelize.TINYINT,
+//     time: Sequelize.INTEGER,
+//     date: Sequelize.INTEGER,
+//     slot: Sequelize.INTEGER,
+//     comment_type: Sequelize.INTEGER,
+//     comment_text: Sequelize.STRING,
+// });
+//
+// const Medicine_time = sequelize.define('medicine_time', {
+//     kakao_id: Sequelize.STRING,
+//     encrypted_kakao_id: Sequelize.STRING,
+//     slot: Sequelize.INTEGER,
+//     time: Sequelize.INTEGER,
+//     mute: Sequelize.STRING,
+//     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+//     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+// });
+//
+// const Mood_check = sequelize.define('mood_check', {
+//     kakao_id: Sequelize.STRING,
+//     encrypted_kakao_id: Sequelize.STRING,
+//     time: Sequelize.INTEGER,
+//     type: Sequelize.STRING,
+//     mood_check: Sequelize.STRING,
+//     mood_text: Sequelize.STRING
+// });
 
-const Kakao_text = sequelize.define('kakao_text', {
-    id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
-    kakao_id: Sequelize.STRING,
-    encrypted_kakao_id: Sequelize.STRING,
-    time: Sequelize.INTEGER,
-    type: Sequelize.STRING,
-    text: Sequelize.STRING,
-    share_doctor: Sequelize.STRING
-});
 
-const Weather = sequelize.define('weather', {
-    id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
-    date: Sequelize.DATE,
-    pm10: Sequelize.INTEGER,
-    pm25: Sequelize.INTEGER
-});
+
+//
+// const Kakao_text = sequelize.define('kakao_text', {
+//     id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
+//     kakao_id: Sequelize.STRING,
+//     encrypted_kakao_id: Sequelize.STRING,
+//     time: Sequelize.INTEGER,
+//     type: Sequelize.STRING,
+//     text: Sequelize.STRING,
+//     share_doctor: Sequelize.STRING
+// });
+//
+// const Weather = sequelize.define('weather', {
+//     id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
+//     date: Sequelize.DATE,
+//     pm10: Sequelize.INTEGER,
+//     pm25: Sequelize.INTEGER
+// });
 
 module.exports = {
     sequelize: sequelize,
-    Patient: Patient,
-    Doctor: Doctor,
-    Medicine_check: Medicine_check,
-    Medicine_time: Medicine_time,
-    Mood_check: Mood_check,
-    Patient_image: Patient_image,
-    Kakao_text: Kakao_text,
-    PatientLog: PatientLog,
-    Weather: Weather,
+    User: User,
+    UserLog: UserLog,
+    User_image: User_image,
     verifyAPIKEY: verifyAPIKEY
+    // Doctor: Doctor,
+    // Medicine_check: Medicine_check,
+    // Medicine_time: Medicine_time,
+    // Mood_check: Mood_check,
+
+    //Kakao_text: Kakao_text,
+
+    //Weather: Weather,
+
 };
