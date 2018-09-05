@@ -166,7 +166,7 @@ function updateUser (req, res) {
     } else if (vegi){
         param_name = 'vegi';
         param_value = vegi
-    } else if (email) {
+    } else if (snack) {
         param_name = 'snack';
         param_value = snack
     }  else if (serving_size) {
@@ -185,7 +185,7 @@ function updateUser (req, res) {
         param_name = 'job';
         param_value = job
     } else if (register){
-        param_name = 'register';
+        param_name = 'registered';
         param_value = register
     }
 
