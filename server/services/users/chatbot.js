@@ -230,6 +230,30 @@ function updateStamp (req, res) {
     //}
 }
 
+function updateTest (req, res) {
+    const kakao_id = req.body.kakao_id
+    const rest1 = req.body.rest1
+
+    //let nowDate = new Date();
+    //nowDate.getTime();
+    //const now = nowDate;
+
+    //if ((scenario.indexOf("201") == 0) && (state == 'init')){
+    models.User.update(
+        {
+            rest1: rest1
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'User Stamp Update complete.', rest1: rest1})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'User Stamp Update Update failed. Error: ' + err.message})
+    })
+    //}
+}
+
 function updateDaily (req, res) {
     const kakao_id = req.body.kakao_id
     const daily_scenario = req.body.daily_scenario
@@ -353,7 +377,7 @@ function updateUserStart (req, res) {
             rest4: null,
             rest5: null,
             rest6: null,
-            rest_fianl: null
+            rest_final: null
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
@@ -842,6 +866,7 @@ module.exports = {
     updateUser: updateUser,
     updateDaily: updateDaily,
     updateStamp: updateStamp,
+    updateTest: updateTest,
     createUserImage: createUserImage,
     getUserInfo: getUserInfo,
     getRestaurantInfo: getRestaurantInfo,
