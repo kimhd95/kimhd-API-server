@@ -347,7 +347,7 @@ function updateUserStart (req, res) {
             exit_quarter: null,
             with_mood: null,
             price: null,
-            rest1: null.
+            rest1: null,
             rest2: null,
             rest3: null,
             rest4: null,
