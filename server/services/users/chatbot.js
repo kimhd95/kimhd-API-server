@@ -102,6 +102,14 @@ function updateUser (req, res) {
     const alone_level = req.body.alone_level;
     const job = req.body.job;
     const register = req.body.register;
+    const subway = req.body.subway;
+    const exit_quarter = req.body.exit_quarter;
+    const with_mood = req.body.with_mood;
+    const price = req.body.price;
+    const rest5 = req.body.rest5;
+    const rest6 = req.body.rest6;
+    const rest_final = req.body.rest_final;
+
 
 
     if(nickname){
@@ -184,9 +192,27 @@ function updateUser (req, res) {
     } else if (job){
         param_name = 'job';
         param_value = job
-    } else if (register){
-        param_name = 'registered';
-        param_value = register
+    } else if (subway){
+        param_name = 'subway';
+        param_value = subway
+    } else if (exit_quarter){
+        param_name = 'exit_quarter';
+        param_value = exit_quarter
+    } else if (with_mood){
+        param_name = 'with_mood';
+        param_value = with_mood
+    } else if (price){
+        param_name = 'price';
+        param_value = price
+    } else if (rest5){
+        param_name = 'rest5';
+        param_value = rest5
+    } else if (rest6){
+        param_name = 'rest6';
+        param_value = rest6
+    } else if (rest_final){
+        param_name = 'rest_final';
+        param_value = rest_final
     }
 
     if (param_value){
@@ -204,6 +230,33 @@ function updateUser (req, res) {
         return res.status(403).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
             'And one more parameter is required among name, initials, user_code, email, phone, sex, birthday'})
     }
+}
+
+function getRestaurant (req, res) {
+    const kakao_id = req.body.kakao_id;
+    const subway = req.body.subway;
+    const exit_quarter = req.body.exit_quarter;
+    const mood = req.body.mood;
+    const food_ingre = req.body.food_ingre;
+    // const price = req.body.price;
+
+    //let nowDate = new Date();
+    //nowDate.getTime();
+    //const now = nowDate;
+
+    //if ((scenario.indexOf("201") == 0) && (state == 'init')){
+    models.sequelize.query('SELECT * FROM restaurants WHERE (subway= '+"'"+subway+"'"+') AND (exit_quarter= '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 4;').then(result => {
+        if (result){
+            console.log('result: ' + result.toString())
+            return res.status(200).json({success: true, message: result})
+        } else {
+            console.log('result없음');
+            return res.status(403).json({success: false, message: 'user update query failed.'})
+        }
+    }).catch(function (err){
+        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+    })
+    //}
 }
 
 function updateStamp (req, res) {
@@ -329,38 +382,38 @@ function getUserInfo (req, res) {
 }
 
 
-function getRestaurantInfo (req, res) {
-    console.log('getRestaurantInfo called.')
-    const kakao_id = req.params.kakao_id
-    let nowDate = new Date();
-    nowDate.getTime();
-    const now = nowDate;
-
-    if (kakao_id) {
-        models.Restaurant.findOne({
-            where: {
-                kakao_id: kakao_id
-            }
-        }).then(restaurant => {
-            console.log('restaurant findAll finished.')
-            if (restaurant) {
-                return res.status(200).json({success: true, message: 'restaurant both found.',restaurant_info: restaurant
-                })
-            } else if (!restaurant){
-                return res.status(403).json({success: false, message: 'restaurant not found with kakao_id: ' + kakao_id})
-            }
-        }).catch(function (err){
-            return res.status(403).json({success: false, message: err.message})
-        })
-    } else {
-        return res.status(403).json({success: false, message: 'kakao_id not given.'})
-    }
-}
+// function getRestaurantInfo (req, res) {
+//     console.log('getRestaurantInfo called.')
+//     const kakao_id = req.params.kakao_id
+//     let nowDate = new Date();
+//     nowDate.getTime();
+//     const now = nowDate;
+//
+//     if (kakao_id) {
+//         models.Restaurant.findOne({
+//             where: {
+//                 kakao_id: kakao_id
+//             }
+//         }).then(restaurant => {
+//             console.log('restaurant findAll finished.')
+//             if (restaurant) {
+//                 return res.status(200).json({success: true, message: 'restaurant both found.',restaurant_info: restaurant
+//                 })
+//             } else if (!restaurant){
+//                 return res.status(403).json({success: false, message: 'restaurant not found with kakao_id: ' + kakao_id})
+//             }
+//         }).catch(function (err){
+//             return res.status(403).json({success: false, message: err.message})
+//         })
+//     } else {
+//         return res.status(403).json({success: false, message: 'kakao_id not given.'})
+//     }
+// }
 
 
 function updateUserStart (req, res) {
     console.log('updateUserStart called.')
-    const kakao_id = req.params.kakao_id
+    const kakao_id = req.body.kakao_id;
     // let nowDate = new Date();
     // nowDate.getTime();
     // const now = nowDate;
@@ -386,6 +439,34 @@ function updateUserStart (req, res) {
             return res.status(200).json({success: true, message: 'UserStart Update complete.'})
         }).catch(function (err){
         return res.status(403).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
+    })
+}
+
+function updateRest4 (req, res) {
+    console.log('updateRest4 called.')
+    const kakao_id = req.body.kakao_id;
+    const rest1 = req.body.rest1;
+    const rest2 = req.body.rest2;
+    const rest3 = req.body.rest3;
+    const rest4 = req.body.rest4;
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            rest1: rest1,
+            rest2: rest2,
+            rest3: rest3,
+            rest4: rest4
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'UserRest4 Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'UserRest4 Update Update failed. Error: ' + err.message})
     })
 }
 
@@ -869,8 +950,10 @@ module.exports = {
     updateTest: updateTest,
     createUserImage: createUserImage,
     getUserInfo: getUserInfo,
-    getRestaurantInfo: getRestaurantInfo,
+    getRestaurant: getRestaurant,
+    // getRestaurantInfo: getRestaurantInfo,
     updateUserStart: updateUserStart,
+    updateRest4: updateRest4,
     updateExit: updateExit,
     createUserLog: createUserLog,
 
