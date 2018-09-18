@@ -334,6 +334,38 @@ function getRestaurantInfo (req, res) {
 }
 
 
+function updateUserStart (req, res) {
+    console.log('updateUserStart called.')
+    const kakao_id = req.params.kakao_id
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            subway: null,
+            exit_quarter: null,
+            with_mood: null,
+            price: null,
+            rest1: null.
+            rest2: null,
+            rest3: null,
+            rest4: null,
+            rest5: null,
+            rest6: null,
+            rest_fianl: null
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'UserStart Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
+    })
+}
+
+
 function updateExit (req, res) {
     console.log('updateExit called.')
     let kakao_id
@@ -813,6 +845,7 @@ module.exports = {
     createUserImage: createUserImage,
     getUserInfo: getUserInfo,
     getRestaurantInfo: getRestaurantInfo,
+    updateUserStart: updateUserStart,
     updateExit: updateExit,
     createUserLog: createUserLog,
 

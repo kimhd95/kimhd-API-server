@@ -30,6 +30,7 @@ router.post('/update_stamp', chatbotService.updateStamp);
 router.post('/create_user_image', chatbotService.createUserImage);
 router.post('/create_user_log', chatbotService.createUserLog);
 router.post('/update_exit', chatbotService.updateExit);
+router.post('/update_user_start', chatbotService.updateUserStart);
 router.get('/get_user_info/:kakao_id', chatbotService.getUserInfo);
 router.get('/get_restaurant_info/:kakao_id', chatbotService.getRestaurantInfo);
 router.get('/get_medicine_time/:kakao_id', chatbotService.getMedicineTime);
