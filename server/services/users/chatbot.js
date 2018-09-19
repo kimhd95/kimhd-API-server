@@ -234,18 +234,44 @@ function updateUser (req, res) {
 
 function getRestaurant (req, res) {
     const kakao_id = req.body.kakao_id;
-    const subway = req.body.subway;
-    const exit_quarter = req.body.exit_quarter;
+    let subway = req.body.subway;
+    let exit_quarter = req.body.exit_quarter;
     const mood = req.body.mood;
-    const food_ingre = req.body.food_ingre;
-    // const price = req.body.price;
+    let food_ingre = req.body.food_ingre;
+    const price = req.body.price
+    let min, max;
 
-    //let nowDate = new Date();
-    //nowDate.getTime();
-    //const now = nowDate;
+    if(food_ingre === null){
+      food_ingre = 'x';
+    }
+    if(subway === '서울 어디든 좋아'){
+      subway = '[가-힇]';
+      exit_quarter = '[0-9]';
+    }
+    if(exit_quarter === 999){
+      exit_quarter = '[0-9]';
+    }
 
+    switch (price) {
+      case 1:
+        min = 0;
+        max = 8000;
+        break;
+      case 2:
+        min = 8000;
+        max = 15000;
+        break;
+      case 3:
+        min = 12000;
+        max = 999999;
+        break;
+      default:
+        min = 0;
+        max = 999999;
+        break;
+    }
     //if ((scenario.indexOf("201") == 0) && (state == 'init')){
-    models.sequelize.query('SELECT * FROM restaurants WHERE (subway= '+"'"+subway+"'"+') AND (exit_quarter= '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 4;').then(result => {
+    models.sequelize.query('SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 4;').then(result => {
         if (result){
             console.log('result: ' + result.toString())
             return res.status(200).json({success: true, message: result})
@@ -401,33 +427,23 @@ function getUserInfo (req, res) {
 }
 
 
-// function getRestaurantInfo (req, res) {
-//     console.log('getRestaurantInfo called.')
-//     const kakao_id = req.params.kakao_id
-//     let nowDate = new Date();
-//     nowDate.getTime();
-//     const now = nowDate;
-//
-//     if (kakao_id) {
-//         models.Restaurant.findOne({
-//             where: {
-//                 kakao_id: kakao_id
-//             }
-//         }).then(restaurant => {
-//             console.log('restaurant findAll finished.')
-//             if (restaurant) {
-//                 return res.status(200).json({success: true, message: 'restaurant both found.',restaurant_info: restaurant
-//                 })
-//             } else if (!restaurant){
-//                 return res.status(403).json({success: false, message: 'restaurant not found with kakao_id: ' + kakao_id})
-//             }
-//         }).catch(function (err){
-//             return res.status(403).json({success: false, message: err.message})
-//         })
-//     } else {
-//         return res.status(403).json({success: false, message: 'kakao_id not given.'})
-//     }
-// }
+function getRestaurantInfo (req, res) {
+    console.log('getRestaurantInfo called.')
+    const id = req.body.id
+
+    models.sequelize.query('SELECT * FROM restaurants WHERE id= '+id+';').then(result => {
+        if (result){
+            console.log('result: ' + result.toString())
+            return res.status(200).json({success: true, message: result})
+        } else {
+            console.log('result없음');
+            return res.status(403).json({success: false, message: 'user update query failed.'})
+        }
+    }).catch(function (err){
+        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+    })
+    //}
+}
 
 
 function updateUserStart (req, res) {
@@ -489,6 +505,34 @@ function updateRest4 (req, res) {
     })
 }
 
+function createDecideHistory (req, res) {
+    const kakao_id = req.body.kakao_id;
+    const round = req.body.round;
+    const res_name = req.body.res_name;
+    const price = req.body.price;
+    const exit_quarter = req.body.exit_quarter;
+    const with_mood = req.body.with_mood;
+    const subway = req.body.subway;
+    let nowDate = new Date();
+    const date = String(nowDate.getMonth()+1)+String(nowDate.getDate());
+
+
+    models.Decide_history.create({
+        kakao_id: kakao_id,
+        round: 2,
+        res_name: res_name,
+        price: price,
+        exit_quarter: exit_quarter,
+        with_mood: with_mood,
+        subway: subway,
+        date: date
+    })
+    .then(result => {
+        return res.status(200).json({success: true, message: 'DecideHistory Update complete.'})
+    }).catch(function (err){
+    return res.status(403).json({success: false, message: 'DecideHistory Update Update failed. Error: ' + err.message})
+    })
+}
 
 function updateExit (req, res) {
     console.log('updateExit called.')
@@ -971,7 +1015,7 @@ module.exports = {
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
     getTwoRestaurant: getTwoRestaurant,
-    // getRestaurantInfo: getRestaurantInfo,
+    getRestaurantInfo: getRestaurantInfo,
     updateUserStart: updateUserStart,
     updateRest4: updateRest4,
     updateExit: updateExit,
@@ -982,6 +1026,7 @@ module.exports = {
     // updateMedicineTime: updateMedicineTime,
 
     createMedicineCheck: createMedicineCheck,
+    createDecideHistory: createDecideHistory,
     getMedicineCheck: getMedicineCheck,
     createMoodCheck: createMoodCheck,
     createMoodCheckText: createMoodCheckText,

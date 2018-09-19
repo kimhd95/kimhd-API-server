@@ -114,6 +114,21 @@ const User_image = sequelize.define('user_image', {
     // check_atopy : Sequelize.FLOAT
 });
 
+const Decide_history = sequelize.define('decide_history', {
+    kakao_id: Sequelize.STRING,
+    round: Sequelize.INTEGER,
+    res_name: Sequelize.STRING,
+    concept: Sequelize.STRING,
+    rate: Sequelize.STRING,
+    price: Sequelize.STRING,
+    exit_quarter: Sequelize.INTEGER,
+    with_mood: Sequelize.STRING,
+    subway: Sequelize.STRING,
+    date: Sequelize.STRING
+    // check_skin : Sequelize.FLOAT,
+    // check_atopy : Sequelize.FLOAT
+});
+
 //
 // const Doctor = sequelize.define('doctor', {
 //     doctor_code: { type: Sequelize.STRING, allowNull: false, unique: true },
@@ -180,6 +195,7 @@ module.exports = {
     User: User,
     UserLog: UserLog,
     User_image: User_image,
+    Decide_history: Decide_history,
     verifyAPIKEY: verifyAPIKEY
     // Doctor: Doctor,
     // Medicine_check: Medicine_check,
