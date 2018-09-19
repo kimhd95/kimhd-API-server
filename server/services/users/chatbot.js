@@ -259,6 +259,25 @@ function getRestaurant (req, res) {
     //}
 }
 
+function getTwoRestaurant (req, res) {
+    const kakao_id = req.body.kakao_id;
+    const rest3 = req.body.rest3;
+    const rest4 = req.body.rest4;
+
+    models.sequelize.query('SELECT * FROM restaurants WHERE id= '+rest3+' UNION SELECT * FROM restaurants WHERE id= '+rest4+';').then(result => {
+        if (result){
+            console.log('result: ' + result.toString())
+            return res.status(200).json({success: true, message: result})
+        } else {
+            console.log('result없음');
+            return res.status(403).json({success: false, message: 'user update query failed.'})
+        }
+    }).catch(function (err){
+        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+    })
+    //}
+}
+
 function updateStamp (req, res) {
     const kakao_id = req.body.kakao_id
     const stamp = req.body.stamp
@@ -951,6 +970,7 @@ module.exports = {
     createUserImage: createUserImage,
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
+    getTwoRestaurant: getTwoRestaurant,
     // getRestaurantInfo: getRestaurantInfo,
     updateUserStart: updateUserStart,
     updateRest4: updateRest4,

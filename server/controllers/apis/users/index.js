@@ -34,6 +34,7 @@ router.post('/update_exit', chatbotService.updateExit);
 router.post('/update_user_start', chatbotService.updateUserStart);
 router.post('/update_rest4', chatbotService.updateRest4);
 router.post('/get_restaurant', chatbotService.getRestaurant);
+router.post('/get_two_restaurant', chatbotService.getTwoRestaurant);
 router.get('/get_user_info/:kakao_id', chatbotService.getUserInfo);
 // router.get('/get_restaurant_info/:kakao_id', chatbotService.getRestaurantInfo);
 router.get('/get_medicine_time/:kakao_id', chatbotService.getMedicineTime);
