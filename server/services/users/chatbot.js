@@ -505,6 +505,30 @@ function updateRest4 (req, res) {
     })
 }
 
+function updateRestOnly2 (req, res) {
+    console.log('updateRest4 called.')
+    const kakao_id = req.body.kakao_id;
+    const rest1 = req.body.rest1;
+    const rest2 = req.body.rest2;
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            rest5: rest1,
+            rest6: rest2,
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'UserRestOnly2 Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'UserRestOnly2 Update Update failed. Error: ' + err.message})
+    })
+}
+
 function createDecideHistory (req, res) {
     const kakao_id = req.body.kakao_id;
     const round = req.body.round;
@@ -1018,6 +1042,7 @@ module.exports = {
     getRestaurantInfo: getRestaurantInfo,
     updateUserStart: updateUserStart,
     updateRest4: updateRest4,
+    updateRestOnly2: updateRestOnly2,
     updateExit: updateExit,
     createUserLog: createUserLog,
 
