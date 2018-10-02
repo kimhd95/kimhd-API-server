@@ -109,6 +109,11 @@ function updateUser (req, res) {
     const rest5 = req.body.rest5;
     const rest6 = req.body.rest6;
     const rest_final = req.body.rest_final;
+    const lat = req.body.lat;
+    const lng = req.body.lng;
+    const mid_lat = req.body.mid_lat;
+    const mid_lng = req.body.mid_lng;
+    const cnt = req.body.cnt;
 
 
 
@@ -213,6 +218,21 @@ function updateUser (req, res) {
     } else if (rest_final){
         param_name = 'rest_final';
         param_value = rest_final
+    } else if (lat){
+        param_name = 'lat';
+        param_value = lat
+    } else if (lng){
+        param_name = 'lng';
+        param_value = lng
+    } else if (mid_lat){
+        param_name = 'mid_lat';
+        param_value = mid_lat
+    } else if (mid_lng){
+        param_name = 'mid_lng';
+        param_value = mid_lng
+    } else if (cnt){
+        param_name = 'cnt';
+        param_value = cnt
     }
 
     if (param_value){
@@ -492,6 +512,31 @@ function updateUserStart (req, res) {
     })
 }
 
+function updatePlaceStart (req, res) {
+    console.log('updatePlaceStart called.')
+    const kakao_id = req.body.kakao_id;
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            lat: 0,
+            lng: 0,
+            mid_lat: 0,
+            mid_lng: 0,
+            cnt: 0
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'UserStart Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
+    })
+}
+
 function updateRest4 (req, res) {
     console.log('updateRest4 called.')
     const kakao_id = req.body.kakao_id;
@@ -541,6 +586,56 @@ function updateRestOnly2 (req, res) {
             return res.status(200).json({success: true, message: 'UserRestOnly2 Update complete.'})
         }).catch(function (err){
         return res.status(403).json({success: false, message: 'UserRestOnly2 Update Update failed. Error: ' + err.message})
+    })
+}
+
+function updatePlaceInfo (req, res) {
+    console.log('updatePlaceInfo called.')
+    const kakao_id = req.body.kakao_id;
+    const lat = req.body.lat;
+    const lng = req.body.lng;
+    const cnt = req.body.cnt;
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            lat: lat,
+            lng: lng,
+            cnt: cnt
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'updatePlaceInfo Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'updatePlaceInfo Update Update failed. Error: ' + err.message})
+    })
+}
+
+function updateMidInfo (req, res) {
+    console.log('updateMidInfo called.')
+    const kakao_id = req.body.kakao_id;
+    const mid_lat = req.body.mid_lat;
+    const mid_lng = req.body.mid_lng;
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            mid_lat: mid_lat,
+            mid_lng: mid_lng,
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'updatePlaceInfo Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'updatePlaceInfo Update Update failed. Error: ' + err.message})
     })
 }
 
@@ -1056,6 +1151,9 @@ module.exports = {
     getTwoRestaurant: getTwoRestaurant,
     getRestaurantInfo: getRestaurantInfo,
     updateUserStart: updateUserStart,
+    updatePlaceStart: updatePlaceStart,
+    updatePlaceInfo: updatePlaceInfo,
+    updateMidInfo: updateMidInfo,
     updateRest4: updateRest4,
     updateRestOnly2: updateRestOnly2,
     updateExit: updateExit,

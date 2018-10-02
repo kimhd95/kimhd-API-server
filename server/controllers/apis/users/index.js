@@ -32,6 +32,7 @@ router.post('/create_user_image', chatbotService.createUserImage);
 router.post('/create_user_log', chatbotService.createUserLog);
 router.post('/update_exit', chatbotService.updateExit);
 router.post('/update_user_start', chatbotService.updateUserStart);
+router.post('/update_place_start', chatbotService.updatePlaceStart);
 router.post('/update_rest4', chatbotService.updateRest4);
 router.post('/get_restaurant', chatbotService.getRestaurant);
 router.post('/get_two_restaurant', chatbotService.getTwoRestaurant);
@@ -43,6 +44,8 @@ router.get('/get_medicine_check/:kakao_id', chatbotService.getMedicineCheck);
 router.post('/create_medicine_check', chatbotService.createMedicineCheck);
 router.post('/create_decide_history', chatbotService.createDecideHistory);
 router.post('/update_rest_only2', chatbotService.updateRestOnly2);
+router.post('/update_place_info', chatbotService.updatePlaceInfo);
+router.post('/update_mid_info', chatbotService.updateMidInfo);
 
 router.post('/create_mood_check', chatbotService.createMoodCheck);
 router.post('/create_mood_check_text', chatbotService.createMoodCheckText);

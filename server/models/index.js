@@ -83,6 +83,11 @@ const User = sequelize.define('user', {
     rest5: Sequelize.INTEGER,
     rest6: Sequelize.INTEGER,
     rest_final: Sequelize.INTEGER,
+    lat: Sequelize.FLOAT,
+    lng: Sequelize.FLOAT,
+    mid_lat: Sequelize.FLOAT,
+    mid_lng: Sequelize.FLOAT,
+    cnt: Sequelize.INTEGER,
 
     //next_hospital_visit_date: Sequelize.INTEGER,
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
