@@ -339,6 +339,23 @@ function getTwoRestaurant (req, res) {
     //}
 }
 
+function getLastHistory (req, res) {
+    const kakao_id = req.body.kakao_id;
+
+    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id= '+kakao_id+'ORDER BY id DESC LIMIT 1;').then(result => {
+        if (result){
+            console.log('result: ' + result.toString())
+            return res.status(200).json({success: true, message: result})
+        } else {
+            console.log('result없음');
+            return res.status(403).json({success: false, message: 'user update query failed.'})
+        }
+    }).catch(function (err){
+        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+    })
+    //}
+}
+
 function updateStamp (req, res) {
     const kakao_id = req.body.kakao_id
     const stamp = req.body.stamp
@@ -648,7 +665,7 @@ function createDecideHistory (req, res) {
     const with_mood = req.body.with_mood;
     const subway = req.body.subway;
     let nowDate = new Date();
-    const date = String(nowDate.getMonth()+1)+String(nowDate.getDate());
+    const date = String(nowDate.getMonth()+1)+'월'+String(nowDate.getDate())+'일';
 
 
     models.Decide_history.create({
@@ -1156,6 +1173,7 @@ module.exports = {
     updateMidInfo: updateMidInfo,
     updateRest4: updateRest4,
     updateRestOnly2: updateRestOnly2,
+    getLastHistory: getLastHistory,
     updateExit: updateExit,
     createUserLog: createUserLog,
 
