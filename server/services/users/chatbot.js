@@ -2,6 +2,7 @@ const models = require('../../models');
 const config = require('../../../configs');
 const Op = models.sequelize.Op;
 const crypto = require('crypto');
+const moment = require('moment');
 //var logger = require('../../config/winston');
 
 function getUserChartURL (req, res){
@@ -342,7 +343,49 @@ function getTwoRestaurant (req, res) {
 function getLastHistory (req, res) {
     const kakao_id = req.body.kakao_id;
 
-    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id= '+kakao_id+'ORDER BY id DESC LIMIT 1;').then(result => {
+    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' ORDER BY id DESC LIMIT 1;').then(result => {
+        if (result){
+            console.log('result: ' + result.toString())
+            return res.status(200).json({success: true, message: result})
+        } else {
+            console.log('result없음');
+            return res.status(403).json({success: false, message: 'user update query failed.'})
+        }
+    }).catch(function (err){
+        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+    })
+    //}
+}
+
+function getTodayHistory (req, res) {
+    const kakao_id = req.body.kakao_id;
+    let nowDate = new Date();
+    const date = moment().format('YYYYMMDD');
+
+
+    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+date+"'"+' ORDER BY id;').then(result => {
+        if (result){
+            console.log('result: ' + result.toString())
+            return res.status(200).json({success: true, message: result})
+        } else {
+            console.log('result없음');
+            return res.status(403).json({success: false, message: 'user update query failed.'})
+        }
+    }).catch(function (err){
+        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+    })
+    //}
+}
+
+function getThreeHistory (req, res) {
+    const kakao_id = req.body.kakao_id;
+    let nowDate = new Date();
+    const date = moment().format('YYYYMMDD');
+    let yesterday = moment(date).subtract(1, 'd').format('YYYYMMDD');
+    let twoDaysAgo = moment(date).subtract(2, 'd').format('YYYYMMDD');
+
+    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+date+"'"+' UNION '+'SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+yesterday+"'"+
+    ' UNION '+'SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+twoDaysAgo+"'"+' ORDER BY id;').then(result => {
         if (result){
             console.log('result: ' + result.toString())
             return res.status(200).json({success: true, message: result})
@@ -665,7 +708,7 @@ function createDecideHistory (req, res) {
     const with_mood = req.body.with_mood;
     const subway = req.body.subway;
     let nowDate = new Date();
-    const date = String(nowDate.getMonth()+1)+'월'+String(nowDate.getDate())+'일';
+    const date = moment().format('YYYYMMDD');
 
 
     models.Decide_history.create({
@@ -1174,6 +1217,8 @@ module.exports = {
     updateRest4: updateRest4,
     updateRestOnly2: updateRestOnly2,
     getLastHistory: getLastHistory,
+    getTodayHistory: getTodayHistory,
+    getThreeHistory: getThreeHistory,
     updateExit: updateExit,
     createUserLog: createUserLog,
 
