@@ -611,8 +611,7 @@ function updateUserStart (req, res) {
             rest3: null,
             rest4: null,
             rest5: null,
-            rest6: null,
-            rest_final: null
+            rest6: null
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
