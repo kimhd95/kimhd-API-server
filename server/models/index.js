@@ -119,6 +119,20 @@ const User_image = sequelize.define('user_image', {
     // check_atopy : Sequelize.FLOAT
 });
 
+const User_feedback = sequelize.define('user_feedback', {
+    kakao_id: Sequelize.STRING,
+    encrypted_kakao_id: Sequelize.STRING,
+    sex: Sequelize.STRING,
+    birthday: Sequelize.INTEGER,
+    job: Sequelize.STRING,
+    feedback_content: Sequelize.STRING,
+    date: Sequelize.STRING,
+
+
+    created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+    updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+});
+
 const Decide_history = sequelize.define('decide_history', {
     kakao_id: Sequelize.STRING,
     round: Sequelize.INTEGER,
@@ -201,6 +215,7 @@ module.exports = {
     UserLog: UserLog,
     User_image: User_image,
     Decide_history: Decide_history,
+    User_feedback: User_feedback,
     verifyAPIKEY: verifyAPIKEY
     // Doctor: Doctor,
     // Medicine_check: Medicine_check,
