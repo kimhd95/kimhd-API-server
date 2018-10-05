@@ -779,6 +779,32 @@ function createDecideHistory (req, res) {
     })
 }
 
+function createUserFeedback (req, res) {
+    const kakao_id = req.body.kakao_id;
+    const sex = req.body.sex;
+    const birthday = req.body.birthday;
+    const job = req.body.job;
+    const feedback_content = req.body.feedback_content;
+    let nowDate = new Date();
+    const date = moment().format('YYYYMMDD');
+
+
+    models.Decide_history.create({
+        kakao_id: kakao_id,
+        encrypted_kakao_id: kakao_id,
+        sex: sex,
+        birthday: birthday,
+        job: job,
+        feedback_content: feedback_content,
+        date: date
+    })
+    .then(result => {
+        return res.status(200).json({success: true, message: 'UserFeedback Create complete.'})
+    }).catch(function (err){
+    return res.status(403).json({success: false, message: 'UserFeedback Create failed. Error: ' + err.message})
+    })
+}
+
 function updateExit (req, res) {
     console.log('updateExit called.')
     let kakao_id
@@ -1273,6 +1299,7 @@ module.exports = {
     getSubwayHistory: getSubwayHistory,
     updateExit: updateExit,
     createUserLog: createUserLog,
+    createUserFeedback: createUserFeedback,
     getCountHistory: getCountHistory,
     getAllHistory: getAllHistory,
 

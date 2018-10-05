@@ -49,6 +49,7 @@ router.post('/create_medicine_time', chatbotService.createMedicineTime);
 router.get('/get_medicine_check/:kakao_id', chatbotService.getMedicineCheck);
 router.post('/create_medicine_check', chatbotService.createMedicineCheck);
 router.post('/create_decide_history', chatbotService.createDecideHistory);
+router.post('/create_user_feedback', chatbotService.createUserFeedback);
 router.post('/update_rest_only2', chatbotService.updateRestOnly2);
 router.post('/update_place_info', chatbotService.updatePlaceInfo);
 router.post('/update_mid_info', chatbotService.updateMidInfo);
