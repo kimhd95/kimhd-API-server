@@ -89,7 +89,6 @@ const User = sequelize.define('user', {
     mid_lng: Sequelize.FLOAT,
     cnt: Sequelize.INTEGER,
 
-    //next_hospital_visit_date: Sequelize.INTEGER,
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
@@ -117,6 +116,8 @@ const User_image = sequelize.define('user_image', {
     date: Sequelize.INTEGER,
     // check_skin : Sequelize.FLOAT,
     // check_atopy : Sequelize.FLOAT
+    created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+    updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
 const User_feedback = sequelize.define('user_feedback', {

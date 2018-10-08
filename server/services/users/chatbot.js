@@ -789,7 +789,7 @@ function createUserFeedback (req, res) {
     const date = moment().format('YYYYMMDD');
 
 
-    models.Decide_history.create({
+    models.User_feedback.create({
         kakao_id: kakao_id,
         encrypted_kakao_id: kakao_id,
         sex: sex,
@@ -803,6 +803,23 @@ function createUserFeedback (req, res) {
     }).catch(function (err){
     return res.status(403).json({success: false, message: 'UserFeedback Create failed. Error: ' + err.message})
     })
+}
+
+function getFeedbackInfo (req, res) {
+    console.log('getFeedbackInfo called.')
+
+    models.sequelize.query('SELECT * FROM user_feedbacks;').then(result => {
+        if (result){
+            console.log('result: ' + result.toString())
+            return res.status(200).json({success: true, message: result})
+        } else {
+            console.log('result없음');
+            return res.status(403).json({success: false, message: 'user update query failed.'})
+        }
+    }).catch(function (err){
+        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+    })
+    //}
 }
 
 function updateExit (req, res) {
@@ -1302,6 +1319,7 @@ module.exports = {
     createUserFeedback: createUserFeedback,
     getCountHistory: getCountHistory,
     getAllHistory: getAllHistory,
+    getFeedbackInfo: getFeedbackInfo,
 
     createMedicineTime: createMedicineTime,
     getMedicineTime: getMedicineTime,
