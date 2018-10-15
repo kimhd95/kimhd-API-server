@@ -115,6 +115,7 @@ function updateUser (req, res) {
     const mid_lat = req.body.mid_lat;
     const mid_lng = req.body.mid_lng;
     const cnt = req.body.cnt;
+    const limit_cnt = req.body.limit_cnt;
 
 
 
@@ -167,73 +168,76 @@ function updateUser (req, res) {
     let param_value;
     if (nickname){
         param_name = 'nickname';
-        param_value = nickname
+        param_value = nickname;
     } else if (birthday) {
         param_name = 'birthday';
-        param_value = birthday
+        param_value = birthday;
     } else if (sex) {
         param_name = 'sex';
-        param_value = sex
+        param_value = sex;
     } else if (allergy){
         param_name = 'allergy';
-        param_value = allergy
+        param_value = allergy;
     } else if (vegi){
         param_name = 'vegi';
-        param_value = vegi
+        param_value = vegi;
     } else if (snack) {
         param_name = 'snack';
-        param_value = snack
+        param_value = snack;
     }  else if (serving_size) {
         param_name = 'serving_size';
-        param_value = serving_size
+        param_value = serving_size;
     } else if (disease){
         param_name = 'disease';
-        param_value = disease
+        param_value = disease;
     } else if (diet){
         param_name = 'diet';
-        param_value = diet
+        param_value = diet;
     } else if (alone_level){
         param_name = 'alone_level';
-        param_value = alone_level
+        param_value = alone_level;
     } else if (job){
         param_name = 'job';
-        param_value = job
+        param_value = job;
     } else if (subway){
         param_name = 'subway';
-        param_value = subway
+        param_value = subway;
     } else if (exit_quarter){
         param_name = 'exit_quarter';
-        param_value = exit_quarter
+        param_value = exit_quarter;
     } else if (with_mood){
         param_name = 'with_mood';
-        param_value = with_mood
+        param_value = with_mood;
     } else if (price){
         param_name = 'price';
-        param_value = price
+        param_value = price;
     } else if (rest5){
         param_name = 'rest5';
-        param_value = rest5
+        param_value = rest5;
     } else if (rest6){
         param_name = 'rest6';
-        param_value = rest6
+        param_value = rest6;
     } else if (rest_final){
         param_name = 'rest_final';
-        param_value = rest_final
+        param_value = rest_final;
     } else if (lat){
         param_name = 'lat';
-        param_value = lat
+        param_value = lat;
     } else if (lng){
         param_name = 'lng';
-        param_value = lng
+        param_value = lng;
     } else if (mid_lat){
         param_name = 'mid_lat';
-        param_value = mid_lat
+        param_value = mid_lat;
     } else if (mid_lng){
         param_name = 'mid_lng';
-        param_value = mid_lng
+        param_value = mid_lng;
     } else if (cnt){
         param_name = 'cnt';
-        param_value = cnt
+        param_value = cnt;
+    } else if(limit_cnt){
+        param_name = 'limit_cnt';
+        param_value = limit_cnt;
     }
 
     if (param_value){
@@ -647,6 +651,7 @@ function updatePlaceStart (req, res) {
         return res.status(403).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
     })
 }
+
 
 function updateRest4 (req, res) {
     console.log('updateRest4 called.')
@@ -1291,11 +1296,103 @@ function verifyDoctorCode (req, res) {
     });
 }
 
+function updateLimitCnt (req, res) {
+    console.log('updateMidInfo called.')
+    const kakao_id = req.body.kakao_id;
+    const limit_cnt = req.body.limit_cnt;
+    const date = moment().format('DD/H');
+
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            limit_cnt: limit_cnt,
+            decide_updated_at: date,
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'updateLimitCnt Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+    })
+}
+
+function verifyLimit (req, res) { //끼니 당 3회 제한 판별 API함수
+    console.log('verifyLimit called.')
+    const kakao_id = req.body.kakao_id;
+    const limit_cnt = req.body.limit_cnt; //현재 유저DB의 메뉴결정 횟수
+
+    let decide_updated_at = req.body.decide_updated_at; //현재 유저의 마지막 메뉴결정 day/hour
+    decide_updated_at = decide_updated_at.split('/');
+    let now_time = moment().format('DD/H'); //지금의 day/hour
+    now_time = now_time.split('/');
+
+    //hour에 따라, 0~9시,10~15시,16~24시를 기준으로 범위를 나눈다.
+    function calTimeRange(value){
+      if(value > 16){
+        return 3;
+      }else if(value > 10){
+        return 2;
+      }else{
+        return 1;
+      }
+    }
+
+    /*
+    limit_cnt가 3일때,
+     날짜가 같을 떄
+      - 지금 시간의 범위와, 유저 시간의 범위가 같을 떄, 메뉴 고르기 제한
+      - 지금 시간의 범위와, 유저 시간의 범위가 다를 떄, limit_cnt 0으로 초기화 시키고 메뉴 고르기 가능
+     날짜가 다를 때
+      - limit_cnt 0으로 초기화 시키고 메뉴 고르기 가능
+    */
+    if(limit_cnt === 3){
+      if(decide_updated_at[0] === now_time[0]){
+        if(calTimeRange(decide_updated_at[1]) === calTimeRange(now_time[1])){
+          return res.status(200).json({result: 'failed'})
+        }else{
+          models.User.update(
+              {
+                  limit_cnt: 0,
+              },     // What to update
+              {where: {
+                      kakao_id: kakao_id}
+              })  // Condition
+              .then(result => {
+                return res.status(200).json({result: 'success'})
+              }).catch(function (err){
+              return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+          })
+        }
+      }else{
+        models.User.update(
+            {
+                limit_cnt: 0,
+            },     // What to update
+            {where: {
+                    kakao_id: kakao_id}
+            })  // Condition
+            .then(result => {
+              return res.status(200).json({result: 'success'})
+            }).catch(function (err){
+            return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+        })
+      }
+    }else{ //limit_cnt가 3이 아닌경우 계속 진행 가능
+      return res.status(200).json({result: 'success'})
+    }
+}
+
 module.exports = {
     getUserChartURL: getUserChartURL,
 
     registerUser: registerUser,
     updateUser: updateUser,
+    updateLimitCnt: updateLimitCnt,
     updateDaily: updateDaily,
     updateStamp: updateStamp,
     updateTest: updateTest,
@@ -1314,6 +1411,7 @@ module.exports = {
     getTodayHistory: getTodayHistory,
     getThreeHistory: getThreeHistory,
     getSubwayHistory: getSubwayHistory,
+    verifyLimit: verifyLimit,
     updateExit: updateExit,
     createUserLog: createUserLog,
     createUserFeedback: createUserFeedback,

@@ -25,6 +25,7 @@ router.get('/get_user_chart_url/:encrypted_kakao_id', chatbotService.getUserChar
 router.post('/register_user', chatbotService.registerUser);
 router.post('/verify_doctor_code', chatbotService.verifyDoctorCode);
 router.post('/update_user', chatbotService.updateUser);
+router.post('/update_limit_cnt', chatbotService.updateLimitCnt);
 router.post('/update_daily', chatbotService.updateDaily);
 router.post('/update_stamp', chatbotService.updateStamp);
 router.post('/update_test', chatbotService.updateTest);
@@ -34,6 +35,7 @@ router.post('/update_exit', chatbotService.updateExit);
 router.post('/update_user_start', chatbotService.updateUserStart);
 router.post('/update_place_start', chatbotService.updatePlaceStart);
 router.post('/update_rest4', chatbotService.updateRest4);
+router.post('/verify_limit', chatbotService.verifyLimit);
 router.post('/get_restaurant', chatbotService.getRestaurant);
 router.post('/get_two_restaurant', chatbotService.getTwoRestaurant);
 router.post('/get_last_history', chatbotService.getLastHistory);

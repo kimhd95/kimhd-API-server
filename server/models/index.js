@@ -88,6 +88,8 @@ const User = sequelize.define('user', {
     mid_lat: Sequelize.FLOAT,
     mid_lng: Sequelize.FLOAT,
     cnt: Sequelize.INTEGER,
+    limit_cnt: {type: Sequelize.INTEGER, defaultValue: 0},
+    decide_updated_at: Sequelize.STRING,
 
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
