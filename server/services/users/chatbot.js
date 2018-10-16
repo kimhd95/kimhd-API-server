@@ -1300,7 +1300,7 @@ function updateLimitCnt (req, res) {
     console.log('updateMidInfo called.')
     const kakao_id = req.body.kakao_id;
     const limit_cnt = req.body.limit_cnt;
-    const date = moment().format('DD/H');
+    const date = moment().format('MM/DD/H');
 
     // let nowDate = new Date();
     // nowDate.getTime();
@@ -1328,7 +1328,7 @@ function verifyLimit (req, res) { //끼니 당 3회 제한 판별 API함수
 
     let decide_updated_at = req.body.decide_updated_at; //현재 유저의 마지막 메뉴결정 day/hour
     decide_updated_at = decide_updated_at.split('/');
-    let now_time = moment().format('DD/H'); //지금의 day/hour
+    let now_time = moment().format('MM/DD/H'); //지금의 day/hour
     now_time = now_time.split('/');
 
     //hour에 따라, 0~9시,10~15시,16~24시를 기준으로 범위를 나눈다.
@@ -1346,14 +1346,30 @@ function verifyLimit (req, res) { //끼니 당 3회 제한 판별 API함수
     limit_cnt가 3일때,
      날짜가 같을 떄
       - 지금 시간의 범위와, 유저 시간의 범위가 같을 떄, 메뉴 고르기 제한
+       - month가 다르면, 메뉴 고르기 가능
       - 지금 시간의 범위와, 유저 시간의 범위가 다를 떄, limit_cnt 0으로 초기화 시키고 메뉴 고르기 가능
      날짜가 다를 때
       - limit_cnt 0으로 초기화 시키고 메뉴 고르기 가능
     */
     if(limit_cnt === 3){
-      if(decide_updated_at[0] === now_time[0]){
-        if(calTimeRange(decide_updated_at[1]) === calTimeRange(now_time[1])){
-          return res.status(200).json({result: 'failed'})
+      if(decide_updated_at[1] === now_time[1]){
+        if(calTimeRange(decide_updated_at[2]) === calTimeRange(now_time[2])){
+          if(decide_updated_at[0] === now_time[0]){
+            return res.status(200).json({result: 'failed'})
+          }else{
+            models.User.update(
+                {
+                    limit_cnt: 0,
+                },     // What to update
+                {where: {
+                        kakao_id: kakao_id}
+                })  // Condition
+                .then(result => {
+                  return res.status(200).json({result: 'success'})
+                }).catch(function (err){
+                return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+            })
+          }
         }else{
           models.User.update(
               {
