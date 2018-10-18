@@ -61,12 +61,22 @@ function registerUser (req, res) {
         }
     }).then(user => {
         if (user){
-            return res.status(403).json({success: false, message: 'user with same kakao_id already exists'})
+            models.User.update(
+              {
+                scenario: '100',
+                state: 'init'
+              },     // What to update
+              {where: {
+                      kakao_id: kakao_id}
+              })  // Condition
+              .then(result => {
+                return res.status(403).json({success: false, message: 'user with same kakao_id already exists'});
+              })
         } else {
             models.User.create({
                 kakao_id: kakao_id,
                 //encrypted_kakao_id: encrypted_kakao_id,
-                scenario: '1',
+                scenario: '100',
                 state: 'init',
                 registered: '0'
             }).then(user => {
