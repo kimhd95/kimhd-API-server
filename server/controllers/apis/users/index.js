@@ -28,6 +28,7 @@ router.post('/update_user', chatbotService.updateUser);
 router.post('/update_limit_cnt', chatbotService.updateLimitCnt);
 router.post('/update_daily', chatbotService.updateDaily);
 router.post('/update_stamp', chatbotService.updateStamp);
+router.post('/update_state', chatbotService.updateState);
 router.post('/update_test', chatbotService.updateTest);
 router.post('/create_user_image', chatbotService.createUserImage);
 router.post('/create_user_log', chatbotService.createUserLog);

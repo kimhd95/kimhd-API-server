@@ -1413,6 +1413,27 @@ function verifyLimit (req, res) { //끼니 당 3회 제한 판별 API함수
     }
 }
 
+function updateState (req, res) {
+    const kakao_id = req.body.kakao_id;
+    const scenario = req.body.scenario;
+    const state = req.body.state;
+
+    models.User.update(
+        {
+            scenario: scenario,
+            state: state
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'User State Update complete.', stamp: stamp})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'User State Update Update failed. Error: ' + err.message})
+    })
+    //}
+}
+
 module.exports = {
     getUserChartURL: getUserChartURL,
 
@@ -1422,6 +1443,7 @@ module.exports = {
     updateDaily: updateDaily,
     updateStamp: updateStamp,
     updateTest: updateTest,
+    updateState: updateState,
     createUserImage: createUserImage,
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
