@@ -1427,7 +1427,7 @@ function updateState (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
-            return res.status(200).json({success: true, message: 'User State Update complete.', stamp: stamp})
+            return res.status(200).json({success: true, message: 'User State Update complete.'})
         }).catch(function (err){
         return res.status(403).json({success: false, message: 'User State Update Update failed. Error: ' + err.message})
     })
