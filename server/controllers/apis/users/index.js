@@ -46,6 +46,7 @@ router.post('/get_count_history', chatbotService.getCountHistory);
 router.post('/get_subway_history', chatbotService.getSubwayHistory);
 router.post('/get_all_history', chatbotService.getAllHistory);
 router.get('/get_user_info/:kakao_id', chatbotService.getUserInfo);
+router.get('/get_rest_info/:id', chatbotService.getRestInfo);
 router.post('/get_restaurant_info', chatbotService.getRestaurantInfo);
 router.get('/get_medicine_time/:kakao_id', chatbotService.getMedicineTime);
 router.post('/create_medicine_time', chatbotService.createMedicineTime);

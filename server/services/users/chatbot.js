@@ -305,8 +305,14 @@ function getRestaurant (req, res) {
         max = 999999;
         break;
     }
-    //if ((scenario.indexOf("201") == 0) && (state == 'init')){
-    models.sequelize.query('SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') GROUP BY food_type ORDER BY RAND() LIMIT 4;').then(result => {
+
+    models.sequelize.query("SELECT distinct food_type FROM restaurants WHERE subway regexp '"+subway+"' ORDER BY rand();").then(type_result => {
+        if (type_result){
+            let food_types = type_result[0];
+    models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+food_types[0].food_type+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
+  'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+food_types[1].food_type+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
+'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+food_types[2].food_type+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
+'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+food_types[3].food_type+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1);').then(result => {
         if (result){
             console.log('result: ' + result.toString());
             console.log('길이 : '+result[0].length);
@@ -332,7 +338,13 @@ function getRestaurant (req, res) {
     }).catch(function (err){
         return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
     })
-    //}
+    } else {
+        console.log('result없음');
+        return res.status(403).json({success: false, message: 'user update query failed.'})
+    }
+  }).catch(function (err){
+    return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+  });
 }
 
 function getTwoRestaurant (req, res) {
@@ -350,7 +362,7 @@ function getTwoRestaurant (req, res) {
         }
     }).catch(function (err){
         return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    })
+    });
     //}
 }
 
@@ -1437,6 +1449,20 @@ function updateState (req, res) {
     //}
 }
 
+function getRestInfo(req, res) {
+    models.Restaurant.findOne({
+        where: {
+            id: req.params.id
+        }
+    }).then(result => {
+        if(result){
+            return res.status(200).json(result);
+        }else{
+            return res.status(404).json({error: 'no Restaurant column for '+id});
+        }
+    })
+}
+
 module.exports = {
     getUserChartURL: getUserChartURL,
 
@@ -1450,6 +1476,7 @@ module.exports = {
     createUserImage: createUserImage,
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
+    getRestInfo: getRestInfo,
     getTwoRestaurant: getTwoRestaurant,
     getRestaurantInfo: getRestaurantInfo,
     updateUserStart: updateUserStart,
