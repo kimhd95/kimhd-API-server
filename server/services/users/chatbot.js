@@ -1337,6 +1337,9 @@ function verifyLimit (req, res) { //끼니 당 3회 제한 판별 API함수
     const limit_cnt = req.body.limit_cnt; //현재 유저DB의 메뉴결정 횟수
 
     let decide_updated_at = req.body.decide_updated_at; //현재 유저의 마지막 메뉴결정 day/hour
+    if(decide_updated_at === null){
+      decide_updated_at = '99/99/99';
+    }
     decide_updated_at = decide_updated_at.split('/');
     let now_time = moment().format('MM/DD/H'); //지금의 day/hour
     now_time = now_time.split('/');
