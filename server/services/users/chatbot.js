@@ -279,7 +279,7 @@ function getRestaurant (req, res) {
     if(food_ingre === null){
       food_ingre = 'x';
     }
-    if(subway === '서울 어디든 좋아'){
+    if(subway === '서울 어디든 좋아' || subway === null){
       subway = '[가-힇]';
       exit_quarter = '[0-9]';
     }
