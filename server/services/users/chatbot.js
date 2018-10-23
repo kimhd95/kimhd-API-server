@@ -1449,20 +1449,6 @@ function updateState (req, res) {
     //}
 }
 
-function getRestInfo(req, res) {
-    models.Restaurant.findOne({
-        where: {
-            id: req.params.id
-        }
-    }).then(result => {
-        if(result){
-            return res.status(200).json(result);
-        }else{
-            return res.status(404).json({error: 'no Restaurant column for '+id});
-        }
-    })
-}
-
 module.exports = {
     getUserChartURL: getUserChartURL,
 
