@@ -3,6 +3,7 @@ const config = require('../../../configs');
 const Op = models.sequelize.Op;
 const crypto = require('crypto');
 const moment = require('moment');
+const arrayShuffle = require('array-shuffle');
 //var logger = require('../../config/winston');
 
 function getUserChartURL (req, res){
@@ -306,20 +307,22 @@ function getRestaurant (req, res) {
         break;
     }
 
-    models.sequelize.query("SELECT distinct food_type FROM restaurants WHERE subway regexp '"+subway+"' ORDER BY rand();").then(type_result => {
-        if (type_result){
-            let food_types = type_result[0];
-    models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+food_types[0].food_type+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
-  'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+food_types[1].food_type+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
-'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+food_types[2].food_type+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
-'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+food_types[3].food_type+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1);').then(result => {
+    let type_array = arrayShuffle(['한식','양식','일식']);
+
+models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[0]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
+  'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[1]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
+'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[2]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
+'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1);').then(result => {
         if (result){
             console.log('result: ' + result.toString());
             console.log('길이 : '+result[0].length);
             if(result[0].length === 4){
               return res.status(200).json({success: true, message: result})
             }else{
-              models.sequelize.query('SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'[가-힇]'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') GROUP BY food_type ORDER BY RAND() LIMIT 4;').then(result => {
+              models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+'[가-힇]'+"'"+') AND (food_type regexp '+"'"+type_array[0]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN 0 AND 999999) ORDER BY RAND() LIMIT 1) '+
+                'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+'[가-힇]'+"'"+') AND (food_type regexp '+"'"+type_array[1]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN 0 AND 999999) ORDER BY RAND() LIMIT 1) '+
+              'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+'[가-힇]'+"'"+') AND (food_type regexp '+"'"+type_array[2]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN 0 AND 999999) ORDER BY RAND() LIMIT 1) '+
+              'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+'[가-힇]'+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN 0 AND 999999) ORDER BY RAND() LIMIT 1);').then(result => {
                 if (result){
                   console.log("첫 결과가 4개가 안되서 두번째 검색(길이) : : "+result[0].length);
                   return res.status(200).json({success: true, message: result})
@@ -337,14 +340,7 @@ function getRestaurant (req, res) {
         }
     }).catch(function (err){
         return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    })
-    } else {
-        console.log('result없음');
-        return res.status(403).json({success: false, message: 'user update query failed.'})
-    }
-  }).catch(function (err){
-    return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-  });
+    });
 }
 
 function getTwoRestaurant (req, res) {
