@@ -274,7 +274,6 @@ function getRestaurant (req, res) {
     let exit_quarter = req.body.exit_quarter;
     const mood = req.body.mood;
     let food_ingre = req.body.food_ingre;
-    const price = req.body.price
     let min, max;
 
     if(food_ingre === null){
@@ -288,41 +287,19 @@ function getRestaurant (req, res) {
       exit_quarter = '[0-9]';
     }
 
-    switch (price) {
-      case 1:
-        min = 0;
-        max = 8000;
-        break;
-      case 2:
-        min = 8000;
-        max = 15000;
-        break;
-      case 3:
-        min = 12000;
-        max = 999999;
-        break;
-      default:
-        min = 0;
-        max = 999999;
-        break;
-    }
-
     let type_array = arrayShuffle(['한식','양식','일식']);
 
-models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[0]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
-  'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[1]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
-'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[2]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1) '+
-'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN '+min+' AND '+max+') ORDER BY RAND() LIMIT 1);').then(result => {
+models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[0]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 1) '+
+  'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[1]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 1) '+
+'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[2]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 1) '+
+'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 1);').then(result => {
         if (result){
             console.log('result: ' + result.toString());
             console.log('길이 : '+result[0].length);
             if(result[0].length === 4){
               return res.status(200).json({success: true, message: result})
             }else{
-              models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+'[가-힇]'+"'"+') AND (food_type regexp '+"'"+type_array[0]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN 0 AND 999999) ORDER BY RAND() LIMIT 1) '+
-                'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+'[가-힇]'+"'"+') AND (food_type regexp '+"'"+type_array[1]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN 0 AND 999999) ORDER BY RAND() LIMIT 1) '+
-              'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+'[가-힇]'+"'"+') AND (food_type regexp '+"'"+type_array[2]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN 0 AND 999999) ORDER BY RAND() LIMIT 1) '+
-              'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+'[가-힇]'+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (food_cost BETWEEN 0 AND 999999) ORDER BY RAND() LIMIT 1);').then(result => {
+              models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+'[가-힇]'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 4);').then(result => {
                 if (result){
                   console.log("첫 결과가 4개가 안되서 두번째 검색(길이) : : "+result[0].length);
                   return res.status(200).json({success: true, message: result})
