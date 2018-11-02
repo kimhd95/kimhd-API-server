@@ -151,6 +151,17 @@ const Decide_history = sequelize.define('decide_history', {
     // check_atopy : Sequelize.FLOAT
 });
 
+const Beer = sequelize.define('beer', {
+    beer_name: Sequelize.STRING,
+    place: Sequelize.STRING,
+    sell_type: Sequelize.STRING,
+    flavor: Sequelize.STRING,
+    soda: Sequelize.STRING,
+    alcohol: Sequelize.STRING,
+    beer_type: Sequelize.STRING,
+    image_url: Sequelize.STRING
+});
+
 //
 // const Doctor = sequelize.define('doctor', {
 //     doctor_code: { type: Sequelize.STRING, allowNull: false, unique: true },
@@ -219,6 +230,7 @@ module.exports = {
     User_image: User_image,
     Decide_history: Decide_history,
     User_feedback: User_feedback,
+    Beer: Beer,
     verifyAPIKEY: verifyAPIKEY
     // Doctor: Doctor,
     // Medicine_check: Medicine_check,
