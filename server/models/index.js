@@ -155,14 +155,14 @@ const Beer = sequelize.define('beer', {
     beer_name: Sequelize.STRING,
     place: Sequelize.STRING,
     sell_type: Sequelize.STRING,
-    flavor: Sequelize.STRING,
-    soda: Sequelize.STRING,
-    alcohol: Sequelize.STRING,
+    flavor: Sequelize.INTEGER,
+    soda: Sequelize.INTEGER,
+    alcohol: Sequelize.FLOAT,
     beer_type: Sequelize.STRING,
     image_url: Sequelize.STRING
 });
 
-//
+//ㄴ
 // const Doctor = sequelize.define('doctor', {
 //     doctor_code: { type: Sequelize.STRING, allowNull: false, unique: true },
 //     email:Sequelize.STRING,

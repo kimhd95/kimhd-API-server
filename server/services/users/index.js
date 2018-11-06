@@ -270,9 +270,24 @@ function medicineTime (req, res) {
     });
 }
 
+function getBeerInfo(req, res) {
+    models.Beer.findOne({
+        where: {
+            id: req.params.id
+        }
+    }).then(result => {
+        if(result){
+            return res.status(200).json(result);
+        }else{
+            return res.status(404).json({error: 'no Beer column for '+id});
+        }
+    })
+}
+
 module.exports = {
     getUsers: getUsers,
     getUserWithId: getUserWithId,
+    getBeerInfo: getBeerInfo,
 
     // Below methods requires APIKey.
     registerDoctorCode: registerDoctorCode,

@@ -63,6 +63,7 @@ router.post('/create_mood_check', chatbotService.createMoodCheck);
 router.post('/create_mood_check_text', chatbotService.createMoodCheckText);
 
 router.get('/get_medicine_time_to_check/:kakao_id/:time', chatbotService.getMedicineTimeToCheck);
+router.get('/get_beer_info/:id', userService.getBeerInfo);
 
 
 router.get('/get_users', userService.getUsers);
@@ -80,5 +81,7 @@ router.post('/medicine_check_med_side', userService.medicineCheckMedSide);
 //router.post('/medicine_check_med_side_degree', userService.medicineCheckMedSideDegree);
 router.post('/mood_check', userService.moodCheck);
 router.post('/mood_check_reason', userService.moodCheckReason);
+router.post('/get_beer', chatbotService.getBeer);
+router.post('/get_two_beer', chatbotService.getTwoBeer);
 
 module.exports = router;
