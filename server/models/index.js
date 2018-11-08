@@ -159,7 +159,8 @@ const Beer = sequelize.define('beer', {
     soda: Sequelize.INTEGER,
     alcohol: Sequelize.FLOAT,
     beer_type: Sequelize.STRING,
-    image_url: Sequelize.STRING
+    image_url: Sequelize.STRING,
+    comment: Sequelize.STRING
 });
 
 //ㄴ
