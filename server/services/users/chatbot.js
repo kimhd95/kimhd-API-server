@@ -1441,7 +1441,7 @@ function getBeer (req, res) {
     let flavor = parseInt(req.body.flavor);
     let soda = parseInt(req.body.soda);
     let alcohol = parseInt(req.body.alcohol);
-    let place = parseInt(req.body.price);
+    let place = parseInt(req.body.place);
     let alcohol_min = 0;
     let alcohol_max = 99;
 
