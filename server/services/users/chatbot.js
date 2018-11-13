@@ -1441,6 +1441,7 @@ function getBeer (req, res) {
     let flavor = parseInt(req.body.flavor);
     let soda = parseInt(req.body.soda);
     let alcohol = parseInt(req.body.alcohol);
+    let place = parseInt(req.body.price);
     let alcohol_min = 0;
     let alcohol_max = 99;
 
@@ -1456,14 +1457,24 @@ function getBeer (req, res) {
       alcohol_max = 5.4;
     }
 
-models.sequelize.query('(SELECT * FROM beers WHERE (flavor regexp '+"'"+flavor+"'"+') AND (soda regexp '+"'"+soda+"'"+') AND (alcohol BETWEEN '+alcohol_min+' AND '+alcohol_max+') ORDER BY RAND() LIMIT 2);').then(result => {
+    if(place === 1){
+      place = 'CU';
+    }else if(place === 2){
+      place = 'GS25';
+    }else if(place === 3){
+      place = '세븐일레븐';
+    }else{
+      place = '[a-z|가-힇]';
+    }
+
+models.sequelize.query('(SELECT * FROM beers WHERE (place regexp '+"'"+place+"'"+') AND (flavor regexp '+"'"+flavor+"'"+') AND (soda regexp '+"'"+soda+"'"+') AND (alcohol BETWEEN '+alcohol_min+' AND '+alcohol_max+') ORDER BY RAND() LIMIT 2);').then(result => {
         if (result){
             console.log('result: ' + result.toString());
             console.log('길이 : '+result[0].length);
             if(result[0].length === 2){
               return res.status(200).json({success: true, message: result})
             }else{
-              models.sequelize.query('(SELECT * FROM beers WHERE (flavor regexp '+"'"+flavor+"'"+') AND (soda regexp '+"'"+'[0-9]'+"'"+') AND (alcohol BETWEEN 0 AND 99) ORDER BY RAND() LIMIT 2);').then(result => {
+              models.sequelize.query('(SELECT * FROM beers WHERE (place regexp '+"'"+place+"'"+') AND (flavor regexp '+"'"+flavor+"'"+') AND (soda regexp '+"'"+'[0-9]'+"'"+') AND (alcohol BETWEEN 0 AND 99) ORDER BY RAND() LIMIT 2);').then(result => {
                 if (result){
                   console.log("첫 결과가 2개가 안되서 두번째 검색(길이) : : "+result[0].length);
                   return res.status(200).json({success: true, message: result})
