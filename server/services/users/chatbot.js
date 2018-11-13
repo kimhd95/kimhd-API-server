@@ -1436,6 +1436,18 @@ function getRestInfo(req, res) {
     })
 }
 
+function getAllSubway(req, res) {
+    models.Restaurant.findAll({
+        attributes: ['subway']
+    }).then(result => {
+        if(result){
+            return res.status(200).json(result);
+        }else{
+            return res.status(404).json({error: 'no result'});
+        }
+    })
+}
+
 function getBeer (req, res) {
     const kakao_id = req.body.kakao_id;
     let flavor = parseInt(req.body.flavor);
@@ -1547,6 +1559,7 @@ module.exports = {
     getCountHistory: getCountHistory,
     getAllHistory: getAllHistory,
     getFeedbackInfo: getFeedbackInfo,
+    getAllSubway: getAllSubway,
 
     createMedicineTime: createMedicineTime,
     getMedicineTime: getMedicineTime,
