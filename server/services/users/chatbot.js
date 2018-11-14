@@ -1438,14 +1438,53 @@ function getRestInfo(req, res) {
 
 function getAllSubway(req, res) {
     models.Restaurant.findAll({
-        attributes: ['subway']
+        attributes: ['subway'],
+        group: 'subway'
     }).then(result => {
+        let term = req.query.term;
         if(result){
-            return res.status(200).json(result);
+            let resultArray = ['서울 어디든 좋아'];
+            let findArray = [];
+            for(let i=0;i<result.length;i++){
+              resultArray.push(result[i].subway);
+            }
+            for(let i=0;i<resultArray.length;i++){
+              let termLength = term.length;
+              if(resultArray[i].substring(0,termLength).includes(term)){
+                findArray.push(resultArray[i]);
+              }
+            }
+            return res.status(200).json(findArray);
+            // return '됨';
         }else{
             return res.status(404).json({error: 'no result'});
         }
     })
+}
+
+function verifySubway (req, res) {
+    let subway;
+    if ((req.body.subway !== undefined)){
+        subway = req.body.subway;
+    } else {
+        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+            subway: req.body.subway});
+    }
+
+    models.Restaurant.findOne({
+        where: {
+            subway: subway
+        }
+    }).then(result => {
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
+        } else {
+            res.status(200).json({result: 'no subway'})
+        }
+    }).catch(err => {
+        logger.error("DB Error in verifySubway :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
 }
 
 function getBeer (req, res) {
@@ -1560,6 +1599,7 @@ module.exports = {
     getAllHistory: getAllHistory,
     getFeedbackInfo: getFeedbackInfo,
     getAllSubway: getAllSubway,
+    verifySubway: verifySubway,
 
     createMedicineTime: createMedicineTime,
     getMedicineTime: getMedicineTime,
