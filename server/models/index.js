@@ -136,6 +136,22 @@ const User_feedback = sequelize.define('user_feedback', {
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
+const Restaurant = sequelize.define('restaurant', {
+    res_name: Sequelize.STRING,
+    region: Sequelize.STRING,
+    subway: Sequelize.STRING,
+    exit_quarter: Sequelize.INTEGER,
+    food_type: Sequelize.STRING,
+    food_name: Sequelize.STRING,
+    food_ingre: Sequelize.STRING,
+    food_cost: Sequelize.STRING,
+    res_size: Sequelize.STRING,
+    mood: Sequelize.STRING,
+    lunch_option: Sequelize.BOOLEAN,
+    calories: Sequelize.INTEGER,
+    res_phone: Sequelize.STRING
+});
+
 const Decide_history = sequelize.define('decide_history', {
     kakao_id: Sequelize.STRING,
     round: Sequelize.INTEGER,
@@ -232,6 +248,7 @@ module.exports = {
     Decide_history: Decide_history,
     User_feedback: User_feedback,
     Beer: Beer,
+    Restaurant: Restaurant,
     verifyAPIKEY: verifyAPIKEY
     // Doctor: Doctor,
     // Medicine_check: Medicine_check,
