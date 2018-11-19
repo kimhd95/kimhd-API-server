@@ -752,23 +752,29 @@ function updateMidInfo (req, res) {
 
 function createDecideHistory (req, res) {
     const kakao_id = req.body.kakao_id;
-    const round = req.body.round;
+    const rest1 = req.body.rest1;
+    const rest2 = req.body.rest2;
+    const rest3 = req.body.rest3;
+    const rest4 = req.body.rest4;
+    const round1 = req.body.round1;
+    const round2 = req.body.round2;
+    const round3 = req.body.round3;
     const res_name = req.body.res_name;
-    const price = req.body.price;
-    const exit_quarter = req.body.exit_quarter;
-    const with_mood = req.body.with_mood;
     const subway = req.body.subway;
-    let nowDate = new Date();
+    // let nowDate = new Date();
     const date = moment().format('YYYYMMDD');
 
 
     models.Decide_history.create({
         kakao_id: kakao_id,
-        round: 2,
+        rest1: rest1,
+        rest2: rest2,
+        rest3: rest3,
+        rest4: rest4,
+        round1: round1,
+        round2: round2,
+        round3: round3,
         res_name: res_name,
-        price: price,
-        exit_quarter: exit_quarter,
-        with_mood: with_mood,
         subway: subway,
         date: date
     })
@@ -1443,7 +1449,7 @@ function getAllSubway(req, res) {
     }).then(result => {
         let term = req.query.term;
         if(result){
-            let resultArray = ['서울 어디든 좋아'];
+            let resultArray = [];
             let findArray = [];
             for(let i=0;i<result.length;i++){
               resultArray.push(result[i].subway);
@@ -1455,6 +1461,25 @@ function getAllSubway(req, res) {
               }
             }
             return res.status(200).json(findArray);
+            // return '됨';
+        }else{
+            return res.status(404).json({error: 'no result'});
+        }
+    })
+}
+
+function getAllRestsaurant(req, res) {
+    models.Restaurant.findAll({
+        attributes: ['res_name'],
+        group: 'res_name, subway'
+    }).then(result => {
+        let term = req.query.term;
+        if(result){
+            let resultArray = [];
+            for(let i=0;i<result.length;i++){
+              resultArray.push(result[i].subway + ' ' + result[i].res_name);
+            }
+            return res.status(200).json(resultArray);
             // return '됨';
         }else{
             return res.status(404).json({error: 'no result'});
@@ -1599,6 +1624,7 @@ module.exports = {
     getAllHistory: getAllHistory,
     getFeedbackInfo: getFeedbackInfo,
     getAllSubway: getAllSubway,
+    getAllRestsaurant: getAllRestsaurant,
     verifySubway: verifySubway,
 
     createMedicineTime: createMedicineTime,

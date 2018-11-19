@@ -154,13 +154,14 @@ const Restaurant = sequelize.define('restaurant', {
 
 const Decide_history = sequelize.define('decide_history', {
     kakao_id: Sequelize.STRING,
-    round: Sequelize.INTEGER,
+    rest1: Sequelize.INTEGER,
+    rest2: Sequelize.INTEGER,
+    rest3: Sequelize.INTEGER,
+    rest4: Sequelize.INTEGER,
+    round1: Sequelize.INTEGER,
+    round2: Sequelize.INTEGER,
+    round3: Sequelize.INTEGER,
     res_name: Sequelize.STRING,
-    concept: Sequelize.STRING,
-    rate: Sequelize.STRING,
-    price: Sequelize.STRING,
-    exit_quarter: Sequelize.INTEGER,
-    with_mood: Sequelize.STRING,
     subway: Sequelize.STRING,
     date: Sequelize.STRING
     // check_skin : Sequelize.FLOAT,
