@@ -780,44 +780,6 @@ function getFeedbackInfo (req, res) {
     //}
 }
 
-function updateExit (req, res) {
-    console.log('updateExit called.')
-    let kakao_id
-
-    if (req.body){
-        kakao_id = req.body.kakao_id
-        if (!kakao_id){
-            return res.status(403).json({success: false, message: 'kakao_id not provided.'})
-        }
-    } else {
-        return res.status(403).json({success: false, message: 'No input parameters received in body.'})
-    }
-    const exit = req.body.exit
-    let nowDate = new Date();
-    nowDate.getTime();
-    const now = nowDate;
-
-    models.User.update({
-        exit: exit, // What to update
-        //updated_at: now
-    }, {
-        where: {
-            kakao_id: kakao_id
-        } // Condition
-    }).then(result => {
-        console.log('result: ' + result.toString())
-        if (result){
-            return res.status(200).json({success: true, message: 'Update Exit complete. Result: ' + result.toString()})
-        } else {
-            return res.status(200).json({success: true, message: 'No user found to update or User does not exist with given kakao_id. ' +
-                + result.toString()})
-        }
-    }).catch(function (err){
-        return res.status(500).json({success: false, message: 'Updated failed. Error: ' + err.message})
-    })
-
-}
-
 function createUserLog (req, res){
     const kakao_id = req.body.kakao_id
     const scenario = req.body.scenario
@@ -1232,10 +1194,8 @@ module.exports = {
     registerUser: registerUser,
     updateUser: updateUser,
     updateLimitCnt: updateLimitCnt,
-    updateDaily: updateDaily,
     updateStamp: updateStamp,
     updateState: updateState,
-    createUserImage: createUserImage,
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
     getRestInfo: getRestInfo,
@@ -1252,7 +1212,6 @@ module.exports = {
     getThreeHistory: getThreeHistory,
     getSubwayHistory: getSubwayHistory,
     verifyLimit: verifyLimit,
-    updateExit: updateExit,
     createUserLog: createUserLog,
     createUserFeedback: createUserFeedback,
     getCountHistory: getCountHistory,

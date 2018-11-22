@@ -20,7 +20,6 @@ router.post('/update_limit_cnt', chatbotService.updateLimitCnt);
 router.post('/update_stamp', chatbotService.updateStamp);
 router.post('/update_state', chatbotService.updateState);
 router.post('/create_user_log', chatbotService.createUserLog);
-router.post('/update_exit', chatbotService.updateExit);
 router.post('/update_user_start', chatbotService.updateUserStart);
 router.post('/update_place_start', chatbotService.updatePlaceStart);
 router.post('/update_rest4', chatbotService.updateRest4);
