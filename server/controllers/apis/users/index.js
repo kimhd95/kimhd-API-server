@@ -45,6 +45,7 @@ router.post('/get_three_history', chatbotService.getThreeHistory);
 router.post('/get_count_history', chatbotService.getCountHistory);
 router.post('/get_subway_history', chatbotService.getSubwayHistory);
 router.post('/get_all_history', chatbotService.getAllHistory);
+router.post('/update_closedown', chatbotService.updateClosedown);
 router.get('/get_user_info/:kakao_id', chatbotService.getUserInfo);
 router.get('/get_rest_info/:id', chatbotService.getRestInfo);
 router.get('/get_all_subway', chatbotService.getAllSubway);
@@ -61,13 +62,14 @@ router.post('/get_feedback_info', chatbotService.getFeedbackInfo);
 router.post('/update_rest_only2', chatbotService.updateRestOnly2);
 router.post('/update_place_info', chatbotService.updatePlaceInfo);
 router.post('/update_mid_info', chatbotService.updateMidInfo);
+router.post('/crawl_two_image', chatbotService.crawlTwoImage);
+router.post('/crawl_image', chatbotService.crawlImage);
 
 router.post('/create_mood_check', chatbotService.createMoodCheck);
 router.post('/create_mood_check_text', chatbotService.createMoodCheckText);
 
 router.get('/get_medicine_time_to_check/:kakao_id/:time', chatbotService.getMedicineTimeToCheck);
 router.get('/get_beer_info/:id', userService.getBeerInfo);
-
 
 router.get('/get_users', userService.getUsers);
 router.get('/:id', userService.getUserWithId);

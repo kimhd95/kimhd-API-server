@@ -149,7 +149,8 @@ const Restaurant = sequelize.define('restaurant', {
     mood: Sequelize.STRING,
     lunch_option: Sequelize.BOOLEAN,
     calories: Sequelize.INTEGER,
-    res_phone: Sequelize.STRING
+    res_phone: Sequelize.STRING,
+    closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
 });
 
 const Decide_history = sequelize.define('decide_history', {
@@ -180,67 +181,6 @@ const Beer = sequelize.define('beer', {
     comment: Sequelize.STRING
 });
 
-//ㄴ
-// const Doctor = sequelize.define('doctor', {
-//     doctor_code: { type: Sequelize.STRING, allowNull: false, unique: true },
-//     email:Sequelize.STRING,
-//     password: Sequelize.STRING,
-//     hospital: Sequelize.STRING,
-//     name: Sequelize.STRING,
-//     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-//     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
-// });
-//
-// const Medicine_check = sequelize.define('medicine_check', {
-//     kakao_id: Sequelize.STRING,
-//     encrypted_kakao_id: Sequelize.STRING,
-//     med_check: Sequelize.TINYINT,
-//     time: Sequelize.INTEGER,
-//     date: Sequelize.INTEGER,
-//     slot: Sequelize.INTEGER,
-//     comment_type: Sequelize.INTEGER,
-//     comment_text: Sequelize.STRING,
-// });
-//
-// const Medicine_time = sequelize.define('medicine_time', {
-//     kakao_id: Sequelize.STRING,
-//     encrypted_kakao_id: Sequelize.STRING,
-//     slot: Sequelize.INTEGER,
-//     time: Sequelize.INTEGER,
-//     mute: Sequelize.STRING,
-//     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-//     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
-// });
-//
-// const Mood_check = sequelize.define('mood_check', {
-//     kakao_id: Sequelize.STRING,
-//     encrypted_kakao_id: Sequelize.STRING,
-//     time: Sequelize.INTEGER,
-//     type: Sequelize.STRING,
-//     mood_check: Sequelize.STRING,
-//     mood_text: Sequelize.STRING
-// });
-
-
-
-//
-// const Kakao_text = sequelize.define('kakao_text', {
-//     id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
-//     kakao_id: Sequelize.STRING,
-//     encrypted_kakao_id: Sequelize.STRING,
-//     time: Sequelize.INTEGER,
-//     type: Sequelize.STRING,
-//     text: Sequelize.STRING,
-//     share_doctor: Sequelize.STRING
-// });
-//
-// const Weather = sequelize.define('weather', {
-//     id: {type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true, unique: true},
-//     date: Sequelize.DATE,
-//     pm10: Sequelize.INTEGER,
-//     pm25: Sequelize.INTEGER
-// });
-
 module.exports = {
     sequelize: sequelize,
     User: User,
@@ -251,13 +191,4 @@ module.exports = {
     Beer: Beer,
     Restaurant: Restaurant,
     verifyAPIKEY: verifyAPIKEY
-    // Doctor: Doctor,
-    // Medicine_check: Medicine_check,
-    // Medicine_time: Medicine_time,
-    // Mood_check: Mood_check,
-
-    //Kakao_text: Kakao_text,
-
-    //Weather: Weather,
-
 };

@@ -4,6 +4,27 @@ const Op = models.sequelize.Op;
 const crypto = require('crypto');
 const moment = require('moment');
 const arrayShuffle = require('array-shuffle');
+const schedule = require('node-schedule');
+const request = require('request');
+const client = require('cheerio-httpcli');
+var async = require('async');
+
+const param = {};
+client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agent setting
+  'data-useragent' : 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+  'Accept-Charset': 'utf-8'
+});
+
+
+let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
+  request('http://jellynlp-dev.ap-northeast-2.elasticbeanstalk.com/verify_close/', function (error, response, body) {
+    if(error){
+      console.log('Error at closedown_scheduler : ' + error);
+    }else{
+      console.log(response);
+    }
+  });
+});
 //var logger = require('../../config/winston');
 
 function getUserChartURL (req, res){
@@ -274,7 +295,6 @@ function getRestaurant (req, res) {
     let exit_quarter = req.body.exit_quarter;
     const mood = req.body.mood;
     let food_ingre = req.body.food_ingre;
-    let min, max;
 
     if(food_ingre === null){
       food_ingre = 'x';
@@ -289,20 +309,39 @@ function getRestaurant (req, res) {
 
     let type_array = arrayShuffle(['한식','양식','일식']);
 
-models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[0]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 1) '+
-  'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[1]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 1) '+
-'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[2]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 1) '+
-'UNION (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 1);').then(result => {
+models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[0]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 1) '+
+  'UNION ALL (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[1]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 1) '+
+'UNION ALL (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+type_array[2]+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 1) '+
+'UNION ALL (SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 1);').then(result => {
         if (result){
             console.log('result: ' + result.toString());
             console.log('길이 : '+result[0].length);
             if(result[0].length === 4){
-              return res.status(200).json({success: true, message: result})
+              return res.status(200).json({success: true, comment: '좋아! 4곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
             }else{
-              models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+'[가-힇]'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') ORDER BY RAND() LIMIT 4);').then(result => {
-                if (result){
-                  console.log("첫 결과가 4개가 안되서 두번째 검색(길이) : : "+result[0].length);
-                  return res.status(200).json({success: true, message: result})
+              models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND (food_type regexp '+"'"+'[가-힇]'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 4);').then(result2 => {
+                if (result2){
+                  if((result2[0].length != 4) && (mood === '초저렴')){
+                    console.log('초저렴이 4개가 안되서 캐주얼에서 나머지 가져옴');
+
+                    let result_nums = [];
+                    if(result2[0].length === 0){
+                      result_nums.push(0)
+                    }else{
+                      for(let i = 0; i < result2[0].length; i++){
+                        result_nums.push(result2[0][i].id);
+                      }
+                    }
+                    rest_count = 4 - result2[0].length
+                    models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+'캐주얼'+"'"+') AND (food_type regexp '+"'"+'[가-힇]'+"'"+') AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (closedown = 0) AND id NOT IN ('+result_nums.toString()+') ORDER BY RAND() LIMIT '+rest_count+');').then(result3 => {
+                      return res.status(200).json({success: true, comment: '여기는 초저렴 식당이 거의 없네... 그래도 최대한 적당한 가격선에서 골라줄게! 4곳을 골라줄테니까 한 번 골라봐!', message: result2[0].concat(result3[0])})
+                    }).catch(function (err){
+                        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+                    })
+                  }else{
+                    console.log("첫 결과가 4개가 안되서 두번째 검색(길이) : : "+result2[0].length);
+                    return res.status(200).json({success: true, comment: '좋아! 4곳을 골라줄테니까 한 번 골라봐!', message: result2[0]})
+                  }
                 } else {
                     console.log('result없음');
                     return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -328,7 +367,7 @@ function getTwoRestaurant (req, res) {
     models.sequelize.query('SELECT * FROM restaurants WHERE id= '+rest3+' UNION SELECT * FROM restaurants WHERE id= '+rest4+';').then(result => {
         if (result){
             console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result})
+            return res.status(200).json({success: true, message: result[0]})
         } else {
             console.log('result없음');
             return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -345,7 +384,7 @@ function getLastHistory (req, res) {
     models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' ORDER BY id DESC LIMIT 1;').then(result => {
         if (result){
             console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result})
+            return res.status(200).json({success: true, message: result[0]})
         } else {
             console.log('result없음');
             return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -362,7 +401,7 @@ function getAllHistory (req, res) {
     models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' ORDER BY id DESC;').then(result => {
         if (result){
             console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result})
+            return res.status(200).json({success: true, message: result[0]})
         } else {
             console.log('result없음');
             return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -382,7 +421,7 @@ function getTodayHistory (req, res) {
     models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+date+"'"+' ORDER BY id;').then(result => {
         if (result){
             console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result})
+            return res.status(200).json({success: true, message: result[0]})
         } else {
             console.log('result없음');
             return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -404,7 +443,7 @@ function getThreeHistory (req, res) {
     ' UNION '+'SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+twoDaysAgo+"'"+' ORDER BY id;').then(result => {
         if (result){
             console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result})
+            return res.status(200).json({success: true, message: result[0]})
         } else {
             console.log('result없음');
             return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -422,7 +461,7 @@ function getSubwayHistory (req, res) {
     models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND subway = '+"'"+subway+"'"+' ORDER BY id;').then(result => {
         if (result){
             console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result})
+            return res.status(200).json({success: true, message: result[0]})
         } else {
             console.log('result없음');
             return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -439,7 +478,7 @@ function getCountHistory (req, res) {
     models.sequelize.query('SELECT *,count(*) as cnt FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' GROUP BY res_name ORDER BY cnt DESC;').then(result => {
         if (result){
             console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result})
+            return res.status(200).json({success: true, message: result[0]})
         } else {
             console.log('result없음');
             return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -580,7 +619,7 @@ function getRestaurantInfo (req, res) {
     models.sequelize.query('SELECT * FROM restaurants WHERE id= '+id+';').then(result => {
         if (result){
             console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result})
+            return res.status(200).json({success: true, message: result[0]})
         } else {
             console.log('result없음');
             return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -687,7 +726,7 @@ function updateRestOnly2 (req, res) {
 
     models.User.update(
         {
-            rest5: rest1,
+            rest4: rest1,
             rest6: rest2,
         },     // What to update
         {where: {
@@ -1470,10 +1509,9 @@ function getAllSubway(req, res) {
 
 function getAllRestsaurant(req, res) {
     models.Restaurant.findAll({
-        attributes: ['res_name'],
-        group: 'res_name, subway'
+        attributes: ['res_name','subway'],
+        group: ['res_name', 'subway']
     }).then(result => {
-        let term = req.query.term;
         if(result){
             let resultArray = [];
             for(let i=0;i<result.length;i++){
@@ -1485,6 +1523,25 @@ function getAllRestsaurant(req, res) {
             return res.status(404).json({error: 'no result'});
         }
     })
+}
+
+function updateClosedown(req, res) {
+  const res_name = req.body.res_name;
+  const subway = req.body.subway;
+
+  models.Restaurant.update(
+      {
+          closedown: 1
+      },     // What to update
+      {where: {
+              res_name: res_name,
+              subway: subway}
+      })  // Condition
+      .then(result => {
+          return res.status(200).json({success: true, message: 'Closedown Update complete.'})
+      }).catch(function (err){
+      return res.status(403).json({success: false, message: 'Closedown Update failed. Error: ' + err.message})
+  })
 }
 
 function verifySubway (req, res) {
@@ -1590,9 +1647,64 @@ function getTwoBeer (req, res) {
     //}
 }
 
+function crawlImage (req, res) {
+  const res1 = req.body.res1;
+
+  let url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(res1);
+
+  client.fetch(url, param, function(err, $, resp){
+      if(err){
+          console.log(err);
+          return;
+      }
+      let img_array = [];
+
+      $('._img').each(function (idx) {
+        img_array.push($(this).attr('data-source'));
+      });
+      return res.status(200).json({success: true, res1: img_array})
+
+  });
+}
+
+function crawlTwoImage (req, res) {
+  const content1 = req.body.content1;
+  const content2 = req.body.content2;
+
+  let url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(content1);
+  let url2 = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(content2);
+  client.fetch(url, param, function(err, $, resp){
+      if(err){
+          console.log(err);
+          return;
+      }
+      let img_array = [];
+      let img_array2 = [];
+
+      $('._img').each(function (idx) {
+        img_array.push($(this).attr('data-source'));
+      });
+      client.fetch(url2, param, function(err, $, resp2){
+          if(err){
+              console.log(err);
+              return;
+          }
+          $('._img').each(function (idx2) {
+            img_array2.push($(this).attr('data-source'));
+          });
+          if(img_array && img_array2){
+            return res.status(200).json({success: true, res1: img_array, res2: img_array2})
+          }else{
+            return res.status(200).json({success: false, res1: 'no_image', res2: 'no image'})
+          }
+      });
+  });
+}
+
 module.exports = {
     getUserChartURL: getUserChartURL,
-
+    crawlTwoImage: crawlTwoImage,
+    crawlImage: crawlImage,
     registerUser: registerUser,
     updateUser: updateUser,
     updateLimitCnt: updateLimitCnt,
@@ -1625,6 +1737,7 @@ module.exports = {
     getFeedbackInfo: getFeedbackInfo,
     getAllSubway: getAllSubway,
     getAllRestsaurant: getAllRestsaurant,
+    updateClosedown: updateClosedown,
     verifySubway: verifySubway,
 
     createMedicineTime: createMedicineTime,
