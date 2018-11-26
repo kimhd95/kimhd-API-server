@@ -58,5 +58,6 @@ router.use('/*', models.verifyAPIKEY);
 // ^Middleware. Make sure to put all the routes which needs authentication below this middleware.
 router.post('/get_beer', chatbotService.getBeer);
 router.post('/get_two_beer', chatbotService.getTwoBeer);
+router.post('/update_beer_only2', chatbotService.updateBeerOnly2);
 
 module.exports = router;
