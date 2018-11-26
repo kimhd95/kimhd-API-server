@@ -28,6 +28,10 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
 //var logger = require('../../config/winston');
 
 function registerUser (req, res) {
+    console.log('----------------------------------------------------------');
+    console.log(req.body);
+    console.log('----------------------------------------------------------');
+
     let kakao_id
     if (req.body){
         kakao_id = req.body.kakao_id
