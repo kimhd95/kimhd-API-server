@@ -39,6 +39,9 @@ function registerUser (req, res) {
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).'})
     }
     if (!kakao_id){
+        console.log('----------------------------------------------------------');
+        console.log(req.body);
+        console.log('----------------------------------------------------------');
         return res.status(403).json({success: false, message: 'Kakao_id not given in Body. Check parameters.'})
     }
     models.User.findOne({
