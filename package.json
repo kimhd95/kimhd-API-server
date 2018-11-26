@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node api_atopy.js",
-    "dev": "cross-env NODE_ENV=dev node api_atopy.js",
-    "local": "cross-env NODE_ENV=local node api_atopy.js",
-    "stage": "cross-env NODE_ENV=state node api_atopy.js",
+    "start": "cross-env NODE_ENV=production nodemon api_atopy.js",
+    "dev": "cross-env NODE_ENV=dev nodemon api_atopy.js",
+    "local": "cross-env NODE_ENV=local nodemon api_atopy.js",
+    "stage": "cross-env NODE_ENV=state nodemon api_atopy.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -29,6 +29,7 @@
     "mysql2": "^1.5.1",
     "node-cron": "^1.2.1",
     "node-schedule": "^1.3.0",
+    "nodemon": "^1.18.6",
     "qs": "^6.5.1",
     "request": "^2.85.0",
     "sequelize": "^4.28.6",
