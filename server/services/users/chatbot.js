@@ -153,46 +153,6 @@ function registerUser (req, res) {
             });
         });
     });
-    // let kakao_id
-    // if (req.body){
-    //     kakao_id = req.body.kakao_id
-    // } else {
-    //     return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).'})
-    // }
-    // if (!kakao_id){
-    //     return res.status(403).json({success: false, message: 'Kakao_id not given in Body. Check parameters.'})
-    // }
-    // models.User.findOne({
-    //     where: {
-    //         kakao_id: kakao_id
-    //     }
-    // }).then(user => {
-    //     if (user){
-    //         models.User.update(
-    //           {
-    //             scenario: '100',
-    //             state: 'init'
-    //           },     // What to update
-    //           {where: {
-    //                   kakao_id: kakao_id}
-    //           })  // Condition
-    //           .then(result => {
-    //             return res.status(403).json({success: false, message: 'user with same kakao_id already exists'});
-    //           })
-    //     } else {
-    //         models.User.create({
-    //             kakao_id: kakao_id,
-    //             //encrypted_kakao_id: encrypted_kakao_id,
-    //             scenario: '100',
-    //             state: 'init',
-    //             registered: '0'
-    //         }).then(user => {
-    //             return res.status(201).json({success: true, message: 'user created.', user: user})
-    //         }).catch(function (err){
-    //             return res.status(500).json({success: false, message: 'Error while creating User in DB.', error: err.message, err: err})
-    //         });
-    //     }
-    // })
 }
 // 수정 필요.
 function login (req, res) {
@@ -207,11 +167,11 @@ function login (req, res) {
         while: {
             email: email
         }
-    }).then(res => {
-        if(!res) {
+    }).then(user => {
+        if(!user) {
             return res.status(403).json({success: false, message: 'No user account found with given email address.'});
         }
-        bcrypt.compare(password, res.password, (err, isMatch) => {
+        bcrypt.compare(password, user.password, (err, isMatch) => {
             if(err) {
                 return res.status(403).json({
                     success: false,
@@ -220,8 +180,9 @@ function login (req, res) {
             } else {
                 if (isMatch) {
                     jwt.sign({
-                            email: res.email
-
+                            id: user.id,
+                            email: user.email,
+                            nickname: user.nickname
                         },
                         secret, {
                             expiresIn: '7d',
@@ -267,7 +228,7 @@ function login (req, res) {
                                 }
                             }
                             res.header('Access-Control-Allow-Credentials', 'true');
-                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/'});
+                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/chat'});
                         });
                 } else {
                     return res.status(403).json({
