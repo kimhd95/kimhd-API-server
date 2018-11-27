@@ -143,7 +143,7 @@ function registerUser (req, res) {
             nickname: nickname,
             gender: gender,
             ageGroup: ageGroup
-        }).then(res => {
+        }).then(user => {
             res.status(201).json({success: true, meesage: 'Ok'});
         }).catch(err => {
             if(err) res.status(500).json({
