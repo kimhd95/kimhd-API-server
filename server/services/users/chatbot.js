@@ -130,7 +130,7 @@ function registerUser (req, res) {
     if((pwNum < 0 && pwEng < 0) || (pwNum < 0 && pwSpe < 0) || (pwEng < 0 && pwSpe < 0)) {
         return res.status(400).json({success: false, message: 'Password requires at least one character and one digit.'})
     }
-
+    
     let SALT_FACTOR = 5;
     bcrypt.hash(password, SALT_FACTOR, (err, hash) => {
         if(err) {
@@ -142,7 +142,7 @@ function registerUser (req, res) {
             password: hash,
             nickname: nickname,
             gender: gender,
-            ageGroup: ageGroup
+            ageGroup: parseInt(ageGroup)
         }).then(user => {
             res.status(201).json({success: true, meesage: 'Ok'});
         }).catch(err => {
