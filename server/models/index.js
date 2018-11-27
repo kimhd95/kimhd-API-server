@@ -52,7 +52,7 @@ const sequelize = new Sequelize(
 );
 
 const User = sequelize.define('user', {
-    // kakao_id: { type: Sequelize.STRING, allowNull: false, unique: true },
+    kakao_id: Sequelize.STRING,
     encrypted_kakao_id: Sequelize.STRING,
     nickname: Sequelize.STRING,
     registered: Sequelize.STRING,
