@@ -7,6 +7,8 @@ const arrayShuffle = require('array-shuffle');
 const schedule = require('node-schedule');
 const request = require('request');
 const client = require('cheerio-httpcli');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 var async = require('async');
 
 const param = {};
@@ -27,54 +29,286 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
 });
 //var logger = require('../../config/winston');
 
-function registerUser (req, res) {
-    console.log('----------------------------------------------------------');
-    console.log(req.body);
-    console.log('----------------------------------------------------------');
+function verifyToken (req, res) {
+    const cookie = req.cookies || req.headers.cookie || '';
+    const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
+    let token = cookies.token;
+    const secret = config.jwt_secret;
 
-    let kakao_id
-    if (req.body){
-        kakao_id = req.body.kakao_id
+    console.log(`cookie: ${cookie}`);
+    console.log(`token: ${token}`);
+
+    if (token) {
+        console.log('token given');
+
+        jwt.verify(token, secret, (err, decoded) => {
+            if (err) {
+                res.clearCookie('token');
+                return res.status(403).json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
+            } else {
+                models.Users.findOne({
+                    where: {
+                        email: decoded.email
+                    }
+                }).then(doctor => {
+
+                    return res.status(200).json({success: true, message: 'Token verified.', email: doctor.email,
+                        doctor_code: doctor.doctor_code, hospital: doctor.hospital, doctor_name: doctor.name, redirect: '/dashboard'})
+                }).catch(function (err){
+                    return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
+                })
+            }
+        })
     } else {
-        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).'})
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        })
     }
-    if (!kakao_id){
-        console.log('----------------------------------------------------------');
-        console.log(req.body);
-        console.log('----------------------------------------------------------');
-        return res.status(403).json({success: false, message: 'Kakao_id not given in Body. Check parameters.'})
+}
+
+function checkTokenVerified (req, res, next){
+    const cookie = req.cookies || req.headers.cookie || '';
+    const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
+    let token = cookies.token;
+    const secret = config.jwt_secret;
+
+    // decode token
+    if (token) {
+        // verifies secret and checks exp
+        jwt.verify(token, secret, function(err, decoded) {
+            if (err) {
+                return res.json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
+            } else {
+                // if everything is good, save decoded token payload to request for use in other routes
+                console.log('Token verified')
+                // req.decoded 에 저장해두어야 이후 함수에서 refer 가능.
+                req.decoded = decoded;
+                next()
+            }
+        });
+    } else {
+        // return an error if there is no token
+        return res.status(403).send({
+            success: false,
+            message: 'API call not allowed. No token provided.'
+        });
     }
-    models.User.findOne({
-        where: {
-            kakao_id: kakao_id
+}
+
+function registerUser (req, res) {
+    const email = req.body.email || '';
+    const password = req.body.password;
+    const nickname = req.body.nickname;
+    const gender = req.body.gender;
+    const ageGroup = req.body.ageGroup;
+
+    // Check if email arrived
+    if (!email.length) {
+        return res.status(400).json({success: false, error: 'Email not given'});
+    }
+
+    // Validate Email Regex
+    let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (!re.test(email)){
+        return res.status(400).json({success: false, error: 'Incorrect email'})
+    }
+
+    // Check if password arrived
+    if (!password.length) {
+        return res.status(400).json({success: false, error: 'Password not given'});
+    }
+
+    // Check if password > 6 alphanumeric
+    if(password.length < 8 ){
+        return res.status(400).json({success: false, error: 'Password needs to be longer than 6 alphanumeric characters.'});
+    }
+    let pwNum = password.search(/[0-9]/g);
+    let pwEng = password.search(/[a-z]/ig);
+    let pwSpe = password.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
+
+    if((pwNum < 0 && pwEng < 0) || (pwNum < 0 && pwSpe < 0) || (pwEng < 0 && pwSpe < 0)) {
+        return res.status(400).json({success: false, message: 'Password requires at least one character and one digit.'})
+    }
+
+    let SALT_FACTOR = 5;
+    bcrypt.hash(password, SALT_FACTOR, (err, hash) => {
+        if(err) {
+            console.log('ERROR WHILE GENERATING PASSWORD', err);
         }
-    }).then(user => {
-        if (user){
-            models.User.update(
-              {
-                scenario: '100',
-                state: 'init'
-              },     // What to update
-              {where: {
-                      kakao_id: kakao_id}
-              })  // Condition
-              .then(result => {
-                return res.status(403).json({success: false, message: 'user with same kakao_id already exists'});
-              })
-        } else {
-            models.User.create({
-                kakao_id: kakao_id,
-                //encrypted_kakao_id: encrypted_kakao_id,
-                scenario: '100',
-                state: 'init',
-                registered: '0'
-            }).then(user => {
-                return res.status(201).json({success: true, message: 'user created.', user: user})
-            }).catch(function (err){
-                return res.status(500).json({success: false, message: 'Error while creating User in DB.', error: err.message, err: err})
+        console.log(hash);
+        models.User.create({
+            email: email,
+            password: hash,
+            nickname: nickname,
+            gender: gender,
+            ageGroup: ageGroup
+        }).then(res => {
+            res.status(201).json({success: true, meesage: 'Ok'});
+        }).catch(err => {
+            if(err) res.status(500).json({
+                success: false,
+                message: err.message,
+                log: 'Error while creating user row in db. check uniqueness of parameters'
             });
+        });
+    });
+    // let kakao_id
+    // if (req.body){
+    //     kakao_id = req.body.kakao_id
+    // } else {
+    //     return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).'})
+    // }
+    // if (!kakao_id){
+    //     return res.status(403).json({success: false, message: 'Kakao_id not given in Body. Check parameters.'})
+    // }
+    // models.User.findOne({
+    //     where: {
+    //         kakao_id: kakao_id
+    //     }
+    // }).then(user => {
+    //     if (user){
+    //         models.User.update(
+    //           {
+    //             scenario: '100',
+    //             state: 'init'
+    //           },     // What to update
+    //           {where: {
+    //                   kakao_id: kakao_id}
+    //           })  // Condition
+    //           .then(result => {
+    //             return res.status(403).json({success: false, message: 'user with same kakao_id already exists'});
+    //           })
+    //     } else {
+    //         models.User.create({
+    //             kakao_id: kakao_id,
+    //             //encrypted_kakao_id: encrypted_kakao_id,
+    //             scenario: '100',
+    //             state: 'init',
+    //             registered: '0'
+    //         }).then(user => {
+    //             return res.status(201).json({success: true, message: 'user created.', user: user})
+    //         }).catch(function (err){
+    //             return res.status(500).json({success: false, message: 'Error while creating User in DB.', error: err.message, err: err})
+    //         });
+    //     }
+    // })
+}
+// 수정 필요.
+function login (req, res) {
+    const email = req.body.email;
+    const password = req.body.password;
+    const secret = config.jwt_secret;
+
+    if (!email) {
+        return res.status(400).json({success: false, message: 'Email not given.'});
+    }
+    models.Users.findOne({
+        while: {
+            email: email
         }
-    })
+    }).then(res => {
+        if(!res) {
+            return res.status(403).json({success: false, message: 'No user account found with given email address.'});
+        }
+        bcrypt.compare(password, res.password, (err, isMatch) => {
+            if(err) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Error while login'
+                });
+            } else {
+                if (isMatch) {
+                    jwt.sign({
+                            email: res.email
+
+                        },
+                        secret, {
+                            expiresIn: '7d',
+                            issuer: 'jellylab.io',
+                            subject: 'userInfo'
+                        }, (err, token) => {
+                            console.log(`err: ${err}, token: ${token}`);
+                            if(err) {
+                                console.log(`err.message: ${err.message}`);
+                                return res.status(403).json({
+                                    success: false,
+                                    message: err.message
+                                });
+                            }
+                            console.log(`req.header.origin = ${req.header('origin')}`);
+
+                            const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
+                            
+                            if(req.header('origin') === undefined) {
+                                console.log('req origin is undefined. Probably from postman.');
+                                if(req.secure) {
+                                    console.log('req. is secure');
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                                } else {
+                                    console.log('req is NOT secure');
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                                }
+                            } else if(req.header('origin').includes('localhost')) {
+                                console.log('req origin includes localhost OR it is from postman');
+                                if(req.secure) {
+                                    console.log('req. is secure');
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                                } else {
+                                    console.log('req is NOT secure');
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                                }
+                            } else {
+                                console.log('req origin does NOT include localhost');
+                                if(req.secure) {
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                                } else {
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                                }
+                            }
+                            res.header('Access-Control-Allow-Credentials', 'true');
+                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/'});
+                        });
+                } else {
+                    return res.status(403).json({
+                        success: false,
+                        message: 'Password wrong'
+                    });
+                }
+            }
+        });
+    }).catch(err => {
+        console.log(`err.message: ${err.message}`);
+        return res.status(403).json({
+            success: false,
+            message: `DB error. err: ${err.message}`
+        });
+    });
+}
+
+function logout (req, res) {
+    const cookie = req.cookie || req.headers.cookie || '';
+    const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
+    let token = cookies.token;
+    const secret = config.jwt_secret;
+
+    if (token) {
+        jwt.verify(token, secret, (err, decoded) => {
+            if (err) {
+                return res.json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
+            } else {
+                res.clearCookie('token');
+                const aftertoken = cookies.token;
+                return res.status(200).json({ success: true });
+            }
+        });
+    } else {
+        res.clearCookie('token');
+        return res.status(403).send({
+            success: false,
+            message: 'No token given'
+        });
+    }
 }
 
 function updateUser (req, res) {
@@ -1222,7 +1456,13 @@ function crawlTwoImage (req, res) {
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
+
+    verifyToken: verifyToken,
+    checkTokenVerified: checkTokenVerified,
     registerUser: registerUser,
+    login: login,
+    logout: logout,
+    
     updateUser: updateUser,
     updateLimitCnt: updateLimitCnt,
     updateStamp: updateStamp,
