@@ -165,7 +165,7 @@ function login (req, res) {
         return res.status(400).json({success: false, message: 'Email not given.'});
     }
     models.User.findOne({
-        while: {
+        where: {
             email: email
         }
     }).then(user => {
