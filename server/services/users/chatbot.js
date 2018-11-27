@@ -46,7 +46,7 @@ function verifyToken (req, res) {
                 res.clearCookie('token');
                 return res.status(403).json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
             } else {
-                models.Users.findOne({
+                models.User.findOne({
                     where: {
                         email: decoded.email
                     }
