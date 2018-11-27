@@ -163,7 +163,7 @@ function login (req, res) {
     if (!email) {
         return res.status(400).json({success: false, message: 'Email not given.'});
     }
-    models.Users.findOne({
+    models.User.findOne({
         while: {
             email: email
         }
