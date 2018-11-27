@@ -1454,7 +1454,8 @@ function crawlTwoImage (req, res) {
 }
 
 function previousRegisterUser (req, res) {
-     let kakao_id
+     let email_example = String(Math.floor(Math.random() * 100000) + 1);
+     let kakao_id;
      if (req.body){
          kakao_id = req.body.kakao_id
      } else {
@@ -1486,7 +1487,8 @@ function previousRegisterUser (req, res) {
                  //encrypted_kakao_id: encrypted_kakao_id,
                  scenario: '100',
                  state: 'init',
-                 registered: '0'
+                 registered: '0',
+                 email: email_example
              }).then(user => {
                  return res.status(201).json({success: true, message: 'user created.', user: user})
              }).catch(function (err){
