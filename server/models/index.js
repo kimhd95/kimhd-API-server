@@ -90,14 +90,12 @@ const User = sequelize.define('user', {
     cnt: Sequelize.INTEGER,
     limit_cnt: {type: Sequelize.INTEGER, defaultValue: 0},
     decide_updated_at: Sequelize.STRING,
-
-    created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-    updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-
     gender: Sequelize.STRING,
     ageGroup: Sequelize.INTEGER,
     password: Sequelize.STRING,
-    email: { type: Sequelize.STRING, allowNull: false, unique: true }
+    email: { type: Sequelize.STRING, allowNull: false, unique: true },
+    created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+    updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
 
 
