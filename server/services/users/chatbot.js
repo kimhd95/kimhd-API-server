@@ -172,7 +172,7 @@ function login (req, res) {
         if(!user) {
             return res.status(403).json({success: false, message: 'No user account found with given email address.'});
         }
-        console.log(user.password);
+        console.log(user);
         bcrypt.compare(password, user.password, (err, isMatch) => {
             console.log(err);
             console.log(isMatch);
