@@ -19,6 +19,7 @@ router.post('/register_user', chatbotService.registerUser);
 router.post('/login', chatbotService.login);
 router.post('/logout', chatbotService.logout);
 
+router.post('/previous_register_user', chatbotService.previousRegisterUser);
 router.post('/update_user', chatbotService.updateUser);
 router.post('/update_limit_cnt', chatbotService.updateLimitCnt);
 router.post('/update_stamp', chatbotService.updateStamp);

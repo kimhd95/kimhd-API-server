@@ -239,7 +239,7 @@ function login (req, res) {
                             console.log(`req.header.origin = ${req.header('origin')}`);
 
                             const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
-                            
+
                             if(req.header('origin') === undefined) {
                                 console.log('req origin is undefined. Probably from postman.');
                                 if(req.secure) {
@@ -1453,6 +1453,49 @@ function crawlTwoImage (req, res) {
   });
 }
 
+function previousRegisterUser (req, res) {
+     let kakao_id
+     if (req.body){
+         kakao_id = req.body.kakao_id
+     } else {
+         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (kakao_id).'})
+     }
+     if (!kakao_id){
+         return res.status(403).json({success: false, message: 'Kakao_id not given in Body. Check parameters.'})
+     }
+     models.User.findOne({
+         where: {
+             kakao_id: kakao_id
+         }
+     }).then(user => {
+         if (user){
+             models.User.update(
+               {
+                 scenario: '100',
+                 state: 'init'
+               },     // What to update
+               {where: {
+                       kakao_id: kakao_id}
+               })  // Condition
+               .then(result => {
+                 return res.status(403).json({success: false, message: 'user with same kakao_id already exists'});
+               })
+         } else {
+             models.User.create({
+                 kakao_id: kakao_id,
+                 //encrypted_kakao_id: encrypted_kakao_id,
+                 scenario: '100',
+                 state: 'init',
+                 registered: '0'
+             }).then(user => {
+                 return res.status(201).json({success: true, message: 'user created.', user: user})
+             }).catch(function (err){
+                 return res.status(500).json({success: false, message: 'Error while creating User in DB.', error: err.message, err: err})
+             });
+         }
+     })
+ }
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
@@ -1462,7 +1505,8 @@ module.exports = {
     registerUser: registerUser,
     login: login,
     logout: logout,
-    
+
+    previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,
     updateLimitCnt: updateLimitCnt,
     updateStamp: updateStamp,
