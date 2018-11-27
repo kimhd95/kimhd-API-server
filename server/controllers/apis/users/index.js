@@ -13,7 +13,7 @@ console.log('apis/users/index.js called');
 /**
  * api/v1/users/
  */
-router.use(chatbotService.checkTokenVerified);
+// router.use(chatbotService.checkTokenVerified);
 router.post('/verify_token', chatbotService.verifyToken);
 router.post('/register_user', chatbotService.registerUser);
 router.post('/login', chatbotService.login);
