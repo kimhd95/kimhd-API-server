@@ -156,6 +156,7 @@ function registerUser (req, res) {
 }
 // 수정 필요.
 function login (req, res) {
+    console.log(req.body);
     const email = req.body.email;
     const password = req.body.password;
     const secret = config.jwt_secret;
@@ -171,7 +172,10 @@ function login (req, res) {
         if(!user) {
             return res.status(403).json({success: false, message: 'No user account found with given email address.'});
         }
+        console.log(user.password);
         bcrypt.compare(password, user.password, (err, isMatch) => {
+            console.log(err);
+            console.log(isMatch);
             if(err) {
                 return res.status(403).json({
                     success: false,
