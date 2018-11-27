@@ -54,7 +54,7 @@ function verifyToken (req, res) {
                 }).then(doctor => {
 
                     return res.status(200).json({success: true, message: 'Token verified.', email: doctor.email,
-                        doctor_code: doctor.doctor_code, hospital: doctor.hospital, doctor_name: doctor.name, redirect: '/dashboard'})
+                        doctor_code: doctor.doctor_code, hospital: doctor.hospital, doctor_name: doctor.name, redirect: '/chat'})
                 }).catch(function (err){
                     return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
                 })
