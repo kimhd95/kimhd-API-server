@@ -131,7 +131,7 @@ function registerUser (req, res) {
     if((pwNum < 0 && pwEng < 0) || (pwNum < 0 && pwSpe < 0) || (pwEng < 0 && pwSpe < 0)) {
         return res.status(400).json({success: false, message: 'Password requires at least one character and one digit.'})
     }
-    
+
     let SALT_FACTOR = 5;
     bcrypt.hash(password, SALT_FACTOR, (err, hash) => {
         if(err) {
@@ -289,7 +289,7 @@ function updateUser (req, res) {
     const nickname = req.body.nickname;
     const birthday = req.body.birthday;
     const sex = req.body.sex;
-    const allergy = req.body.allergy;
+    const hate_food = req.body.hate_food;
     const vegi = req.body.vegi;
     const snack = req.body.snack;
     const serving_size = req.body.serving_size;
@@ -370,9 +370,9 @@ function updateUser (req, res) {
     } else if (sex) {
         param_name = 'sex';
         param_value = sex;
-    } else if (allergy){
-        param_name = 'allergy';
-        param_value = allergy;
+    } else if (hate_food){
+        param_name = 'hate_food';
+        param_value = hate_food;
     } else if (vegi){
         param_name = 'vegi';
         param_value = vegi;
