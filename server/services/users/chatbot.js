@@ -51,10 +51,9 @@ function verifyToken (req, res) {
                     where: {
                         email: decoded.email
                     }
-                }).then(doctor => {
+                }).then(user => {
 
-                    return res.status(200).json({success: true, message: 'Token verified.', email: doctor.email,
-                        doctor_code: doctor.doctor_code, hospital: doctor.hospital, doctor_name: doctor.name, redirect: '/chat'})
+                    return res.status(200).json({success: true, message: 'Token verified.', email: user.email, nickname: user.nickname, redirect: '/chat'})
                 }).catch(function (err){
                     return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
                 })
@@ -300,8 +299,8 @@ function sendNewPassword (req, res) {
                 if (err) {
                     return res.status(403).json({success: false, message: 'ERROR WHILE GENERATING PASSWORD'})
                 }
-                doctor.password = hash;
-                doctor.save().then(_ => {
+                user.password = hash;
+                user.save().then(_ => {
                     return res.status(200).json([email, newPassword]);
                 })
             })
@@ -310,6 +309,7 @@ function sendNewPassword (req, res) {
         return res.status(403).json({success: false, message: 'Unknown outer catch error. err: ' + err.message})
     })
 }
+
 function updateUser (req, res) {
     console.log('updateUser called.');
     let kakao_id;
