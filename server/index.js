@@ -27,6 +27,7 @@ module.exports = function() {
 		server.use(function(req, res, next) {
 			// Make sure web app client program use :4000 for its port to make use of the token related APIs.
             let allowedOrigins = [
+				'http://ec2-13-124-160-236.ap-northeast-2.compute.amazonaws.com:8001',
                 'http://localhost:8000',
                 'http://localhost:8001',
                 'http://localhost:8010',
