@@ -311,6 +311,9 @@ function updateUser (req, res) {
     const mid_lng = req.body.mid_lng;
     const cnt = req.body.cnt;
     const limit_cnt = req.body.limit_cnt;
+    const mood2 = req.body.mood2;
+    const taste = req.body.taste;
+    const food_type = req.body.food_type;
 
 
 
@@ -433,6 +436,15 @@ function updateUser (req, res) {
     } else if(limit_cnt){
         param_name = 'limit_cnt';
         param_value = limit_cnt;
+    } else if(mood2){
+        param_name = 'mood2';
+        param_value = mood2;
+    } else if(taste){
+        param_name = 'taste';
+        param_value = taste;
+    } else if(food_type){
+        param_name = 'food_type';
+        param_value = food_type;
     }
 
     if (param_value){
