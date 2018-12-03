@@ -273,6 +273,43 @@ function logout (req, res) {
     }
 }
 
+function sendNewPassword (req, res) {
+    const email = req.body.email;
+
+    models.User.findOne({
+        where: {
+            email: email
+        }
+    }).then(user => {
+        if (!user) {
+            return res.status(403).json({success: false, message: 'No user account with given email address found'})
+        } else {
+            let newPassword = '';
+            let SALT_FACTOR = 5;
+            new Promise((resolve, reject) => {
+                for (let i = 0; i < 9; i++) {
+                    let rndVal = parseInt(Math.random() * 62);
+                    if (rndVal < 10) newPassword += rndVal;
+                    else if (rndVal > 35) newPassword += String.fromCharCode(rndVal + 61);
+                    else newPassword += String.fromCharCode(rndVal + 55);
+                }
+            }).then(() => {
+                console.log(newPassword);
+            })
+            bcrypt.hash(newPassword, SALT_FACTOR, function(err, hash) {
+                if (err) {
+                    return res.status(403).json({success: false, message: 'ERROR WHILE GENERATING PASSWORD'})
+                }
+                doctor.password = hash;
+                doctor.save().then(_ => {
+                    return res.status(200).json([email, newPassword]);
+                })
+            })
+        }
+    }).catch(err => {
+        return res.status(403).json({success: false, message: 'Unknown outer catch error. err: ' + err.message})
+    })
+}
 function updateUser (req, res) {
     console.log('updateUser called.');
     let kakao_id;
@@ -1469,6 +1506,7 @@ module.exports = {
     registerUser: registerUser,
     login: login,
     logout: logout,
+    sendNewPassword: sendNewPassword,
 
     previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,
