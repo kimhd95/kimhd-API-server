@@ -36,7 +36,8 @@ module.exports = function() {
                 'http://devatopy.jellylab.io',
                 'https://psy.jellylab.io',
                 'https://atopy.jellylab.io'
-            ];
+			];
+			console.log(req.headers);
 			if (req.headers !== undefined){
 				let origin = req.headers.origin || ''
 				if(allowedOrigins.indexOf(origin) > -1){
