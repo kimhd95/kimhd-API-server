@@ -547,7 +547,7 @@ function getRestaurant (req, res) {
 
   if(taste.includes('!-')){
     taste = taste.replace('!-','');
-    if(food_type === '이국적'){
+    if(food_type[0] === '이국적'){
       models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste NOT regexp '+"'"+taste+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'중식'+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
           if (result){
               console.log('result: ' + result.toString())
@@ -571,7 +571,7 @@ function getRestaurant (req, res) {
       });
     }
   }else{
-    if(food_type === '이국적'){
+    if(food_type[0] === '이국적'){
       models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste regexp '+"'"+taste+"'"+') AND  (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'중식'+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
           if (result){
               console.log('result: ' + result.toString())
