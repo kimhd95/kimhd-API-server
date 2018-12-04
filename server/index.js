@@ -49,7 +49,7 @@ module.exports = function() {
 
 			res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
 			res.header("Access-Control-Allow-Credentials", true)
-			res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Set-Cookie")
+			res.header("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept, Set-Cookie")
 			next()
 		})
 
