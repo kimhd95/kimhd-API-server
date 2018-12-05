@@ -339,7 +339,7 @@ function updateUser (req, res) {
     const exit_quarter = req.body.exit_quarter;
     const with_mood = req.body.with_mood;
     const price = req.body.price;
-    const res_final = req.body.res_final;
+    const rest_final = req.body.rest_final;
     const lat = req.body.lat;
     const lng = req.body.lng;
     const mid_lat = req.body.mid_lat;
@@ -886,8 +886,8 @@ function updatePlaceStart (req, res) {
     })
 }
 
-function updateRestOnly2 (req, res) {
-    console.log('updateRest4 called.')
+function updateRest2 (req, res) {
+    console.log('updateRest called.')
     const kakao_id = req.body.kakao_id;
     const rest1 = req.body.rest1;
     const rest2 = req.body.rest2;
@@ -904,9 +904,9 @@ function updateRestOnly2 (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
-            return res.status(200).json({success: true, message: 'UserRestOnly2 Update complete.'})
+            return res.status(200).json({success: true, message: 'UserRest2 Update complete.'})
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'UserRestOnly2 Update Update failed. Error: ' + err.message})
+        return res.status(403).json({success: false, message: 'UserRest2 Update Update failed. Error: ' + err.message})
     })
 }
 
@@ -1540,7 +1540,7 @@ module.exports = {
     updatePlaceStart: updatePlaceStart,
     updatePlaceInfo: updatePlaceInfo,
     updateMidInfo: updateMidInfo,
-    updateRestOnly2: updateRestOnly2,
+    updateRest2: updateRest2,
     getLastHistory: getLastHistory,
     getTodayHistory: getTodayHistory,
     getThreeHistory: getThreeHistory,

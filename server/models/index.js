@@ -82,7 +82,7 @@ const User = sequelize.define('user', {
     price: Sequelize.INTEGER,
     rest1: Sequelize.INTEGER,
     rest2: Sequelize.INTEGER,
-    res_final: Sequelize.INTEGER,
+    rest_final: Sequelize.INTEGER,
     lat: Sequelize.FLOAT,
     lng: Sequelize.FLOAT,
     mid_lat: Sequelize.FLOAT,

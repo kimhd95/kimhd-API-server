@@ -46,7 +46,7 @@ router.post('/get_restaurant_info', chatbotService.getRestaurantInfo);
 // router.post('/create_decide_history', chatbotService.createDecideHistory);
 router.post('/create_user_feedback', chatbotService.createUserFeedback);
 router.post('/get_feedback_info', chatbotService.getFeedbackInfo);
-router.post('/update_rest_only2', chatbotService.updateRestOnly2);
+router.post('/update_rest2', chatbotService.updateRest2);
 router.post('/update_place_info', chatbotService.updatePlaceInfo);
 router.post('/update_mid_info', chatbotService.updateMidInfo);
 router.post('/crawl_two_image', chatbotService.crawlTwoImage);
