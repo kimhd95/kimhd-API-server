@@ -440,9 +440,9 @@ function updateUser (req, res) {
     } else if (with_mood){
         param_name = 'with_mood';
         param_value = with_mood;
-    } else if (res_final){
-        param_name = 'res_final';
-        param_value = res_final;
+    } else if (rest_final){
+        param_name = 'rest_final';
+        param_value = rest_final;
     } else if (lat){
         param_name = 'lat';
         param_value = lat;
