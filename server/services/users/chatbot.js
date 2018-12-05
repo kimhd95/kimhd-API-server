@@ -31,12 +31,7 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
 //var logger = require('../../config/winston');
 
 function verifyToken (req, res) {
-    console.log(req.headers);
-    console.log('------------------');
-    console.log(req.query);
-    console.log('------------------');
-    console.log(req.body);
-    const cookie = req.cookies || req.headers.cookie || '';
+    const cookie = req.cookies || req.headers.cookie || req.body.token ||'';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
     let token = cookies.token;
     const secret = config.jwt_secret;
