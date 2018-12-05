@@ -892,8 +892,8 @@ function updateRest2 (req, res) {
 
     models.User.update(
         {
-            rest4: rest1,
-            rest6: rest2,
+            rest1: rest1,
+            rest2: rest2,
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
