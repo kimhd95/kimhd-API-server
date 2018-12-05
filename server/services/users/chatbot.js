@@ -38,7 +38,7 @@ function verifyToken (req, res) {
     console.log('----------------------------');
     console.log(req.body.token);
 
-    const cookie = req.cookies || req.headers.cookie || req.body.tokenㄴ ||'';
+    const cookie = req.cookies || req.body.token || req.headers.cookie ||'';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
     let token = cookies.token;
     const secret = config.jwt_secret;
