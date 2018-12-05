@@ -4,12 +4,14 @@ const
     express = require('express'),
     userService = require('../../../services/users'),
     models = require('../../../models'),
+    cors = require('cors'),
     chatbotService = require('../../../services/users/chatbot');
 
 let router = express.Router();
 
 console.log('apis/users/index.js called');
 
+router.use(cors());
 /**
  * api/v1/users/
  */
