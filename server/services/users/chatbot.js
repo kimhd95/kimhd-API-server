@@ -338,7 +338,6 @@ function updateUser (req, res) {
     const subway = req.body.subway;
     const exit_quarter = req.body.exit_quarter;
     const with_mood = req.body.with_mood;
-    const price = req.body.price;
     const rest_final = req.body.rest_final;
     const lat = req.body.lat;
     const lng = req.body.lng;
@@ -441,9 +440,6 @@ function updateUser (req, res) {
     } else if (with_mood){
         param_name = 'with_mood';
         param_value = with_mood;
-    } else if (price){
-        param_name = 'price';
-        param_value = price;
     } else if (res_final){
         param_name = 'res_final';
         param_value = res_final;
@@ -844,7 +840,6 @@ function updateUserStart (req, res) {
             subway: null,
             exit_quarter: null,
             with_mood: null,
-            price: null,
             rest1: null,
             rest2: null,
             taste: null,
@@ -984,40 +979,32 @@ function updateMidInfo (req, res) {
     })
 }
 
-// function createDecideHistory (req, res) {
-//     const kakao_id = req.body.kakao_id;
-//     const rest1 = req.body.rest1;
-//     const rest2 = req.body.rest2;
-//     const rest3 = req.body.rest3;
-//     const rest4 = req.body.rest4;
-//     const round1 = req.body.round1;
-//     const round2 = req.body.round2;
-//     const round3 = req.body.round3;
-//     const res_name = req.body.res_name;
-//     const subway = req.body.subway;
-//     // let nowDate = new Date();
-//     const date = moment().format('YYYYMMDD');
-//
-//
-//     models.Decide_history.create({
-//         kakao_id: kakao_id,
-//         rest1: rest1,
-//         rest2: rest2,
-//         rest3: rest3,
-//         rest4: rest4,
-//         round1: round1,
-//         round2: round2,
-//         round3: round3,
-//         res_name: res_name,
-//         subway: subway,
-//         date: date
-//     })
-//     .then(result => {
-//         return res.status(200).json({success: true, message: 'DecideHistory Update complete.'})
-//     }).catch(function (err){
-//     return res.status(403).json({success: false, message: 'DecideHistory Update Update failed. Error: ' + err.message})
-//     })
-// }
+function createDecideHistory (req, res) {
+    const kakao_id = req.body.kakao_id;
+    const rest1 = req.body.rest1;
+    const rest2 = req.body.rest2;
+    const rest_winner = req.body.rest_winner;
+    const res_name = req.body.res_name;
+    const subway = req.body.subway;
+    // let nowDate = new Date();
+    const date = moment().format('YYYYMMDD');
+
+
+    models.Decide_history.create({
+        kakao_id: kakao_id,
+        rest1: rest1,
+        rest2: rest2,
+        rest_winner: rest_winner,
+        res_name: res_name,
+        subway: subway,
+        date: date
+    })
+    .then(result => {
+        return res.status(200).json({success: true, message: 'DecideHistory Update complete.'})
+    }).catch(function (err){
+    return res.status(403).json({success: false, message: 'DecideHistory Update Update failed. Error: ' + err.message})
+    })
+}
 
 function createUserFeedback (req, res) {
     const kakao_id = req.body.kakao_id;
@@ -1556,7 +1543,7 @@ module.exports = {
     updateClosedown: updateClosedown,
     verifySubway: verifySubway,
 
-    // createDecideHistory: createDecideHistory,
+    createDecideHistory: createDecideHistory,
     getBeer:getBeer,
     getTwoBeer:getTwoBeer,
     updateBeerOnly2:updateBeerOnly2

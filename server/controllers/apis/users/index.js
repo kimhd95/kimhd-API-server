@@ -43,7 +43,7 @@ router.get('/get_all_subway', chatbotService.getAllSubway);
 router.get('/get_all_restaurant', chatbotService.getAllRestsaurant);
 router.post('/verify_subway', chatbotService.verifySubway);
 router.post('/get_restaurant_info', chatbotService.getRestaurantInfo);
-// router.post('/create_decide_history', chatbotService.createDecideHistory);
+router.post('/create_decide_history', chatbotService.createDecideHistory);
 router.post('/create_user_feedback', chatbotService.createUserFeedback);
 router.post('/get_feedback_info', chatbotService.getFeedbackInfo);
 router.post('/update_rest2', chatbotService.updateRest2);
