@@ -1055,7 +1055,7 @@ function createUserLog (req, res){
     const scenario = req.body.scenario
     const state = req.body.state
     const content = req.body.content
-    const date = req.body.date
+    let date = moment().format('YYYY-MM-DD HH:mm');
     const type = req.body.type
     const answer_num = req.body.answer_num
     //let nowDate = new Date();
@@ -1072,22 +1072,7 @@ function createUserLog (req, res){
         type: type,
         answer_num: answer_num
     }).then(userLog => {
-        models.User.update(
-            {
-                scenario: scenario,
-                state: state,
-                date: date,
-                updated_at: date
-            },     // What to update
-            {where: {
-                    kakao_id: kakao_id}
-            })  // Condition
-            .then(result => {
-                return res.status(200).json({success: true, message: 'User Log and User both Update complete.', updateResult: result, userLog: userLog})
-            }).catch(function (err){
-            return res.status(403).json({success: false, message: 'User Log updated. However User Update failed. Error: ' + err.message, userLog: userLog})
-        })
-        // return res.status(201).json({success: true, userLog})
+        return res.status(200).json({success: true, message: 'User Log and User both Update complete.'})
     }).catch(function (err){
         return res.status(500).json({success: false, error: err.message})
     })
