@@ -21,6 +21,7 @@
     "cookie-parser": "^1.4.3",
     "cross-env": "^5.1.3",
     "express": "^4.16.2",
+    "hangul-js": "git+https://github.com/g1s/Hangul.js.git",
     "jsonwebtoken": "^8.1.0",
     "lodash": "^4.17.4",
     "moment": "^2.22.2",
