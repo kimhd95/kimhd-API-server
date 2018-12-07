@@ -16,6 +16,7 @@ console.log('apis/users/index.js called');
 router.post('/verify_token', chatbotService.verifyToken);
 router.post('/register_user', chatbotService.registerUser);
 router.post('/login', chatbotService.login);
+router.post('/social_login', chatbotService.socialLogin);
 router.post('/logout', chatbotService.logout);
 router.post('/send_new_password', chatbotService.sendNewPassword);
 

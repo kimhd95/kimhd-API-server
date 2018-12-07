@@ -31,10 +31,9 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
 //var logger = require('../../config/winston');
 
 function verifyToken (req, res) {
-
     const cookie = req.cookies || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-    let token = cookies.token || req.body.token;
+    let token = cookies.token;
     const secret = config.jwt_secret;
 
     console.log(`cookie: ${cookie}`);
@@ -248,12 +247,46 @@ function login (req, res) {
     });
 }
 
+function socialLogin (req, res) {
+    const email = req.body.email;
+    const token = req.body.token;
+
+    console.log(email);
+    console.log(token);
+    if (token) {
+        models.User.findOne
+        ({
+            where: {
+                email: email
+            }
+        }).then(user => {
+            if (user) {
+                return res.status(403).json({ 
+                    success: false,
+                    message: 'This email is Already signed up.'
+                });
+            } else {
+                return res.status(200).json({ 
+                    success: true,
+                    message: 'This email is approved.'
+                });
+            }
+        }) 
+    } else {
+        return res.status(403).send({
+            success: false,
+            message: 'No token given.'
+        })
+    }
+}
+
 function logout (req, res) {
     const cookie = req.cookie || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-    let token = cookies.token;
+    let token = cookies.token || req.body.token;
     const secret = config.jwt_secret;
 
+    console.log(token);
     if (token) {
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
@@ -1511,6 +1544,7 @@ module.exports = {
     checkTokenVerified: checkTokenVerified,
     registerUser: registerUser,
     login: login,
+    socialLogin: socialLogin,
     logout: logout,
     sendNewPassword: sendNewPassword,
 
