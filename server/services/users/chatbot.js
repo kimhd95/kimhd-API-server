@@ -10,7 +10,7 @@ const client = require('cheerio-httpcli');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const qs = require('qs');
-var async = require('async');
+const Hangul = require('hangul-js');
 
 const param = {};
 client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agent setting
@@ -1088,7 +1088,7 @@ function createUserLog (req, res){
     const scenario = req.body.scenario
     const state = req.body.state
     const content = req.body.content
-    const date = req.body.date
+    let date = moment().format('YYYY-MM-DD HH:mm');
     const type = req.body.type
     const answer_num = req.body.answer_num
     //let nowDate = new Date();
@@ -1105,22 +1105,7 @@ function createUserLog (req, res){
         type: type,
         answer_num: answer_num
     }).then(userLog => {
-        models.User.update(
-            {
-                scenario: scenario,
-                state: state,
-                date: date,
-                updated_at: date
-            },     // What to update
-            {where: {
-                    kakao_id: kakao_id}
-            })  // Condition
-            .then(result => {
-                return res.status(200).json({success: true, message: 'User Log and User both Update complete.', updateResult: result, userLog: userLog})
-            }).catch(function (err){
-            return res.status(403).json({success: false, message: 'User Log updated. However User Update failed. Error: ' + err.message, userLog: userLog})
-        })
-        // return res.status(201).json({success: true, userLog})
+        return res.status(200).json({success: true, message: 'User Log and User both Update complete.'})
     }).catch(function (err){
         return res.status(500).json({success: false, error: err.message})
     })
@@ -1278,18 +1263,16 @@ function getAllSubway(req, res) {
     }).then(result => {
         let term = req.query.term;
         if(result){
-            let resultArray = [];
-            let findArray = [];
-            for(let i=0;i<result.length;i++){
-              resultArray.push(result[i].subway);
-            }
-            for(let i=0;i<resultArray.length;i++){
-              let termLength = term.length;
-              if(resultArray[i].substring(0,termLength).includes(term)){
-                findArray.push(resultArray[i]);
-              }
-            }
-            return res.status(200).json(findArray);
+            let subway_array = result.reduce((acc,cur) => {
+              acc.push(cur.subway);
+              return acc;
+            },[]);
+            let result_array = subway_array.reduce((acc, cur) => {
+              if (Hangul.search(cur, term, true) === 0) acc.push(cur);
+              return acc;
+            }, []);
+
+            return res.status(200).json(result_array);
             // return '됨';
         }else{
             return res.status(404).json({error: 'no result'});
@@ -1303,11 +1286,11 @@ function getAllRestsaurant(req, res) {
         group: ['res_name', 'subway']
     }).then(result => {
         if(result){
-            let resultArray = [];
-            for(let i=0;i<result.length;i++){
-              resultArray.push(result[i].subway + ' ' + result[i].res_name);
-            }
-            return res.status(200).json(resultArray);
+            let result_array = result.reduce((acc,cur) => {
+              acc.push(cur.subway + ' ' + cur.res_name);
+              return acc;
+            },[]);
+            return res.status(200).json(result_array);
             // return '됨';
         }else{
             return res.status(404).json({error: 'no result'});

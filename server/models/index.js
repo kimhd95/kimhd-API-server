@@ -104,7 +104,7 @@ const UserLog = sequelize.define('user_log', {
     scenario: Sequelize.STRING,
     state: Sequelize.STRING,
     content: Sequelize.STRING,
-    date: Sequelize.INTEGER,
+    date: Sequelize.STRING,
     type: Sequelize.STRING,
     answer_num: Sequelize.INTEGER,
 
