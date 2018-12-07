@@ -139,8 +139,8 @@ const User_feedback = sequelize.define('user_feedback', {
 });
 
 const Restaurant = sequelize.define('restaurant', {
-    res_name: Sequelize.STRING,
     region: Sequelize.STRING,
+    res_name: Sequelize.STRING,
     subway: Sequelize.STRING,
     exit_quarter: Sequelize.INTEGER,
     food_type: Sequelize.STRING,
