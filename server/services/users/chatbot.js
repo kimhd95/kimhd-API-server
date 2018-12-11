@@ -249,10 +249,9 @@ function login (req, res) {
 
 function socialLogin (req, res) {
     const email = req.body.email;
+    const social = true;
     const token = req.body.token;
 
-    console.log(email);
-    console.log(token);
     if (token) {
         models.User.findOne
         ({
@@ -261,14 +260,30 @@ function socialLogin (req, res) {
             }
         }).then(user => {
             if (user) {
-                return res.status(403).json({ 
-                    success: false,
-                    message: 'This email is Already signed up.'
-                });
+                if (user.social) {
+                    return res.status(200).json({
+                        success: true,
+                        message: 'successfully social login'
+                    })
+                } else {
+                    return res.status(403).json({ 
+                        success: false,
+                        message: 'This email is Already signed up.'
+                    });
+                }
             } else {
-                return res.status(200).json({ 
-                    success: true,
-                    message: 'This email is approved.'
+                // DB에 등록
+                models.User.create({
+                    email: email,
+                    social: social
+                }).then(user => {
+                    res.status(201).json({success: true, meesage: 'Ok'});
+                }).catch(err => {
+                    if(err) res.status(500).json({
+                        success: false,
+                        message: err.message,
+                        log: 'Error while creating user row in db. check uniqueness of parameters'
+                    });
                 });
             }
         }) 
@@ -341,6 +356,75 @@ function sendNewPassword (req, res) {
         }
     }).catch(err => {
         return res.status(403).json({success: false, message: 'Unknown outer catch error. err: ' + err.message})
+    })
+}
+
+function memberWithdraw (req, res) {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    if (!email) return res.status(400).json({ success: false, message: 'Email not provided.'});
+    models.User.find({
+        where: {
+            email: email
+        }
+    }).then(user => {
+        if (!user) {
+            return res.status(403).json({ success: false, message: 'No user account with given email address found'})
+        } else {
+            // 소셜 로그인
+            if (user.social) {
+                models.User.destroy({
+                    where: {
+                        email: email
+                    }
+                }).then(result => {
+                    console.log('User destroy result: ' + result);
+
+                    if (result === 0) {
+                        return res.status(403).json({ success: false, message: 'User email and '})
+                    } else {
+                        res.clearCookie('token');
+                        return res.status(200).json({ success: true, message: 'User account successfully deleted.', redirect: '/'});
+                    }
+                }).catch(err => {
+                    return res.status(403).json({ success: false, message: 'Unknown inner catch error on User destroy. err: ' + err.message});
+                })
+                // 일반 로그인
+            } else {
+                console.log(password);
+                console.log(user.password);
+                bcrypt.compare(password, user.password, (err, isMatch) => {
+                    if (err) {
+                        return res.status(403).json({success: false, message: 'The given password does not match with the account password.' })
+                    } else {
+                        if (isMatch) {
+                            models.User.destroy({
+                                where: {
+                                    email: email,
+                                    password: user.password
+                                }
+                            }).then(result => {
+                                console.log('User destroy result: ' + result);
+
+                                if (result === 0) {
+                                    return res.status(403).json({ success: false, message: 'User email and password match. but somehow the delete failed.'});
+                                } else {
+                                    res.clearCookie('token');
+                                    return res.status(200).json({ success: true, message: 'User account successfully deleted.', redirect: '/'});
+                                }
+                            }).catch(err => {
+                                return res.status(403).json({ success: false, message: 'Unknown inner catch error on Doctor.destroy. err: ' + err.message});
+                            })
+                        } else {
+                            return res.status(403).json({ success: false, message: 'User email and password not match.'});
+                        }
+                    }
+                })
+            }
+        }
+    }).catch(err => {
+        return res.status(403).json({ success: false, message: 'Unknown outer catch error on User destroy. err: ' + err.message});
     })
 }
 
@@ -1530,6 +1614,7 @@ module.exports = {
     socialLogin: socialLogin,
     logout: logout,
     sendNewPassword: sendNewPassword,
+    memberWithdraw: memberWithdraw,
 
     previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,

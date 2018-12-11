@@ -93,6 +93,7 @@ const User = sequelize.define('user', {
     ageGroup: Sequelize.INTEGER,
     password: Sequelize.STRING,
     email: { type: Sequelize.STRING, allowNull: false, unique: true },
+    social: { type: Sequelize.BOOLEAN, allowNull: false },
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
