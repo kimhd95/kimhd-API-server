@@ -249,8 +249,9 @@ function login (req, res) {
 
 function socialLogin (req, res) {
     const email = req.body.email;
-    const social = true;
+    const name = req.body.name;
     const token = req.body.token;
+    const social = true;
 
     if (token) {
         models.User.findOne
@@ -263,7 +264,8 @@ function socialLogin (req, res) {
                 if (user.social) {
                     return res.status(200).json({
                         success: true,
-                        message: 'successfully social login'
+                        message: 'successfully social login',
+                        redirect: '/chat'
                     })
                 } else {
                     return res.status(403).json({ 
@@ -275,7 +277,8 @@ function socialLogin (req, res) {
                 // DB에 등록
                 models.User.create({
                     email: email,
-                    social: social
+                    nickname: name,
+                    social: social,
                 }).then(user => {
                     res.status(201).json({success: true, meesage: 'Ok'});
                 }).catch(err => {
