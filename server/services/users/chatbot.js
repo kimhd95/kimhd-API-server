@@ -431,6 +431,67 @@ function memberWithdraw (req, res) {
     })
 }
 
+function updatePassword (req, res) {
+    const email = req.body.email;
+    const curPassword = req.body.curPassword;
+    const newPassword = req.body.newPassword;
+
+    if (!email) return res.status(400).json({success: false, message: 'email not provided.'});
+
+    // Check if newPassword arrived
+    if (!newPassword.length) {
+        return res.status(400).json({success: false, message: 'newPassword not given'});
+    }
+
+    // Check if newPassword > 8 alphanumeric
+    if( newPassword.length < 8 ){
+        return res.status(400).json({success: false, message: 'newPassword needs to be longer than 8 alphanumeric characters.'});
+    }
+
+    // Check if newPassword > 8 alphanumeric
+    let pwNum = newPassword.search(/[0-9]/g);
+    let pwEng = newPassword.search(/[a-z]/ig);
+    let pwSpe = newPassword.search(/[`~!@@#$%^&*|₩₩₩'₩";:₩/?]/gi);
+    let letter = /[a-zA-Z]/;
+    let number = /[0-9]/;
+    let valid = (pwNum < 0 && pwEng < 0) || (pwNum < 0 && pwSpe < 0) || (pwEng < 0 && pwSpe < 0) //match a letter _and_ a number
+    if (valid){
+        return res.status(400).json({success: false, message: 'newPassword requires at least one character and one digit.'})
+    }
+
+    models.User.findOne({
+        where: {
+            email: email
+        }
+    }).then(user => {
+        if (!user) {
+            return res.status(404).json({error: 'No user with given email address.'});
+        }
+
+        bcrypt.compare(curPassword, user.password, function(err, isMatch) {
+            if(err) {
+                return res.status(403).json({success: false, message: 'encryption error'})
+            } else {
+                if(isMatch) {
+                    let SALT_FACTOR = 5;
+                    bcrypt.hash(newPassword, SALT_FACTOR, function(err, hash) {
+                        if(err) {
+                            console.log('ERROR WHILE GENERATING PASSWORD',err);
+                            return res.status(403).json({success: false, message: 'ERROR WHILE GENERATING PASSWORD'})
+                        }
+                        user.password = hash;
+                        user.save().then(_ => {
+                            return res.status(200).json({success: true, message: 'Password successfully updated.'})
+                        })
+                    });
+                } else {
+                    return res.status(403).json({success: false, message: 'Given current password is wrong.'})
+                }
+            }
+        });
+    });
+}
+
 function updateUser (req, res) {
     console.log('updateUser called.');
     let kakao_id;
@@ -1618,6 +1679,7 @@ module.exports = {
     logout: logout,
     sendNewPassword: sendNewPassword,
     memberWithdraw: memberWithdraw,
+    updatePassword: updatePassword,
 
     previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,

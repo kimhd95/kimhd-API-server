@@ -20,6 +20,7 @@ router.post('/social_login', chatbotService.socialLogin);
 router.post('/logout', chatbotService.logout);
 router.post('/send_new_password', chatbotService.sendNewPassword);
 router.post('/member_withdraw', chatbotService.memberWithdraw);
+router.post('/update_password', chatbotService.updatePassword);
 
 router.post('/previous_register_user', chatbotService.previousRegisterUser);
 router.post('/update_user', chatbotService.updateUser);
