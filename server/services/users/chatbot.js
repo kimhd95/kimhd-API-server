@@ -142,7 +142,8 @@ function registerUser (req, res) {
             password: hash,
             nickname: nickname,
             gender: gender,
-            ageGroup: parseInt(ageGroup)
+            ageGroup: parseInt(ageGroup),
+            social: false
         }).then(user => {
             res.status(201).json({success: true, meesage: 'Ok'});
         }).catch(err => {
