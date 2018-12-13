@@ -138,7 +138,6 @@ function registerUser (req, res) {
         }
         console.log(hash);
         models.User.create({
-            kakao_id: email,
             email: email,
             password: hash,
             nickname: nickname,
@@ -282,7 +281,7 @@ function socialLogin (req, res) {
                     nickname: name,
                     social: social,
                 }).then(user => {
-                    res.status(201).json({success: true, meesage: 'Ok'});
+                    res.status(201).json({success: true, meesage: 'Ok', redirect: '/chat'});
                 }).catch(err => {
                     if(err) res.status(500).json({
                         success: false,
