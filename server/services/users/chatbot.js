@@ -138,6 +138,7 @@ function registerUser (req, res) {
         }
         console.log(hash);
         models.User.create({
+            kakao_id: email,
             email: email,
             password: hash,
             nickname: nickname,
