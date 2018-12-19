@@ -269,7 +269,7 @@ function socialLogin (req, res) {
                         redirect: '/chat'
                     })
                 } else {
-                    return res.status(403).json({ 
+                    return res.status(403).json({
                         success: false,
                         message: 'This email is Already signed up.'
                     });
@@ -290,7 +290,7 @@ function socialLogin (req, res) {
                     });
                 });
             }
-        }) 
+        })
     } else {
         return res.status(403).send({
             success: false,
@@ -936,6 +936,25 @@ function updateStamp (req, res) {
             return res.status(200).json({success: true, message: 'User Stamp Update complete.', stamp: stamp})
         }).catch(function (err){
         return res.status(403).json({success: false, message: 'User Stamp Update Update failed. Error: ' + err.message})
+    })
+    //}
+}
+
+function updateSocket (req, res) {
+    const email = req.body.email
+    const socket_id = req.body.socket_id;
+
+    models.User.update(
+        {
+            kakao_id: socket_id
+        },     // What to update
+        {where: {
+                email: email}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'User Socket Update complete.', email: email})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'User Socket Update Update failed. Error: ' + err.message})
     })
     //}
 }
@@ -1681,6 +1700,7 @@ module.exports = {
     sendNewPassword: sendNewPassword,
     memberWithdraw: memberWithdraw,
     updatePassword: updatePassword,
+    updateSocket: updateSocket,
 
     previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,
