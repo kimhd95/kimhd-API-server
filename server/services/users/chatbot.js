@@ -946,7 +946,9 @@ function updateSocket (req, res) {
 
     models.User.update(
         {
-            kakao_id: socket_id
+            kakao_id: socket_id,
+            scenario: '100',
+            state: 'init',
         },     // What to update
         {where: {
                 email: email}
