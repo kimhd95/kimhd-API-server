@@ -23,7 +23,7 @@ const sequelize = new Sequelize(
         logging: config.mysql.logging,
         host: config.mysql.host,
         dialect: 'mysql',
-
+        timezone: '+09:00',
         define: {
             // For Korean support
             charset: 'utf8',
@@ -93,7 +93,7 @@ const User = sequelize.define('user', {
     ageGroup: Sequelize.INTEGER,
     password: Sequelize.STRING,
     email: { type: Sequelize.STRING, allowNull: false, unique: true },
-    social: { type: Sequelize.BOOLEAN, allowNull: false },
+    chat_log: Sequelize.TEXT,
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });
@@ -156,7 +156,18 @@ const Restaurant = sequelize.define('restaurant', {
     calories: Sequelize.INTEGER,
     res_phone: Sequelize.STRING,
     closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
-});
+  },{
+    indexes: [
+      // add a FULLTEXT index
+      { type: 'FULLTEXT', name: 'subway_idx', fields: ['subway'] },
+      { type: 'FULLTEXT', name: 'food_type_idx', fields: ['food_type'] },
+      { type: 'FULLTEXT', name: 'mood_idx', fields: ['mood'] },
+      { type: 'FULLTEXT', name: 'mood2_idx', fields: ['mood2'] },
+      { type: 'FULLTEXT', name: 'taste_idx', fields: ['taste'] },
+      { type: 'FULLTEXT', name: 'food_ingre_idx', fields: ['food_ingre'] },
+      { method: 'BTREE', name: 'exit_quarter_idx', fields: ['exit_quarter'] }
+    ]
+  });
 
 const Decide_history = sequelize.define('decide_history', {
     kakao_id: Sequelize.STRING,

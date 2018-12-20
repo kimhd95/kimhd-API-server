@@ -682,108 +682,63 @@ function getRestaurant (req, res) {
   let taste = req.body.taste;
   let food_ingre = req.body.food_ingre;
 
-  let mood2_array = [null,null,null,null,null,null];
-  if(mood2){
-    mood2 = mood2.split(',');
-    for(let i =0; i<mood2.length;i++){
-      mood2_array[i] = mood2[i];
-    }
-  }else{
-    mood2_array = ['[가-힇]','[가-힇]','[가-힇]','[가-힇]','[가-힇]','[가-힇]'];
-  }
+  let subway_flag = '';
+  let taste_flag = '';
+  let food_type_flag = '';
+  let mood2_flag = '';
 
-  let food_type_array = [null,null];
-  if(food_type){
-    food_type = food_type.split(',');
-    for(let i =0; i<food_type.length; i++){
-      food_type_array[i] = food_type[i];
-    }
-  }else{
-    food_type_array = ['[가-힇]','[가-힇]'];
-  }
 
+  if(mood === '캐주얼'){
+    mood2_flag = 'NOT';
+    mood2 = 'x';
+  }else{
+  mood2= mood2.replace(/,/g,' ');
+  }
+  food_type = food_type.replace(/,/g,' ');
+  if(food_type === '이국적'){
+    food_type = '한식 일식 중식 양식';
+    food_type_flag = 'NOT';
+  }else if(food_type === 'all'){
+    food_type = 'x';
+    food_type_flag = 'NOT';
+  }
 
   if(food_ingre === null){
     food_ingre = 'x';
   }
   if(subway === '서울 어디든 좋아' || subway === null){
-    subway = '[가-힇]';
-    exit_quarter = '[0-9]';
+    subway = 'x';
+    subway_flag = 'NOT';
   }
   if(exit_quarter === 999){
-    exit_quarter = '[0-9]';
+    exit_quarter = '1,2,3,4';
   }
-
   if(taste.includes('!-')){
     taste = taste.replace('!-','');
-    if(food_type[0] === '이국적'){
-      models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste NOT regexp '+"'"+taste+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'중식'+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
-          if (result[0].length === 2){
-              console.log('result: ' + result.toString())
-              return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-          } else {
-            models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste NOT regexp '+"'"+'x'+"'"+') AND (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'중식'+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
-              console.log('second result: ' + result.toString())
-              return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-            }).catch(function (err){
-                return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
-            });
-          }
-      }).catch(function (err){
-          return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
-      });
-    }else{
-      models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste NOT regexp '+"'"+taste+"'"+') AND  ((food_type regexp '+"'"+food_type_array[0]+"'"+') OR (food_type regexp '+"'"+food_type_array[1]+"'"+')) AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
-          if (result[0].length === 2){
-              console.log('result: ' + result.toString())
-              return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-          } else {
-            models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste NOT regexp '+"'"+'x'+"'"+') AND  ((food_type regexp '+"'"+food_type_array[0]+"'"+') OR (food_type regexp '+"'"+food_type_array[1]+"'"+')) AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
-              console.log('second result: ' + result.toString())
-              return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-            }).catch(function (err){
-                return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
-            });
-          }
-      }).catch(function (err){
-          return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
-      });
-    }
-  }else{
-    if(food_type[0] === '이국적'){
-      models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste regexp '+"'"+taste+"'"+') AND  (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'중식'+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
-          if (result[0].length === 2){
-              console.log('result: ' + result.toString())
-              return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-          } else {
-            models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste regexp '+"'"+'[가-힇]'+"'"+') AND  (food_type NOT regexp '+"'"+'한식'+"'"+') AND (food_type NOT regexp '+"'"+'양식'+"'"+') AND (food_type NOT regexp '+"'"+'일식'+"'"+') AND (food_type NOT regexp '+"'"+'중식'+"'"+') AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
-              console.log('second result : ' + result.toString())
-              return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-            }).catch(function (err){
-                return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
-            });
-          }
-      }).catch(function (err){
-          return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
-      });
-    }else{
-      models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste regexp '+"'"+taste+"'"+') AND  ((food_type regexp '+"'"+food_type_array[0]+"'"+') OR (food_type regexp '+"'"+food_type_array[1]+"'"+')) AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
-          if (result[0].length === 2){
-              console.log('result: ' + result.toString())
-              return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-          } else {
-            models.sequelize.query('(SELECT * FROM restaurants WHERE (subway regexp '+"'"+subway+"'"+') AND (exit_quarter regexp '+"'"+exit_quarter+"'"+') AND (mood regexp '+"'"+mood+"'"+') AND ((mood2 regexp '+"'"+mood2_array[0]+"'"+') OR (mood2 regexp '+"'"+mood2_array[1]+"'"+') OR (mood2 regexp '+"'"+mood2_array[2]+"'"+') OR (mood2 regexp '+"'"+mood2_array[3]+"'"+') OR (mood2 regexp '+"'"+mood2_array[4]+"'"+') OR (mood2 regexp '+"'"+mood2_array[5]+"'"+')) AND (food_ingre NOT regexp '+"'"+food_ingre+"'"+') AND (taste regexp '+"'"+'[가-힇]'+"'"+') AND  ((food_type regexp '+"'"+food_type_array[0]+"'"+') OR (food_type regexp '+"'"+food_type_array[1]+"'"+')) AND (closedown = 0) ORDER BY RAND() LIMIT 2);').then(result => {
-              console.log('second result: ' + result.toString())
-              return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-            }).catch(function (err){
-                return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
-            });
-          }
-      }).catch(function (err){
-          return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
-      });
-    }
+    taste_flag = 'NOT';
+  }else if(taste === 'all'){
+    taste = 'x';
+    taste_flag = 'NOT';
   }
+
+  models.sequelize.query(`SELECT * FROM restaurants WHERE
+   ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+  (exit_quarter IN (${exit_quarter})) AND
+  (match(mood) against('${mood}' in boolean mode)) AND
+   ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+  NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
+   ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+   ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
+ORDER BY RAND() LIMIT 2;`).then(result => {
+    if (result[0].length === 2){
+        console.log('result: ' + result.toString())
+        return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
+    } else {
+        return res.status(403).json({success: false, message: 'Unknown error while getting restaurant.'})
+    }
+  }).catch( err => {
+        return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+  });
 }
 
 function getTwoRestaurant (req, res) {
@@ -957,6 +912,25 @@ function updateSocket (req, res) {
             return res.status(200).json({success: true, message: 'User Socket Update complete.', email: email})
         }).catch(function (err){
         return res.status(403).json({success: false, message: 'User Socket Update Update failed. Error: ' + err.message})
+    })
+    //}
+}
+
+function updateChatLog (req, res) {
+    const chat_log = req.body.chat_log;
+    const socket_id = req.body.socket_id;
+
+    models.User.update(
+        {
+            chat_log: chat_log,
+        },     // What to update
+        {where: {
+                socket_id: socket_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'User Socket Update complete.'})
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: 'User Socket Update Update failed. Error: ' + err.message})
     })
     //}
 }
@@ -1709,6 +1683,7 @@ module.exports = {
     updateLimitCnt: updateLimitCnt,
     updateStamp: updateStamp,
     updateState: updateState,
+    updateChatLog: updateChatLog,
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
     getRestInfo: getRestInfo,
