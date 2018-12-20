@@ -763,35 +763,61 @@ function getTwoRestaurant (req, res) {
 function getLastHistory (req, res) {
     const kakao_id = req.body.kakao_id;
 
-    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' ORDER BY id DESC LIMIT 1;').then(result => {
-        if (result){
-            console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result[0]})
-        } else {
-            console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
+    models.User.findOne({
+        attributes: ['email'],
+        where: {
+            kakao_id: kakao_id
         }
-    }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    })
-    //}
+    }).then(user_email => {
+      if(user_email){
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' ORDER BY id DESC LIMIT 1;').then(result => {
+            if (result){
+                console.log('result: ' + result.toString())
+                return res.status(200).json({success: true, message: result[0]})
+            } else {
+                console.log('result없음');
+                return res.status(403).json({success: false, message: 'user update query failed.'})
+            }
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+        })
+      }else{
+        res.status(400).json({message: 'Cant find user email : ' + err.message})
+      }
+    }).catch(err => {
+        logger.error("DB Error in findUserEmail :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
 }
 
 function getAllHistory (req, res) {
     const kakao_id = req.body.kakao_id;
 
-    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' ORDER BY id DESC;').then(result => {
-        if (result){
-            console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result[0]})
-        } else {
-            console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
+    models.User.findOne({
+        attributes: ['email'],
+        where: {
+            kakao_id: kakao_id
         }
-    }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    })
-    //}
+    }).then(user_email => {
+      if(user_email){
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' ORDER BY id DESC;').then(result => {
+            if (result){
+                console.log('result: ' + result.toString())
+                return res.status(200).json({success: true, message: result[0]})
+            } else {
+                console.log('result없음');
+                return res.status(403).json({success: false, message: 'user update query failed.'})
+            }
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+        });
+      }else{
+        res.status(400).json({message: 'Cant find user email : ' + err.message})
+      }
+    }).catch(err => {
+        logger.error("DB Error in findUserEmail :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
 }
 
 function getTodayHistory (req, res) {
@@ -799,19 +825,31 @@ function getTodayHistory (req, res) {
     let nowDate = new Date();
     const date = moment().format('YYYYMMDD');
 
-
-    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+date+"'"+' ORDER BY id;').then(result => {
-        if (result){
-            console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result[0]})
-        } else {
-            console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
+    models.User.findOne({
+        attributes: ['email'],
+        where: {
+            kakao_id: kakao_id
         }
-    }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    })
-    //}
+    }).then(user_email => {
+      if(user_email){
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND date = '+"'"+date+"'"+' ORDER BY id;').then(result => {
+            if (result){
+                console.log('result: ' + result.toString())
+                return res.status(200).json({success: true, message: result[0]})
+            } else {
+                console.log('result없음');
+                return res.status(403).json({success: false, message: 'user update query failed.'})
+            }
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+        });
+      }else{
+        res.status(400).json({message: 'Cant find user email : ' + err.message})
+      }
+    }).catch(err => {
+        logger.error("DB Error in findUserEmail :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
 }
 
 function getThreeHistory (req, res) {
@@ -821,54 +859,93 @@ function getThreeHistory (req, res) {
     let yesterday = moment(date).subtract(1, 'd').format('YYYYMMDD');
     let twoDaysAgo = moment(date).subtract(2, 'd').format('YYYYMMDD');
 
-    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+date+"'"+' UNION '+'SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+yesterday+"'"+
-    ' UNION '+'SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND date = '+"'"+twoDaysAgo+"'"+' ORDER BY id;').then(result => {
-        if (result){
-            console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result[0]})
-        } else {
-            console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
+    models.User.findOne({
+        attributes: ['email'],
+        where: {
+            kakao_id: kakao_id
         }
-    }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    })
-    //}
+    }).then(user_email => {
+      if(user_email){
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND date = '+"'"+date+"'"+' UNION '+'SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND date = '+"'"+yesterday+"'"+
+        ' UNION '+'SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND date = '+"'"+twoDaysAgo+"'"+' ORDER BY id;').then(result => {
+            if (result){
+                console.log('result: ' + result.toString())
+                return res.status(200).json({success: true, message: result[0]})
+            } else {
+                console.log('result없음');
+                return res.status(403).json({success: false, message: 'user update query failed.'})
+            }
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+        });
+      }else{
+        res.status(400).json({message: 'Cant find user email : ' + err.message})
+      }
+    }).catch(err => {
+        logger.error("DB Error in findUserEmail :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
 }
 
 function getSubwayHistory (req, res) {
     const kakao_id = req.body.kakao_id;
     const subway = req.body.subway;
 
-    models.sequelize.query('SELECT * FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' AND subway = '+"'"+subway+"'"+' ORDER BY id;').then(result => {
-        if (result){
-            console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result[0]})
-        } else {
-            console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
+    models.User.findOne({
+        attributes: ['email'],
+        where: {
+            kakao_id: kakao_id
         }
-    }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    })
-    //}
+    }).then(user_email => {
+      if(user_email){
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND subway = '+"'"+subway+"'"+' ORDER BY id;').then(result => {
+            if (result){
+                console.log('result: ' + result.toString())
+                return res.status(200).json({success: true, message: result[0]})
+            } else {
+                console.log('result없음');
+                return res.status(403).json({success: false, message: 'user update query failed.'})
+            }
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+        });
+      }else{
+        res.status(400).json({message: 'Cant find user email : ' + err.message})
+      }
+    }).catch(err => {
+        logger.error("DB Error in findUserEmail :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
 }
 
 function getCountHistory (req, res) {
     const kakao_id = req.body.kakao_id;
 
-    models.sequelize.query('SELECT *,count(*) as cnt FROM decide_histories WHERE kakao_id = '+"'"+kakao_id+"'"+' GROUP BY res_name ORDER BY cnt DESC;').then(result => {
-        if (result){
-            console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result[0]})
-        } else {
-            console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
+    models.User.findOne({
+        attributes: ['email'],
+        where: {
+            kakao_id: kakao_id
         }
-    }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    })
-    //}
+    }).then(user_email => {
+      if(user_email){
+        models.sequelize.query('SELECT *,count(*) as cnt FROM decide_histories WHERE email = '+"'"+user_email+"'"+' GROUP BY res_name ORDER BY cnt DESC;').then(result => {
+            if (result){
+                console.log('result: ' + result.toString())
+                return res.status(200).json({success: true, message: result[0]})
+            } else {
+                console.log('result없음');
+                return res.status(403).json({success: false, message: 'user update query failed.'})
+            }
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+        });
+      }else{
+        res.status(400).json({message: 'Cant find user email : ' + err.message})
+      }
+    }).catch(err => {
+        logger.error("DB Error in findUserEmail :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
 }
 
 function updateStamp (req, res) {
@@ -1167,21 +1244,34 @@ function createDecideHistory (req, res) {
     // let nowDate = new Date();
     const date = moment().format('YYYYMMDD');
 
-
-    models.Decide_history.create({
-        kakao_id: kakao_id,
-        rest1: rest1,
-        rest2: rest2,
-        rest_winner: rest_winner,
-        res_name: res_name,
-        subway: subway,
-        date: date
-    })
-    .then(result => {
-        return res.status(200).json({success: true, message: 'DecideHistory Update complete.'})
-    }).catch(function (err){
-    return res.status(403).json({success: false, message: 'DecideHistory Update Update failed. Error: ' + err.message})
-    })
+    models.User.findOne({
+        attributes: ['email'],
+        where: {
+            kakao_id: kakao_id
+        }
+    }).then(user_email => {
+      if(user_email){
+        models.Decide_history.create({
+            email: user_email,
+            rest1: rest1,
+            rest2: rest2,
+            rest_winner: rest_winner,
+            res_name: res_name,
+            subway: subway,
+            date: date
+        })
+        .then(result => {
+            return res.status(200).json({success: true, message: 'DecideHistory Update complete.'})
+        }).catch(function (err){
+          return res.status(403).json({success: false, message: 'DecideHistory Update Update failed. Error: ' + err.message})
+        });
+      }else{
+        res.status(400).json({message: 'Cant find user email : ' + err.message})
+      }
+    }).catch(err => {
+        logger.error("DB Error in findUserEmail :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
 }
 
 function createUserFeedback (req, res) {
