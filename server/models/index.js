@@ -171,7 +171,7 @@ const Restaurant = sequelize.define('restaurant', {
   });
 
 const Decide_history = sequelize.define('decide_history', {
-    kakao_id: Sequelize.STRING,
+    email: Sequelize.STRING,
     rest1: Sequelize.INTEGER,
     rest2: Sequelize.INTEGER,
     rest_winner: Sequelize.INTEGER,
