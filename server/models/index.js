@@ -94,7 +94,7 @@ const User = sequelize.define('user', {
     password: Sequelize.STRING,
     email: { type: Sequelize.STRING, allowNull: false, unique: true },
     social: { type: Sequelize.BOOLEAN, allowNull: false },
-    chat_log: Sequelize.TEXT,
+    chat_log: Sequelize.TEXT('medium'),
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
 });

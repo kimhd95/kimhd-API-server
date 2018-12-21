@@ -23,6 +23,7 @@ router.post('/member_withdraw', chatbotService.memberWithdraw);
 router.post('/update_password', chatbotService.updatePassword);
 router.post('/update_socket', chatbotService.updateSocket);
 router.post('/update_chatlog', chatbotService.updateChatLog);
+router.post('/get_chat_log', chatbotService.getChatLog);
 
 router.post('/previous_register_user', chatbotService.previousRegisterUser);
 router.post('/update_user', chatbotService.updateUser);

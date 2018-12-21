@@ -531,6 +531,7 @@ function updateUser (req, res) {
     const mood2 = req.body.mood2;
     const taste = req.body.taste;
     const food_type = req.body.food_type;
+    const chat_log = req.body.chat_log
 
 
 
@@ -584,6 +585,9 @@ function updateUser (req, res) {
     if (nickname){
         param_name = 'nickname';
         param_value = nickname;
+    } else if (chat_log) {
+        param_name = 'chat_log';
+        param_value = chat_log;
     } else if (birthday) {
         param_name = 'birthday';
         param_value = birthday;
@@ -770,7 +774,7 @@ function getLastHistory (req, res) {
         }
     }).then(user_email => {
       if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' ORDER BY id DESC LIMIT 1;').then(result => {
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' ORDER BY id DESC LIMIT 1;').then(result => {
             if (result){
                 console.log('result: ' + result.toString())
                 return res.status(200).json({success: true, message: result[0]})
@@ -800,7 +804,7 @@ function getAllHistory (req, res) {
         }
     }).then(user_email => {
       if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' ORDER BY id DESC;').then(result => {
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' ORDER BY id DESC;').then(result => {
             if (result){
                 console.log('result: ' + result.toString())
                 return res.status(200).json({success: true, message: result[0]})
@@ -832,7 +836,7 @@ function getTodayHistory (req, res) {
         }
     }).then(user_email => {
       if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND date = '+"'"+date+"'"+' ORDER BY id;').then(result => {
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND date = '+"'"+date+"'"+' ORDER BY id;').then(result => {
             if (result){
                 console.log('result: ' + result.toString())
                 return res.status(200).json({success: true, message: result[0]})
@@ -866,8 +870,8 @@ function getThreeHistory (req, res) {
         }
     }).then(user_email => {
       if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND date = '+"'"+date+"'"+' UNION '+'SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND date = '+"'"+yesterday+"'"+
-        ' UNION '+'SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND date = '+"'"+twoDaysAgo+"'"+' ORDER BY id;').then(result => {
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND date = '+"'"+date+"'"+' UNION '+'SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND date = '+"'"+yesterday+"'"+
+        ' UNION '+'SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND date = '+"'"+twoDaysAgo+"'"+' ORDER BY id;').then(result => {
             if (result){
                 console.log('result: ' + result.toString())
                 return res.status(200).json({success: true, message: result[0]})
@@ -898,7 +902,7 @@ function getSubwayHistory (req, res) {
         }
     }).then(user_email => {
       if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email+"'"+' AND subway = '+"'"+subway+"'"+' ORDER BY id;').then(result => {
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND subway = '+"'"+subway+"'"+' ORDER BY id;').then(result => {
             if (result){
                 console.log('result: ' + result.toString())
                 return res.status(200).json({success: true, message: result[0]})
@@ -928,7 +932,7 @@ function getCountHistory (req, res) {
         }
     }).then(user_email => {
       if(user_email){
-        models.sequelize.query('SELECT *,count(*) as cnt FROM decide_histories WHERE email = '+"'"+user_email+"'"+' GROUP BY res_name ORDER BY cnt DESC;').then(result => {
+        models.sequelize.query('SELECT *,count(*) as cnt FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' GROUP BY res_name ORDER BY cnt DESC;').then(result => {
             if (result){
                 console.log('result: ' + result.toString())
                 return res.status(200).json({success: true, message: result[0]})
@@ -1252,7 +1256,7 @@ function createDecideHistory (req, res) {
     }).then(user_email => {
       if(user_email){
         models.Decide_history.create({
-            email: user_email,
+            email: user_email.email,
             rest1: rest1,
             rest2: rest2,
             rest_winner: rest_winner,
@@ -1753,6 +1757,26 @@ function previousRegisterUser (req, res) {
      })
  }
 
+ function getChatLog (req, res) {
+     const email = req.body.email;
+
+     models.User.findOne({
+         attributes: ['chat_log'],
+         where: {
+             email: email
+         }
+     }).then(result => {
+       if(result){
+         return res.status(200).json({success: true, message: result.chat_log})
+       }else{
+         res.status(400).json({message: 'Cant find user email : ' + err.message})
+       }
+     }).catch(err => {
+         logger.error("DB Error in findUserEmail :"+err.message);
+         res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+     });
+ }
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
@@ -1767,6 +1791,7 @@ module.exports = {
     memberWithdraw: memberWithdraw,
     updatePassword: updatePassword,
     updateSocket: updateSocket,
+    getChatLog: getChatLog,
 
     previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,
