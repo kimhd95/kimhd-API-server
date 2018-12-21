@@ -1001,6 +1001,10 @@ function updateChatLog (req, res) {
     const chat_log = req.body.chat_log;
     const socket_id = req.body.socket_id;
 
+    if (String(chat_log).length > 1000000) {
+      chat_log = null;
+    }
+
     models.User.update(
         {
             chat_log: chat_log,
