@@ -70,7 +70,7 @@ module.exports = function() {
 		}
 
 		// Returns middleware that parses json
-		server.use(bodyParser.json())
+		server.use(bodyParser.json({limit:'16mb'}));
 		server.use(bodyParser.urlencoded({ extended: false }))
 
 		// Set up routes
