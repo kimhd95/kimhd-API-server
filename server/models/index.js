@@ -97,6 +97,10 @@ const User = sequelize.define('user', {
     chat_log: Sequelize.TEXT('medium'),
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+},
+{
+  timestamps: true,
+  underscored: true,
 });
 
 

@@ -662,7 +662,9 @@ function updateUser (req, res) {
     if (param_value){
         models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
             if (result){
-                console.log('result: ' + result.toString())
+              if (param_name !== 'chat_log') {
+                console.log('result: ' + result.toString());
+              }
                 return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
             } else {
                 return res.status(403).json({success: false, message: 'user update query failed.'})
@@ -983,11 +985,10 @@ function updateSocket (req, res) {
     models.User.update(
         {
             kakao_id: socket_id,
-            scenario: '100',
-            state: 'init',
         },     // What to update
         {where: {
-                email: email}
+                email: email},
+                silent: true
         })  // Condition
         .then(result => {
             return res.status(200).json({success: true, message: 'User Socket Update complete.', email: email})
@@ -1763,21 +1764,43 @@ function previousRegisterUser (req, res) {
 
  function getChatLog (req, res) {
      const email = req.body.email;
+     const now_date = moment();
+
 
      models.User.findOne({
-         attributes: ['chat_log'],
+         attributes: ['chat_log', 'updated_at'],
          where: {
              email: email
          }
      }).then(result => {
        if(result){
-         return res.status(200).json({success: true, message: result.chat_log})
+         const last_date = result.updated_at;
+         const disconn_min = now_date.diff(last_date, 'minutes');
+
+         if (disconn_min > 10) { // 마지막 접속으로 시나리오 진행으로부터 10분이 지나면 접속끊음으로 판단
+           models.User.update(
+             {
+               scenario: '100',
+               state: 'init'
+             },     // What to update
+             {where: {
+                     email: email}
+             })  // Condition
+             .then(update_result => {
+               return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'permanent'});
+             }).catch(err => {
+                 logger.error("DB Error in updateUserState :"+err.message);
+                 return res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+             });
+         } else { // 마지막 접속으로부터 10분 이하 이내로 다시 접속 시, 일시적 접속 끊김으로 판단
+           return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'temporary'});
+         }
        }else{
-         res.status(400).json({message: 'Cant find user email : ' + err.message})
+         return res.status(400).json({message: 'Cant find user email : ' + err.message})
        }
      }).catch(err => {
          logger.error("DB Error in findUserEmail :"+err.message);
-         res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+         return res.status(400).json({message: 'Failed. DB Error: ' + err.message})
      });
  }
 
