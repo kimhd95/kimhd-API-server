@@ -24,6 +24,7 @@ router.post('/update_password', chatbotService.updatePassword);
 router.post('/update_socket', chatbotService.updateSocket);
 router.post('/update_chatlog', chatbotService.updateChatLog);
 router.post('/get_chat_log', chatbotService.getChatLog);
+router.get('/get_subway_list_history', chatbotService.getSubwayListHistory);
 
 router.post('/previous_register_user', chatbotService.previousRegisterUser);
 router.post('/update_user', chatbotService.updateUser);

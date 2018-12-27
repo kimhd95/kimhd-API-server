@@ -663,7 +663,7 @@ function updateUser (req, res) {
         models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
             if (result){
               if (param_name !== 'chat_log') {
-                console.log('result: ' + result.toString());
+                console.log('result: ' + result.toString() + '끝');
               }
                 return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
             } else {
@@ -1804,6 +1804,35 @@ function previousRegisterUser (req, res) {
      });
  }
 
+ function getSubwayListHistory (req, res) {
+     const email = req.query.email;
+
+     models.Decide_history.findAll({
+         attributes: ['subway'],
+         group: 'subway',
+         where: {
+             email: email
+         },
+         order: [
+             // Will escape username and validate DESC against a list of valid direction parameters
+             ['date', 'DESC']
+         ],
+         limit: 5
+     }).then(result => {
+       if (result) {
+         let user_subway_array = result.reduce((acc,cur) => {
+           acc.push(cur.subway);
+           return acc;
+         },[]);
+         return res.status(200).json(user_subway_array);
+       } else {
+         return res.status(200).json([]);
+       }
+     }).catch(function (err){
+         return res.status(403).json({success: false, message: 'Unknown error while querying getSubwayListHistory. err: ' + err.message})
+     })
+ }
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
@@ -1850,6 +1879,7 @@ module.exports = {
     getAllRestsaurant: getAllRestsaurant,
     updateClosedown: updateClosedown,
     verifySubway: verifySubway,
+    getSubwayListHistory: getSubwayListHistory,
 
     createDecideHistory: createDecideHistory,
     getBeer:getBeer,
