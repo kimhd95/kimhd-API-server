@@ -1808,20 +1808,24 @@ function previousRegisterUser (req, res) {
      const email = req.query.email;
 
      models.Decide_history.findAll({
-         attributes: ['subway'],
+         attributes: ['subway','date'],
          group: 'subway',
          where: {
              email: email
          },
          order: [
              // Will escape username and validate DESC against a list of valid direction parameters
-             ['date', 'DESC']
+             ['date']
          ],
          limit: 5
      }).then(result => {
        if (result) {
          let user_subway_array = result.reduce((acc,cur) => {
-           acc.push(cur.subway);
+           let history_date = moment(cur.date).format('MM.DD');
+           acc.push({
+             'subway': cur.subway,
+             'date': history_date
+           });
            return acc;
          },[]);
          return res.status(200).json(user_subway_array);
