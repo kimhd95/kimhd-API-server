@@ -6,7 +6,7 @@ food-chatbot에 이용되는 API들을 관리하는 서버. ORM으로 Sequelize�
 
 2018/12/28 기준
 
-![diagram](./readme_img/diagram.png)
+![diagram](.\readme_img\diagram.png)
 
 기존에 카카오톡 플랫폼 기반에서 작동되던 DB를 그대로 사용하고 있어서, User 테이블에서 미사용 칼럼들이 많다.
 
@@ -97,7 +97,7 @@ food-chatbot에 이용되는 API들을 관리하는 서버. ORM으로 Sequelize�
 
 **getChatLog**
 
-![chosung_autocomplete](./readme_img/chosung_autocomplete.png)
+![chosung_autocomplete](.\readme_img\chosung_autocomplete.png)
 
 - 사용자의 통채로 저장된 채팅기록을 가져오는 API, 동시에 접속 종료와 접속 끊김에 대한 판별도 수행한다.
 - - 현재 시간과 사용자의 마지막 기록 시간을 비교하여, 차이가 10분 이상일시, 접속 종료로 판단하고, 새 시나리오 시작을 위해, scenario와 state을 100, init으로 업데이트 한다.(disconn_type: 'permanent' return)
@@ -105,7 +105,7 @@ food-chatbot에 이용되는 API들을 관리하는 서버. ORM으로 Sequelize�
 
 **getSubwayListHistory**
 
-![history_autocomplete](./readme_img/history_autocomplete.png)
+![history_autocomplete](.\readme_img\history_autocomplete.png)
 
 - 지하철 선택의 자동완성에서, 유저가 아무것도 입력하지 않았을 때, 기본 자동완성으로 유저의 최근 지하철 선택 기록을 보여주는 API
 - Decide_history 테이블에서 사용자에 따른 지하철 검색 기록과 날짜를 불러온 후, 마지막 5개를 배열에 담아서 return 한다.(동일 지하철은 최신 날짜 하나만 선택)
