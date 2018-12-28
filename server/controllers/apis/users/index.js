@@ -59,7 +59,7 @@ router.get('/get_users', userService.getUsers); // 현재 미사용
 router.get('/:id', userService.getUserWithId); // 현재 미사용
 
 
-router.use('/*', models.verifyAPIKEY //현재 미사용
+router.use('/*', models.verifyAPIKEY); //현재 미사용
 // ^Middleware. Make sure to put all the routes which needs authentication below this middleware.
 
 module.exports = router;
