@@ -30,7 +30,9 @@ food-chatbot에 이용되는 API들을 관리하는 서버. ORM으로 Sequelize�
 
 **updateSocket**
 
-- 사용자의 접속 종료와, 접속 끊김을 대비하여, 로그인에 따른 시나리오 유지를 위한 API이다. 접속 때마다 웹소켓은 매번 변경되므로, 새로 접속 시 인식된 웹소켓을 User 테이블에 업데이트시켜준다.
+- 사용자의 접속 종료와, 접속 끊김을 대비하여, 로그인에 따른 시나리오 유지를 위한 API. 
+- 접속 때마다 웹소켓은 매번 변경되므로, 새로 접속 시 인식된 웹소켓을 User 테이블에 업데이트시켜준다.
+- **getChatLog 의 접속 끊김/종료 판단을 위해, silent 옵션을 적용하여 updated_at timestamp에 영향을 주지 않게 하였다.**
 
 **updateChatLog**
 
@@ -94,6 +96,7 @@ food-chatbot에 이용되는 API들을 관리하는 서버. ORM으로 Sequelize�
 - 음식점 이름을 받아서, 네이버 검색을 통해 이미지를 크롤링 하는 API
 
 **getChatLog**
+
 ![chosung_autocomplete](./readme_img/chosung_autocomplete.png)
 
 - 사용자의 통채로 저장된 채팅기록을 가져오는 API, 동시에 접속 종료와 접속 끊김에 대한 판별도 수행한다.
@@ -116,5 +119,5 @@ food-chatbot에 이용되는 API들을 관리하는 서버. ORM으로 Sequelize�
 
 ### TODO?
 
-- 기존에 카카오톡 기반 플랫폼과 달리 웹 기반이기 때문에, 세션처리가 용이하다.  
+- 기존 카카오톡 기반 플랫폼과 달리 웹 기반이기 때문에, 세션처리가 용이하다.  
 - 꼭 필요한 정보 아니면, 세션으로 처리해서 칼럼을 줄이는 게 더 효율적이라고 생각한다.
