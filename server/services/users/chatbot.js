@@ -766,36 +766,6 @@ function getTwoRestaurant (req, res) {
     //}
 }
 
-function getLastHistory (req, res) {
-    const kakao_id = req.body.kakao_id;
-
-    models.User.findOne({
-        attributes: ['email'],
-        where: {
-            kakao_id: kakao_id
-        }
-    }).then(user_email => {
-      if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' ORDER BY id DESC LIMIT 1;').then(result => {
-            if (result){
-                console.log('result: ' + result.toString())
-                return res.status(200).json({success: true, message: result[0]})
-            } else {
-                console.log('result없음');
-                return res.status(403).json({success: false, message: 'user update query failed.'})
-            }
-        }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-        })
-      }else{
-        res.status(400).json({message: 'Cant find user email : ' + err.message})
-      }
-    }).catch(err => {
-        logger.error("DB Error in findUserEmail :"+err.message);
-        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
-    });
-}
-
 function getAllHistory (req, res) {
     const kakao_id = req.body.kakao_id;
 
@@ -807,73 +777,6 @@ function getAllHistory (req, res) {
     }).then(user_email => {
       if(user_email){
         models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' ORDER BY id DESC;').then(result => {
-            if (result){
-                console.log('result: ' + result.toString())
-                return res.status(200).json({success: true, message: result[0]})
-            } else {
-                console.log('result없음');
-                return res.status(403).json({success: false, message: 'user update query failed.'})
-            }
-        }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-        });
-      }else{
-        res.status(400).json({message: 'Cant find user email : ' + err.message})
-      }
-    }).catch(err => {
-        logger.error("DB Error in findUserEmail :"+err.message);
-        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
-    });
-}
-
-function getTodayHistory (req, res) {
-    const kakao_id = req.body.kakao_id;
-    let nowDate = new Date();
-    const date = moment().format('YYYYMMDD');
-
-    models.User.findOne({
-        attributes: ['email'],
-        where: {
-            kakao_id: kakao_id
-        }
-    }).then(user_email => {
-      if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND date = '+"'"+date+"'"+' ORDER BY id;').then(result => {
-            if (result){
-                console.log('result: ' + result.toString())
-                return res.status(200).json({success: true, message: result[0]})
-            } else {
-                console.log('result없음');
-                return res.status(403).json({success: false, message: 'user update query failed.'})
-            }
-        }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-        });
-      }else{
-        res.status(400).json({message: 'Cant find user email : ' + err.message})
-      }
-    }).catch(err => {
-        logger.error("DB Error in findUserEmail :"+err.message);
-        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
-    });
-}
-
-function getThreeHistory (req, res) {
-    const kakao_id = req.body.kakao_id;
-    let nowDate = new Date();
-    const date = moment().format('YYYYMMDD');
-    let yesterday = moment(date).subtract(1, 'd').format('YYYYMMDD');
-    let twoDaysAgo = moment(date).subtract(2, 'd').format('YYYYMMDD');
-
-    models.User.findOne({
-        attributes: ['email'],
-        where: {
-            kakao_id: kakao_id
-        }
-    }).then(user_email => {
-      if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND date = '+"'"+date+"'"+' UNION '+'SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND date = '+"'"+yesterday+"'"+
-        ' UNION '+'SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND date = '+"'"+twoDaysAgo+"'"+' ORDER BY id;').then(result => {
             if (result){
                 console.log('result: ' + result.toString())
                 return res.status(200).json({success: true, message: result[0]})
@@ -952,30 +855,6 @@ function getCountHistory (req, res) {
         logger.error("DB Error in findUserEmail :"+err.message);
         res.status(400).json({message: 'Failed. DB Error: ' + err.message})
     });
-}
-
-function updateStamp (req, res) {
-    const kakao_id = req.body.kakao_id
-    const stamp = req.body.stamp
-
-    //let nowDate = new Date();
-    //nowDate.getTime();
-    //const now = nowDate;
-
-    //if ((scenario.indexOf("201") == 0) && (state == 'init')){
-    models.User.update(
-        {
-            stamp: stamp
-        },     // What to update
-        {where: {
-                kakao_id: kakao_id}
-        })  // Condition
-        .then(result => {
-            return res.status(200).json({success: true, message: 'User Stamp Update complete.', stamp: stamp})
-        }).catch(function (err){
-        return res.status(403).json({success: false, message: 'User Stamp Update Update failed. Error: ' + err.message})
-    })
-    //}
 }
 
 function updateSocket (req, res) {
@@ -1166,30 +1045,6 @@ function updateRest2 (req, res) {
             return res.status(200).json({success: true, message: 'UserRest2 Update complete.'})
         }).catch(function (err){
         return res.status(403).json({success: false, message: 'UserRest2 Update Update failed. Error: ' + err.message})
-    })
-}
-
-function updateBeerOnly2 (req, res) {
-    console.log('updateRest4 called.')
-    const kakao_id = req.body.kakao_id;
-    const rest1 = req.body.rest1;
-    const rest2 = req.body.rest2;
-    // let nowDate = new Date();
-    // nowDate.getTime();
-    // const now = nowDate;
-
-    models.User.update(
-        {
-            rest5: rest1,
-            rest6: rest2,
-        },     // What to update
-        {where: {
-                kakao_id: kakao_id}
-        })  // Condition
-        .then(result => {
-            return res.status(200).json({success: true, message: 'UserRestOnly2 Update complete.'})
-        }).catch(function (err){
-        return res.status(403).json({success: false, message: 'UserRestOnly2 Update Update failed. Error: ' + err.message})
     })
 }
 
@@ -1485,20 +1340,6 @@ function updateState (req, res) {
     //}
 }
 
-function getRestInfo(req, res) {
-    models.Restaurant.findOne({
-        where: {
-            id: req.params.id
-        }
-    }).then(result => {
-        if(result){
-            return res.status(200).json(result);
-        }else{
-            return res.status(404).json({error: 'no Restaurant column for '+id});
-        }
-    })
-}
-
 function getAllSubway(req, res) {
     models.Restaurant.findAll({
         attributes: ['subway'],
@@ -1541,25 +1382,6 @@ function getAllRestsaurant(req, res) {
     })
 }
 
-function updateClosedown(req, res) {
-  const res_name = req.body.res_name;
-  const subway = req.body.subway;
-
-  models.Restaurant.update(
-      {
-          closedown: 1
-      },     // What to update
-      {where: {
-              res_name: res_name,
-              subway: subway}
-      })  // Condition
-      .then(result => {
-          return res.status(200).json({success: true, message: 'Closedown Update complete.'})
-      }).catch(function (err){
-      return res.status(403).json({success: false, message: 'Closedown Update failed. Error: ' + err.message})
-  })
-}
-
 function verifySubway (req, res) {
     let subway;
     if ((req.body.subway !== undefined)){
@@ -1583,84 +1405,6 @@ function verifySubway (req, res) {
         logger.error("DB Error in verifySubway :"+err.message);
         res.status(400).json({message: 'Failed. DB Error: ' + err.message})
     });
-}
-
-function getBeer (req, res) {
-    const kakao_id = req.body.kakao_id;
-    let flavor = parseInt(req.body.flavor);
-    let soda = parseInt(req.body.soda);
-    let alcohol = parseInt(req.body.alcohol);
-    let place = parseInt(req.body.place);
-    let alcohol_min = 0;
-    let alcohol_max = 99;
-
-    if(flavor === 4){
-      flavor = '[0-9]';
-    }
-    if(soda === 3){
-      soda = '[0-9]';
-    }
-    if(alcohol === 1){
-      alcohol_min = 5.5;
-    }else if(alcohol === 2){
-      alcohol_max = 5.4;
-    }
-
-    if(place === 1){
-      place = 'CU';
-    }else if(place === 2){
-      place = 'GS25';
-    }else if(place === 3){
-      place = '세븐일레븐';
-    }else{
-      place = '[a-z|가-힇]';
-    }
-
-models.sequelize.query('(SELECT * FROM beers WHERE (place regexp '+"'"+place+"'"+') AND (flavor regexp '+"'"+flavor+"'"+') AND (soda regexp '+"'"+soda+"'"+') AND (alcohol BETWEEN '+alcohol_min+' AND '+alcohol_max+') ORDER BY RAND() LIMIT 2);').then(result => {
-        if (result){
-            console.log('result: ' + result.toString());
-            console.log('길이 : '+result[0].length);
-            if(result[0].length === 2){
-              return res.status(200).json({success: true, message: result[0]})
-            }else{
-              models.sequelize.query('(SELECT * FROM beers WHERE (place regexp '+"'"+place+"'"+') AND (flavor regexp '+"'"+flavor+"'"+') AND (soda regexp '+"'"+'[0-9]'+"'"+') AND (alcohol BETWEEN 0 AND 99) ORDER BY RAND() LIMIT 2);').then(result => {
-                if (result){
-                  console.log("첫 결과가 2개가 안되서 두번째 검색(길이) : : "+result[0].length);
-                  return res.status(200).json({success: true, message: result[0]})
-                } else {
-                    console.log('result없음');
-                    return res.status(403).json({success: false, message: 'user update query failed.'})
-                }
-              }).catch(function (err){
-                  return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-              })
-           }
-        } else {
-            console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
-        }
-    }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    });
-}
-
-function getTwoBeer (req, res) {
-    const kakao_id = req.body.kakao_id;
-    const rest3 = req.body.rest3;
-    const rest4 = req.body.rest4;
-
-    models.sequelize.query('SELECT * FROM beers WHERE id= '+rest3+' UNION SELECT * FROM beers WHERE id= '+rest4+';').then(result => {
-        if (result){
-            console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result[0]})
-        } else {
-            console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
-        }
-    }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-    });
-    //}
 }
 
 function crawlImage (req, res) {
@@ -1847,12 +1591,10 @@ module.exports = {
     previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,
     updateLimitCnt: updateLimitCnt,
-    updateStamp: updateStamp,
     updateState: updateState,
     updateChatLog: updateChatLog,
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
-    getRestInfo: getRestInfo,
     getTwoRestaurant: getTwoRestaurant,
     getRestaurantInfo: getRestaurantInfo,
     updateUserStart: updateUserStart,
@@ -1860,9 +1602,6 @@ module.exports = {
     updatePlaceInfo: updatePlaceInfo,
     updateMidInfo: updateMidInfo,
     updateRest2: updateRest2,
-    getLastHistory: getLastHistory,
-    getTodayHistory: getTodayHistory,
-    getThreeHistory: getThreeHistory,
     getSubwayHistory: getSubwayHistory,
     verifyLimit: verifyLimit,
     createUserLog: createUserLog,
@@ -1872,12 +1611,8 @@ module.exports = {
     getFeedbackInfo: getFeedbackInfo,
     getAllSubway: getAllSubway,
     getAllRestsaurant: getAllRestsaurant,
-    updateClosedown: updateClosedown,
     verifySubway: verifySubway,
     getSubwayListHistory: getSubwayListHistory,
 
     createDecideHistory: createDecideHistory,
-    getBeer:getBeer,
-    getTwoBeer:getTwoBeer,
-    updateBeerOnly2:updateBeerOnly2
 }
