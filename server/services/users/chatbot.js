@@ -1807,20 +1807,11 @@ function previousRegisterUser (req, res) {
  function getSubwayListHistory (req, res) {
      const email = req.query.email;
 
-     models.Decide_history.findAll({
-         attributes: ['subway','date'],
-         group: 'subway',
-         where: {
-             email: email
-         },
-         order: [
-             // Will escape username and validate DESC against a list of valid direction parameters
-             ['date']
-         ],
-         limit: 5
-     }).then(result => {
+     models.sequelize.query(`SELECT p.subway, p.date
+FROM decide_histories AS p
+WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND email = '${email}') GROUP BY subway ORDER BY date LIMIT 5;`).then(result => {
        if (result) {
-         let user_subway_array = result.reduce((acc,cur) => {
+         let user_subway_array = result[0].reduce((acc,cur) => {
            let history_date = moment(cur.date).format('MM.DD');
            acc.push({
              'subway': cur.subway,
