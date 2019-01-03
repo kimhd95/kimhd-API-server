@@ -74,7 +74,7 @@ const User = sequelize.define('user', {
     alone_level: Sequelize.INTEGER,
     stamp: Sequelize.INTEGER,
     subway: Sequelize.STRING,
-    exit_quarter: Sequelize.INTEGER,
+    exit_quarter: Sequelize.STRING,
     with_mood: Sequelize.STRING,
     mood2: Sequelize.STRING,
     taste: Sequelize.STRING,
