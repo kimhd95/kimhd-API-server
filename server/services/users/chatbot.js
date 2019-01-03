@@ -720,7 +720,7 @@ function getRestaurant (req, res) {
     subway = 'x';
     subway_flag = 'NOT';
   }
-  if(exit_quarter === 999){
+  if(exit_quarter.includes('999')){
     exit_quarter = '1,2,3,4';
   }
   if(taste.includes('!-')){
@@ -1667,6 +1667,7 @@ module.exports = {
     getAllRestsaurant: getAllRestsaurant,
     verifySubway: verifySubway,
     getSubwayListHistory: getSubwayListHistory,
+    getUserInfoByEmail: getUserInfoByEmail,
 
     createDecideHistory: createDecideHistory,
 }
