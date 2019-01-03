@@ -955,6 +955,55 @@ function getUserInfo (req, res) {
     }
 }
 
+function getUserInfoByEmail (req, res) {
+    console.log('getUserInfo called.')
+    const email = req.params.email;
+    let nowDate = new Date();
+    nowDate.getTime();
+    const now = nowDate;
+
+    if (email_id) {
+        models.User.findOne({
+            where: {
+                email: email
+            }
+        }).then(user => {
+            if (!user){
+                return res.status(403).json({success: false, message: 'user not found with email: ' + email})
+            }
+            models.UserLog.findAll({
+                where: {
+                    email: email
+                },
+                order: [
+                    // Will escape username and validate DESC against a list of valid direction parameters
+                    ['id', 'DESC']
+                ]
+            }).then(userLog => {
+                console.log('userLog findAll finished.')
+                if (userLog){
+                    //console.log(userLog);
+                    models.User.update({
+                        exit: 0,
+                        //updated_at: now
+                    }, {
+                        where: {email: email} // Condition
+                    })
+                    return res.status(200).json({success: true, message: 'user and user_log both found.', user_info: user, user_log: userLog})
+                } else {
+                    // Return when no data found
+                    return res.status(403).json({success: false, message: 'No userLog found with given email.'})
+                }
+            }).catch(function (err){
+                return res.status(403).json({success: false, user_info: user, message: 'user info found. But error occured while retrieving logs.', error: err.message})
+            })
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: err.message})
+        })
+    } else {
+        return res.status(403).json({success: false, message: 'email not given.'})
+    }
+}
 
 function getRestaurantInfo (req, res) {
     console.log('getRestaurantInfo called.')
