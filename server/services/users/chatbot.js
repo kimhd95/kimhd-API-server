@@ -1667,6 +1667,7 @@ module.exports = {
     getAllRestsaurant: getAllRestsaurant,
     verifySubway: verifySubway,
     getSubwayListHistory: getSubwayListHistory,
+    getUserInfoByEmail: getUserInfoByEmail,
 
     createDecideHistory: createDecideHistory,
 }
