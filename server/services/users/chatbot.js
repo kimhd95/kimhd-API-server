@@ -531,7 +531,8 @@ function updateUser (req, res) {
     const mood2 = req.body.mood2;
     const taste = req.body.taste;
     const food_type = req.body.food_type;
-    const chat_log = req.body.chat_log
+    const chat_log = req.body.chat_log;
+    const freq_subway = req.body.freq_subway;
 
 
 
@@ -657,6 +658,9 @@ function updateUser (req, res) {
     } else if(food_type){
         param_name = 'food_type';
         param_value = food_type;
+    } else if(freq_subway){
+        param_name = 'freq_subway';
+        param_value = freq_subway;
     }
 
     if (param_value){
@@ -981,6 +985,7 @@ function updateUserStart (req, res) {
     models.User.update(
         {
             subway: null,
+            freq_subway: null,
             exit_quarter: null,
             with_mood: null,
             rest1: null,
