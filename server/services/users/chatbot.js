@@ -963,7 +963,7 @@ function getUserInfoByEmail (req, res) {
     nowDate.getTime();
     const now = nowDate;
 
-    if (email_id) {
+    if (email) {
         models.User.findOne({
             where: {
                 email: email
@@ -1517,7 +1517,7 @@ function crawlTwoImage (req, res) {
 }
 
 function previousRegisterUser (req, res) {
-     let email_example = String(Math.floor(Math.random() * 100000) + 1);
+    //  let email_example = String(Math.floor(Math.random() * 100000) + 1);
      let kakao_id;
      if (req.body){
          kakao_id = req.body.kakao_id
@@ -1547,11 +1547,13 @@ function previousRegisterUser (req, res) {
          } else {
              models.User.create({
                  kakao_id: kakao_id,
+                 email: req.body.email,
+                 password: req.body.password,
                  //encrypted_kakao_id: encrypted_kakao_id,
                  scenario: '100',
                  state: 'init',
+                 social: false,
                  registered: '0',
-                 email: email_example
              }).then(user => {
                  return res.status(201).json({success: true, message: 'user created.', user: user})
              }).catch(function (err){
