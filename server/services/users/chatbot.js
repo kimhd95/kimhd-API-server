@@ -661,6 +661,9 @@ function updateUser (req, res) {
     } else if(freq_subway){
         param_name = 'freq_subway';
         param_value = freq_subway;
+    } else if(email){
+        param_name = 'email';
+        param_value = email;
     }
 
     if (param_value){
