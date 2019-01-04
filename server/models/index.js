@@ -20,7 +20,8 @@ const sequelize = new Sequelize(
     config.mysql.database,
     config.mysql.username,
     config.mysql.password, {
-        logging: config.mysql.logging,
+        logging: false,
+        // logging: config.mysql.logging,
         host: config.mysql.host,
         dialect: 'mysql',
         timezone: '+09:00',
