@@ -894,7 +894,8 @@ function updateChatLog (req, res) {
             chat_log: chat_log,
         },     // What to update
         {where: {
-                socket_id: socket_id}
+                socket_id: socket_id},
+                logging: false
         })  // Condition
         .then(result => {
             return res.status(200).json({success: true, message: 'User Socket Update complete.'})
