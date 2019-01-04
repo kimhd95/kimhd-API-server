@@ -1553,7 +1553,6 @@ function previousRegisterUser (req, res) {
                  state: 'init',
                  social: false,
                  registered: '0',
-                 email: email_example
              }).then(user => {
                  return res.status(201).json({success: true, message: 'user created.', user: user})
              }).catch(function (err){
