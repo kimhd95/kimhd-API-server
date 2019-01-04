@@ -1545,7 +1545,7 @@ function previousRegisterUser (req, res) {
                })
          } else {
              models.User.create({
-                 kakao_id: kakao_id,
+                 kakao_id: req.body.kakao_id,
                  email: req.body.email,
                  password: req.body.password,
                  //encrypted_kakao_id: encrypted_kakao_id,
