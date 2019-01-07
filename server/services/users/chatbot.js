@@ -664,7 +664,7 @@ function updateUser (req, res) {
     }
 
     if (param_value !== null){
-        models.sequelize.query('UPDATE users SET ' + param_name + " = " + param_value + ' WHERE kakao_id = ' + kakao_id + ";").then(result => {
+        models.sequelize.query(`UPDATE users SET ${param_name} = ${param_value} WHERE kakao_id = ${kakao_id};`).then(result => {
             if (result){
               if (param_name !== 'chat_log') {
                 console.log('result: ' + result.toString() + '끝');
