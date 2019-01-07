@@ -1283,94 +1283,68 @@ function updateLimitCnt (req, res) {
     console.log('updateMidInfo called.')
     const kakao_id = req.body.kakao_id;
     const limit_cnt = req.body.limit_cnt;
-    const date = moment().format('MM/DD/H');
+    const date = moment().format();
 
     // let nowDate = new Date();
     // nowDate.getTime();
     // const now = nowDate;
 
-    models.User.update(
-        {
-            limit_cnt: limit_cnt,
-            decide_updated_at: date,
-        },     // What to update
-        {where: {
-                kakao_id: kakao_id}
-        })  // Condition
-        .then(result => {
-            return res.status(200).json({success: true, message: 'updateLimitCnt Update complete.'})
-        }).catch(function (err){
-        return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
-    })
+    if (limit_cnt === 1) {
+      models.User.update(
+          {
+              limit_cnt: limit_cnt,
+              decide_updated_at: date,
+          },     // What to update
+          {where: {
+                  kakao_id: kakao_id}
+          })  // Condition
+          .then(result => {
+              return res.status(200).json({success: true, message: 'updateLimitCnt Update complete.'})
+          }).catch(function (err){
+          return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+      });
+    } else {
+      models.User.update(
+          {
+              limit_cnt: limit_cnt,
+          },     // What to update
+          {where: {
+                  kakao_id: kakao_id}
+          })  // Condition
+          .then(result => {
+              return res.status(200).json({success: true, message: 'updateLimitCnt Update complete.'})
+          }).catch(function (err){
+          return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+      });
+    }
 }
 
-function verifyLimit (req, res) { //끼니 당 3회 제한 판별 API함수
+function verifyLimit (req, res) { // 30분 당 5회 제한 판별 API함수
     console.log('verifyLimit called.')
     const kakao_id = req.body.kakao_id;
     const limit_cnt = req.body.limit_cnt; //현재 유저DB의 메뉴결정 횟수
+    let decide_updated_at = req.body.decide_updated_at; //현재 유저의 마지막 메뉴결정 시간
+    const now_time = moment();
+    const last_select_min = now_time.diff(decide_updated_at, 'minutes');
 
-    let decide_updated_at = req.body.decide_updated_at; //현재 유저의 마지막 메뉴결정 day/hour
-    if(decide_updated_at === null){
-      decide_updated_at = '99/99/99';
-    }
-    decide_updated_at = decide_updated_at.split('/');
-    let now_time = moment().format('MM/DD/H'); //지금의 day/hour
-    now_time = now_time.split('/');
-
-    //hour에 따라, 0~9시,10~15시,16~24시를 기준으로 범위를 나눈다.
-    function calTimeRange(value){
-      if(value > 16){
-        return 3;
-      }else if(value > 10){
-        return 2;
-      }else{
-        return 1;
-      }
+    if (decide_updated_at === null) {
+      decide_updated_at = '2000-01-01 00:00:00';
     }
 
     /*
-    limit_cnt가 3일때,
-     날짜가 같을 떄
-      - 지금 시간의 범위와, 유저 시간의 범위가 같을 떄, 메뉴 고르기 제한
-       - month가 다르면, 메뉴 고르기 가능
-      - 지금 시간의 범위와, 유저 시간의 범위가 다를 떄, limit_cnt 0으로 초기화 시키고 메뉴 고르기 가능
-     날짜가 다를 때
-      - limit_cnt 0으로 초기화 시키고 메뉴 고르기 가능
+    음식점 선택 횟수(limit_cnt)가 5이고 decide_updated_at이 null이 아닐 때(신규가입 유저 고려),
+      마지막 선택 시간으로부터 30분이 지나면,
+        음식점 선택 횟수를 0으로 초기화하고 시나리오 진행 가능(success)
+      마지막 선택 시간으로부터 30분이 지나지 않았으면,
+        시나리오 진행 불가(failed)
+    음식점 선택 횟수가 5가 아닐 때,
+      마지막 선택 시간으로부터 30분이 지나면,
+        음식점 선택 횟수를 0으로 초기화하고 시나리오 진행 가능(success)
+      마지막 선택 시간으로부터 30분이 지나지 않았으면,
+        시나리오 진행 가능(success)
     */
-    if(limit_cnt === 3){
-      if(decide_updated_at[1] === now_time[1]){
-        if(calTimeRange(decide_updated_at[2]) === calTimeRange(now_time[2])){
-          if(decide_updated_at[0] === now_time[0]){
-            return res.status(200).json({result: 'failed'})
-          }else{
-            models.User.update(
-                {
-                    limit_cnt: 0,
-                },     // What to update
-                {where: {
-                        kakao_id: kakao_id}
-                })  // Condition
-                .then(result => {
-                  return res.status(200).json({result: 'success'})
-                }).catch(function (err){
-                return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
-            })
-          }
-        }else{
-          models.User.update(
-              {
-                  limit_cnt: 0,
-              },     // What to update
-              {where: {
-                      kakao_id: kakao_id}
-              })  // Condition
-              .then(result => {
-                return res.status(200).json({result: 'success'})
-              }).catch(function (err){
-              return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
-          })
-        }
-      }else{
+    if (limit_cnt === 5) {
+      if (last_select_min > 30) {
         models.User.update(
             {
                 limit_cnt: 0,
@@ -1382,10 +1356,27 @@ function verifyLimit (req, res) { //끼니 당 3회 제한 판별 API함수
               return res.status(200).json({result: 'success'})
             }).catch(function (err){
             return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
-        })
+        });
+      } else {
+        return res.status(200).json({result: 'failed'})
       }
-    }else{ //limit_cnt가 3이 아닌경우 계속 진행 가능
-      return res.status(200).json({result: 'success'})
+    } else {
+      if (last_select_min > 30) {
+        models.User.update(
+            {
+                limit_cnt: 0,
+            },     // What to update
+            {where: {
+                    kakao_id: kakao_id}
+            })  // Condition
+            .then(result => {
+              return res.status(200).json({result: 'success'})
+            }).catch(function (err){
+            return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+        });
+      } else {
+        return res.status(200).json({result: 'success'})
+      }
     }
 }
 
