@@ -713,7 +713,7 @@ function getRestaurant (req, res) {
   let mood2_flag = '';
 
 
-  if(mood === '캐주얼'){
+  if(mood === '캐주얼' || mood2 === '상관없음'){
     mood2_flag = 'NOT';
     mood2 = 'x';
   }else{
