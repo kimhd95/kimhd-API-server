@@ -755,11 +755,28 @@ function getRestaurant (req, res) {
    ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
 ORDER BY RAND() LIMIT 2;`).then(result => {
-    if (result[0].length === 2){
-        console.log('result: ' + result.toString())
-        return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-    } else {
-        return res.status(403).json({success: false, message: 'Unknown error while getting restaurant.'})
+      if (result[0].length === 2){
+          console.log('result: ' + result.toString())
+          return res.status(200).json({success: true, try: 1, message: result[0]})
+      } else {
+        models.sequelize.query(`SELECT * FROM restaurants WHERE
+         ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+        (exit_quarter IN (1,2,3,4)) AND
+        (match(mood) against('${mood}' in boolean mode)) AND
+         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+        NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
+         ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+         ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
+      ORDER BY RAND() LIMIT 2;`).then(second_result => {
+        if (second_result[0].length === 2) {
+          console.log('second result: ' + second_result.toString())
+          return res.status(200).json({success: true, try: 2, message: second_result[0]})
+        } else {
+          return res.status(403).json({success: false, message: 'Unknown error while getting restaurant.'})
+        }
+      }).catch( err => {
+            return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+      });
     }
   }).catch( err => {
         return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
