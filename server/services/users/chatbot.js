@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const qs = require('qs');
 const Hangul = require('hangul-js');
+const nodemailer = require('nodemailer');
 
 const param = {};
 client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agent setting
@@ -39,6 +40,7 @@ function verifyToken (req, res) {
     console.log(`cookie: ${cookie}`);
     console.log(`token: ${token}`);
 
+    console.log(token);
     if (token) {
         console.log('token given');
 
@@ -354,7 +356,33 @@ function sendNewPassword (req, res) {
                 }
                 user.password = hash;
                 user.save().then(_ => {
-                    return res.status(200).json([email, newPassword]);
+                    let transporter = nodemailer.createTransport({
+                        service:'gmail',
+                        auth: {
+                            type: 'OAuth2',
+                            user: 'support@jellylab.io',
+                            clientId: '732880438602-u5pbho778b6i4bsvig2ma7v13n7hk4nb.apps.googleusercontent.com', //환경변수로 설정해 놓는 것을 권장합니다.
+                            clientSecret: '6-XLCJjd-AWJ-qYkkBOO-CUr', //환경변수로 설정해 놓는 것을 권장합니다.
+                            refreshToken: '1/jU0ghdET2MC5LMmJ0FpyG1CJRQNWGcmJ20Jvwh0pW-c', //환경변수로 설정해 놓는 것을 권장합니다.
+                            accessToken: 'ya29.GlsOBsVLRfET8HR609HWOO65krRrwAJUFXbyROg6mrIG91NBFWL6sN3wz0KP71zp1LkxMQXKNcUf8RoLV-PnFkRIni-vA75BWLfXz2REQQVzmTxy4d_1IdmUpIGi', //환경변수로 설정해 놓는 것을 권장합니다.
+                            expires: 3600
+                        }
+                    });
+                    let mailOptions = {
+                        from: '젤리랩 <support@jellylab.io>',
+                        to: `${email}`,
+                        subject: '변경된 임시 비밀번호를 전달해드립니다.',
+                        html: `변경된 임시 비밀번호는 <b>${newPassword}</b>입니다. 임시 비밀번호로 로그인 후 비밀번호를 변경하여 이용 부탁드립니다.`
+                    }
+
+                    transporter.sendMail(mailOptions, function(err, info) {
+                        if ( err ) {
+                            console.error('Send Mail error : ', err);
+                        } else {
+                            console.log('Message sent : ', info);
+                            return res.status(200).json({ success: true });
+                        }
+                    });
                 })
             })
         }
