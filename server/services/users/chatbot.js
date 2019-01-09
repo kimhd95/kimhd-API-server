@@ -1468,6 +1468,34 @@ function verifySubway (req, res) {
     });
 }
 
+function verifySubwayDrinktype (req, res) {
+    let subway;
+    if ((req.body.subway !== undefined)){
+        subway = req.body.subway;
+    } else {
+        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+            subway: req.body.subway});
+    }
+
+    models.Restaurant.findOne({
+        where: {
+            subway: subway,
+            drink_type: {
+              [Op.ne]: null
+            }
+        }})
+        .then(result => {
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
+        } else {
+            res.status(200).json({result: 'no subway'})
+        }
+    }).catch(err => {
+        logger.error("DB Error in verifySubway :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
+}
+
 function crawlImage (req, res) {
   const res1 = req.body.res1;
 
@@ -1675,6 +1703,7 @@ module.exports = {
     getAllSubway: getAllSubway,
     getAllRestsaurant: getAllRestsaurant,
     verifySubway: verifySubway,
+    verifySubwayDrinktype: verifySubwayDrinktype,
     getSubwayListHistory: getSubwayListHistory,
     getUserInfoByEmail: getUserInfoByEmail,
 
