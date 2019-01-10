@@ -229,7 +229,7 @@ function login (req, res) {
                                 }
                             }
                             res.header('Access-Control-Allow-Credentials', 'true');
-                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/chat'});
+                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/lobby'});
                         });
                 } else {
                     return res.status(403).json({
