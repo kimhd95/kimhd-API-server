@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const qs = require('qs');
 const Hangul = require('hangul-js');
+const nodemailer = require('nodemailer');
 
 const param = {};
 client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agent setting
@@ -39,6 +40,7 @@ function verifyToken (req, res) {
     console.log(`cookie: ${cookie}`);
     console.log(`token: ${token}`);
 
+    console.log(token);
     if (token) {
         console.log('token given');
 
@@ -354,7 +356,33 @@ function sendNewPassword (req, res) {
                 }
                 user.password = hash;
                 user.save().then(_ => {
-                    return res.status(200).json([email, newPassword]);
+                    let transporter = nodemailer.createTransport({
+                        service:'gmail',
+                        auth: {
+                            type: 'OAuth2',
+                            user: 'support@jellylab.io',
+                            clientId: '732880438602-u5pbho778b6i4bsvig2ma7v13n7hk4nb.apps.googleusercontent.com', //환경변수로 설정해 놓는 것을 권장합니다.
+                            clientSecret: '6-XLCJjd-AWJ-qYkkBOO-CUr', //환경변수로 설정해 놓는 것을 권장합니다.
+                            refreshToken: '1/jU0ghdET2MC5LMmJ0FpyG1CJRQNWGcmJ20Jvwh0pW-c', //환경변수로 설정해 놓는 것을 권장합니다.
+                            accessToken: 'ya29.GlsOBsVLRfET8HR609HWOO65krRrwAJUFXbyROg6mrIG91NBFWL6sN3wz0KP71zp1LkxMQXKNcUf8RoLV-PnFkRIni-vA75BWLfXz2REQQVzmTxy4d_1IdmUpIGi', //환경변수로 설정해 놓는 것을 권장합니다.
+                            expires: 3600
+                        }
+                    });
+                    let mailOptions = {
+                        from: '젤리랩 <support@jellylab.io>',
+                        to: `${email}`,
+                        subject: '변경된 임시 비밀번호를 전달해드립니다.',
+                        html: `변경된 임시 비밀번호는 <b>${newPassword}</b>입니다. 임시 비밀번호로 로그인 후 비밀번호를 변경하여 이용 부탁드립니다.`
+                    }
+
+                    transporter.sendMail(mailOptions, function(err, info) {
+                        if ( err ) {
+                            console.error('Send Mail error : ', err);
+                        } else {
+                            console.log('Message sent : ', info);
+                            return res.status(200).json({ success: true });
+                        }
+                    });
                 })
             })
         }
@@ -496,7 +524,6 @@ function updatePassword (req, res) {
 function updateUser (req, res) {
     console.log('updateUser called.');
     let kakao_id;
-
     if (req.body){
         kakao_id = req.body.kakao_id;
         if (!kakao_id){
@@ -664,7 +691,8 @@ function updateUser (req, res) {
     }
 
     if (param_value){
-        models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
+      if (param_value == 'null') {
+        models.sequelize.query(`UPDATE users SET ${param_name} = NULL WHERE kakao_id = '${kakao_id}';`).then(result => {
             if (result){
               if (param_name !== 'chat_log') {
                 console.log('result: ' + result.toString() + '끝');
@@ -676,6 +704,21 @@ function updateUser (req, res) {
         }).catch(function (err){
             return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
         })
+      } else {
+        models.sequelize.query(`UPDATE users SET ${param_name} = '${param_value}' WHERE kakao_id = '${kakao_id}';`).then(result => {
+            if (result){
+              if (param_name !== 'chat_log') {
+                console.log('result: ' + result.toString() + '끝');
+              }
+                return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
+            } else {
+                return res.status(403).json({success: false, message: 'user update query failed.'})
+            }
+        }).catch(function (err){
+            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+        })
+      }
+      //  models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
     } else {
         return res.status(403).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
             'And one more parameter is required among name, initials, user_code, email, phone, sex, birthday'})
@@ -698,7 +741,7 @@ function getRestaurant (req, res) {
   let mood2_flag = '';
 
 
-  if(mood === '캐주얼'){
+  if(mood === '캐주얼' || mood2 === '상관없음'){
     mood2_flag = 'NOT';
     mood2 = 'x';
   }else{
@@ -740,11 +783,28 @@ function getRestaurant (req, res) {
    ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
 ORDER BY RAND() LIMIT 2;`).then(result => {
-    if (result[0].length === 2){
-        console.log('result: ' + result.toString())
-        return res.status(200).json({success: true, comment: '좋아! 2곳을 골라줄테니까 한 번 골라봐!', message: result[0]})
-    } else {
-        return res.status(403).json({success: false, message: 'Unknown error while getting restaurant.'})
+      if (result[0].length === 2){
+          console.log('result: ' + result.toString())
+          return res.status(200).json({success: true, try: 1, message: result[0]})
+      } else {
+        models.sequelize.query(`SELECT * FROM restaurants WHERE
+         ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+        (exit_quarter IN (1,2,3,4)) AND
+        (match(mood) against('${mood}' in boolean mode)) AND
+         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+        NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
+         ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+         ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
+      ORDER BY RAND() LIMIT 2;`).then(second_result => {
+        if (second_result[0].length === 2) {
+          console.log('second result: ' + second_result.toString())
+          return res.status(200).json({success: true, try: 2, message: second_result[0]})
+        } else {
+          return res.status(403).json({success: false, message: 'Unknown error while getting restaurant.'})
+        }
+      }).catch( err => {
+            return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+      });
     }
   }).catch( err => {
         return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
@@ -1268,94 +1328,68 @@ function updateLimitCnt (req, res) {
     console.log('updateMidInfo called.')
     const kakao_id = req.body.kakao_id;
     const limit_cnt = req.body.limit_cnt;
-    const date = moment().format('MM/DD/H');
+    const date = moment().format();
 
     // let nowDate = new Date();
     // nowDate.getTime();
     // const now = nowDate;
 
-    models.User.update(
-        {
-            limit_cnt: limit_cnt,
-            decide_updated_at: date,
-        },     // What to update
-        {where: {
-                kakao_id: kakao_id}
-        })  // Condition
-        .then(result => {
-            return res.status(200).json({success: true, message: 'updateLimitCnt Update complete.'})
-        }).catch(function (err){
-        return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
-    })
+    if (limit_cnt === 1) {
+      models.User.update(
+          {
+              limit_cnt: limit_cnt,
+              decide_updated_at: date,
+          },     // What to update
+          {where: {
+                  kakao_id: kakao_id}
+          })  // Condition
+          .then(result => {
+              return res.status(200).json({success: true, message: 'updateLimitCnt Update complete.'})
+          }).catch(function (err){
+          return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+      });
+    } else {
+      models.User.update(
+          {
+              limit_cnt: limit_cnt,
+          },     // What to update
+          {where: {
+                  kakao_id: kakao_id}
+          })  // Condition
+          .then(result => {
+              return res.status(200).json({success: true, message: 'updateLimitCnt Update complete.'})
+          }).catch(function (err){
+          return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+      });
+    }
 }
 
-function verifyLimit (req, res) { //끼니 당 3회 제한 판별 API함수
+function verifyLimit (req, res) { // 30분 당 5회 제한 판별 API함수
     console.log('verifyLimit called.')
     const kakao_id = req.body.kakao_id;
     const limit_cnt = req.body.limit_cnt; //현재 유저DB의 메뉴결정 횟수
+    let decide_updated_at = req.body.decide_updated_at; //현재 유저의 마지막 메뉴결정 시간
+    const now_time = moment();
+    const last_select_min = now_time.diff(decide_updated_at, 'minutes');
 
-    let decide_updated_at = req.body.decide_updated_at; //현재 유저의 마지막 메뉴결정 day/hour
-    if(decide_updated_at === null){
-      decide_updated_at = '99/99/99';
-    }
-    decide_updated_at = decide_updated_at.split('/');
-    let now_time = moment().format('MM/DD/H'); //지금의 day/hour
-    now_time = now_time.split('/');
-
-    //hour에 따라, 0~9시,10~15시,16~24시를 기준으로 범위를 나눈다.
-    function calTimeRange(value){
-      if(value > 16){
-        return 3;
-      }else if(value > 10){
-        return 2;
-      }else{
-        return 1;
-      }
+    if (decide_updated_at === null) {
+      decide_updated_at = '2000-01-01 00:00:00';
     }
 
     /*
-    limit_cnt가 3일때,
-     날짜가 같을 떄
-      - 지금 시간의 범위와, 유저 시간의 범위가 같을 떄, 메뉴 고르기 제한
-       - month가 다르면, 메뉴 고르기 가능
-      - 지금 시간의 범위와, 유저 시간의 범위가 다를 떄, limit_cnt 0으로 초기화 시키고 메뉴 고르기 가능
-     날짜가 다를 때
-      - limit_cnt 0으로 초기화 시키고 메뉴 고르기 가능
+    음식점 선택 횟수(limit_cnt)가 5이고 decide_updated_at이 null이 아닐 때(신규가입 유저 고려),
+      마지막 선택 시간으로부터 30분이 지나면,
+        음식점 선택 횟수를 0으로 초기화하고 시나리오 진행 가능(success)
+      마지막 선택 시간으로부터 30분이 지나지 않았으면,
+        시나리오 진행 불가(failed)
+    음식점 선택 횟수가 5가 아닐 때,
+      마지막 선택 시간으로부터 30분이 지나면,
+        음식점 선택 횟수를 0으로 초기화하고 시나리오 진행 가능(success)
+      마지막 선택 시간으로부터 30분이 지나지 않았으면,
+        시나리오 진행 가능(success)
     */
-    if(limit_cnt === 3){
-      if(decide_updated_at[1] === now_time[1]){
-        if(calTimeRange(decide_updated_at[2]) === calTimeRange(now_time[2])){
-          if(decide_updated_at[0] === now_time[0]){
-            return res.status(200).json({result: 'failed'})
-          }else{
-            models.User.update(
-                {
-                    limit_cnt: 0,
-                },     // What to update
-                {where: {
-                        kakao_id: kakao_id}
-                })  // Condition
-                .then(result => {
-                  return res.status(200).json({result: 'success'})
-                }).catch(function (err){
-                return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
-            })
-          }
-        }else{
-          models.User.update(
-              {
-                  limit_cnt: 0,
-              },     // What to update
-              {where: {
-                      kakao_id: kakao_id}
-              })  // Condition
-              .then(result => {
-                return res.status(200).json({result: 'success'})
-              }).catch(function (err){
-              return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
-          })
-        }
-      }else{
+    if (limit_cnt === 5) {
+      if (last_select_min > 30) {
         models.User.update(
             {
                 limit_cnt: 0,
@@ -1367,10 +1401,27 @@ function verifyLimit (req, res) { //끼니 당 3회 제한 판별 API함수
               return res.status(200).json({result: 'success'})
             }).catch(function (err){
             return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
-        })
+        });
+      } else {
+        return res.status(200).json({result: 'failed'})
       }
-    }else{ //limit_cnt가 3이 아닌경우 계속 진행 가능
-      return res.status(200).json({result: 'success'})
+    } else {
+      if (last_select_min > 30) {
+        models.User.update(
+            {
+                limit_cnt: 0,
+            },     // What to update
+            {where: {
+                    kakao_id: kakao_id}
+            })  // Condition
+            .then(result => {
+              return res.status(200).json({result: 'success'})
+            }).catch(function (err){
+            return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+        });
+      } else {
+        return res.status(200).json({result: 'success'})
+      }
     }
 }
 
@@ -1451,6 +1502,34 @@ function verifySubway (req, res) {
             subway: subway
         }
     }).then(result => {
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
+        } else {
+            res.status(200).json({result: 'no subway'})
+        }
+    }).catch(err => {
+        logger.error("DB Error in verifySubway :"+err.message);
+        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+    });
+}
+
+function verifySubwayDrinktype (req, res) {
+    let subway;
+    if ((req.body.subway !== undefined)){
+        subway = req.body.subway;
+    } else {
+        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+            subway: req.body.subway});
+    }
+
+    models.Restaurant.findOne({
+        where: {
+            subway: subway,
+            drink_type: {
+              [Op.ne]: null
+            }
+        }})
+        .then(result => {
         if(result !== null) {
             res.status(200).json({result: 'success'})
         } else {
@@ -1669,6 +1748,7 @@ module.exports = {
     getAllSubway: getAllSubway,
     getAllRestsaurant: getAllRestsaurant,
     verifySubway: verifySubway,
+    verifySubwayDrinktype: verifySubwayDrinktype,
     getSubwayListHistory: getSubwayListHistory,
     getUserInfoByEmail: getUserInfoByEmail,
 

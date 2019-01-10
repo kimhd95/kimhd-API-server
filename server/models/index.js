@@ -162,6 +162,7 @@ const Restaurant = sequelize.define('restaurant', {
     res_size: Sequelize.STRING,
     calories: Sequelize.INTEGER,
     res_phone: Sequelize.STRING,
+    drink_type: Sequelize.STRING,
     closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
   },{
     indexes: [

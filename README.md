@@ -27,6 +27,8 @@ food-chatbot에 이용되는 API들을 관리하는 서버. ORM으로 Sequelize�
 
 - food-chatbot의 마지막 시나리오에 사용되는 주 API로서, 사용자가 선택한 조건에 따라, 알맞은 음식점 두 곳을 선택해준다.
 - - FULL-TEXT-SEARCH 방식으로 쿼리를 작성하였으며, 시나리오상의 **'상관없음'**, **'~ 빼고'** 를 선택한 경우를 고려하여 각 쿼리문 앞에 NOT을 판단하는 변수를 두어, 예외처리를 할 수 있게 하였다.
+- 만약 첫번째  쿼리에서 결과가 2개가 안나올 시, 출구(exit_quarter)를 전체로 두고 다시 검색해서 결과를 return 한다.
+- **try** 값으로, 첫 번째 만에 2곳이 나왔는지, 두 번째에 2곳이 나왔는지를 구분한다.
 
 **updateSocket**
 
@@ -50,25 +52,42 @@ food-chatbot에 이용되는 API들을 관리하는 서버. ORM으로 Sequelize�
 
 - 사용자의 대화 로그를 하나 씩 기록하는 API, 봇이 한 말은 id가 foodle로 저장된다.
 
+**updateLimitCnt**
+
+기본값 0에서, '메뉴 고르기' 시나리오를 수행할 때 마다, 조건에 따라 1씩 증가시키는 API
+
+>verifyLimit 참고
+
+- 요청된 limit_cnt가 1인 경우
+- - 처음 시작하는 경우이므로, decide_updated_at을 현재 시간으로 함께 업데이트 시킨다.
+- 요청된 limit_cnt가 1이 아닌 경우
+- - 처음 시작하는 경우가 아니므로, limit_cnt만 업데이트 시킨다.
+
 **verifyLimit**
 
-- food-chatbot은 '메뉴 고르기' 를 끼니 당 3번만 이용할 수 있다. 그 여부를 판단하는 API
-- - 16 ~ 23시 : 저녁
-  - 10 ~ 15시 : 점심
-  - 00 ~ 10시 : 아침
+- food-chatbot은 '메뉴 고르기' 를 30분 당 5번만 이용할 수 있다. 그 여부를 판단하는 API
 - User 테이블의 limit_cnt와, decided_updated_at 칼럼을 이용해서 여부를 판단한다.
-  - limit_cnt의 기본값은 0으로, 한번 '메뉴 고르기' 시나리오를 수행할 때 마다, updateLimitCnt API를 통해 1씩 증가하고, 동시에 decided_updated_at가 달/일/시간 으로 업데이트된다.(moment 모듈 사용)
+
+  - limit_cnt의 기본값은 0으로, 한번 '메뉴 고르기' 시나리오를 수행할 때 마다, updateLimitCnt API의 조건에 따라 1씩 증가하고, 조건에 따라 decided_updated_at가 업데이트된다.(moment 모듈 사용)
+
+  - >updateLimitCnt 참고
 - 판별 경우의 수
 
-- - limit_cnt가 3인 경우
-  - - 날짜(day)가 같을 때
-    - - 지금 시간의 범위와, 유저 시간(hour)의 범위가 같을 떄, 메뉴 고르기 제한('failed' return)
-      - - 위 조건에서 달(month) 이 다르면, 메뉴 고르기 가능('success' return)
-      - 지금 시간의 범위와, 유저 시간의 범위가 다를 떄, limit_cnt 0으로 초기화 시키고 메뉴 고르기 가능('success' return)
-    - 날짜(day)가 다를 때 
-    - - limit_cnt를 0으로 초기화 시킨후, 'success'를 return 한다.
-  - limit_cnt가 3이 아닌 경우
-  - - 시나리오가 정상 진행 가능함임을 판단하고, 메뉴 고르기 가능 ('success' return)
+- - 음식점 선택 횟수(limit_cnt)가 5일때
+  - - 마지막 선택 시간으로부터 30분이 지나면,
+    - - 음식점 선택 횟수(limit_cnt)를 0으로 초기화하고 시나리오 진행 가능(success)
+    - 마지막 선택 시간으로부터 30분이 지나지 않았으면,
+    - - 시나리오 진행 불가(failed)
+  - 음식점 선택 횟수(limit_cnt)가 5가 아닐 때,
+  - - 마지막 선택 시간으로부터 30분이 지나면,
+
+    - - 음식점 선택 횟수를 0으로 초기화하고 시나리오 진행 가능(success)
+
+      - > 이전 30분에 대한 조건은 끝났으므로, 다시 30분을 카운트 하기 위함.
+
+    - 마지막 선택 시간으로부터 30분이 지나지 않았으면,
+
+    - - 시나리오 진행 가능(success)
 
 **updateState**
 

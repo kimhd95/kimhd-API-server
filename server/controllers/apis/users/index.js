@@ -48,6 +48,7 @@ router.post('/update_state', chatbotService.updateState);
 router.get('/get_all_subway', chatbotService.getAllSubway);
 router.get('/get_all_restaurant', chatbotService.getAllRestsaurant);
 router.post('/verify_subway', chatbotService.verifySubway);
+router.post('/verify_subway_drinktype', chatbotService.verifySubwayDrinktype);
 router.post('/crawl_image', chatbotService.crawlImage);
 router.post('/crawl_two_image', chatbotService.crawlTwoImage);
 router.post('/previous_register_user', chatbotService.previousRegisterUser);
