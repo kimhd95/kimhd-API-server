@@ -690,39 +690,55 @@ function updateUser (req, res) {
         param_value = freq_subway;
     }
 
-    if (param_value){
-      if (param_value == 'null') {
-        models.sequelize.query(`UPDATE users SET ${param_name} = NULL WHERE kakao_id = '${kakao_id}';`).then(result => {
-            if (result){
-              if (param_name !== 'chat_log') {
-                console.log('result: ' + result.toString() + '끝');
-              }
-                return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
-            } else {
-                return res.status(403).json({success: false, message: 'user update query failed.'})
+    if (param_name === 'chat_log') {
+      models.sequelize.query(`UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`).then(result => {
+          if (result){
+            if (param_name !== 'chat_log') {
+              console.log('result: ' + result.toString() + '끝');
             }
-        }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-        })
-      } else {
-        models.sequelize.query(`UPDATE users SET ${param_name} = '${param_value}' WHERE kakao_id = '${kakao_id}';`).then(result => {
-            if (result){
-              if (param_name !== 'chat_log') {
-                console.log('result: ' + result.toString() + '끝');
-              }
-                return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
-            } else {
-                return res.status(403).json({success: false, message: 'user update query failed.'})
-            }
-        }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
-        })
-      }
-      //  models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
+              return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
+          } else {
+              return res.status(403).json({success: false, message: 'user update query failed.'})
+          }
+      }).catch(function (err){
+          return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+      })
     } else {
-        return res.status(403).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
-            'And one more parameter is required among name, initials, user_code, email, phone, sex, birthday'})
+      if (param_value){
+        if (param_value == 'null') {
+          models.sequelize.query(`UPDATE users SET ${param_name} = NULL WHERE kakao_id = '${kakao_id}';`).then(result => {
+              if (result){
+                if (param_name !== 'chat_log') {
+                  console.log('result: ' + result.toString() + '끝');
+                }
+                  return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
+              } else {
+                  return res.status(403).json({success: false, message: 'user update query failed.'})
+              }
+          }).catch(function (err){
+              return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+          })
+        } else {
+          models.sequelize.query(`UPDATE users SET ${param_name} = '${param_value}' WHERE kakao_id = '${kakao_id}';`).then(result => {
+              if (result){
+                if (param_name !== 'chat_log') {
+                  console.log('result: ' + result.toString() + '끝');
+                }
+                  return res.status(200).json({success: true, message: 'user data updated. Result info: ' + result[0].info})
+              } else {
+                  return res.status(403).json({success: false, message: 'user update query failed.'})
+              }
+          }).catch(function (err){
+              return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+          })
+        }
+        //  models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
+      } else {
+          return res.status(403).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
+              'And one more parameter is required among name, initials, user_code, email, phone, sex, birthday'})
+      }
     }
+
 }
 
 function getRestaurant (req, res) {
