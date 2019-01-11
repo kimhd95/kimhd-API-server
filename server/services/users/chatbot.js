@@ -952,6 +952,7 @@ function updateChatLog (req, res) {
     models.User.update(
         {
             chat_log: chat_log,
+            chat_log_jellylab: chat_log,
         },     // What to update
         {where: {
                 socket_id: socket_id},
