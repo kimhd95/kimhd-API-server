@@ -1743,16 +1743,10 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    const subway = req.body.subway;
    const exit_quarter = req.body.exit_quarter;
 
-     models.Restaurant.findAll({
-         attributes: ['drink_type'],
-         group: 'drink_type',
-         where: {
-             subway: subway,
-             exit_quarter: exit_quarter
-         }
-     }).then(result => {
+   models.sequelize.query(`SELECT drink_type FROM restaurants WHERE
+     subway = '${subway}' and exit_quarter IN (${exit_quarter}) GROUP BY drink_type;`).then(result => {
          if(result){
-             let drink_type_array = result.reduce((acc,cur) => {
+             let drink_type_array = result[0].reduce((acc,cur) => {
                if (String(cur.drink_type).includes(',')) {
                  cur = cur.drink_type.split(',');
                  cur.forEach(function(obj){
