@@ -1739,6 +1739,32 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      })
  }
 
+ function findSubwayDrinkType(req, res) {
+   const subway = req.body.subway;
+   const exit_quarter = req.body.exit_quarter;
+
+     models.Restaurant.findAll({
+         attributes: ['drink_type'],
+         group: 'drink_type',
+         where: {
+             subway: subway,
+             exit_quarter: exit_quarter
+         }
+     }).then(result => {
+         if(result){
+             let drink_type_array = result.reduce((acc,cur) => {
+               acc.push(cur.drink_type);
+               return acc;
+             },[]);
+
+             return res.status(200).json(drink_type_array);
+             // return '됨';
+         }else{
+             return res.status(404).json({error: 'no result'});
+         }
+     })
+ }
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
@@ -1783,6 +1809,7 @@ module.exports = {
     verifySubwayDrinktype: verifySubwayDrinktype,
     getSubwayListHistory: getSubwayListHistory,
     getUserInfoByEmail: getUserInfoByEmail,
+    findSubwayDrinkType: findSubwayDrinkType,
 
     createDecideHistory: createDecideHistory,
 }
