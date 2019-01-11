@@ -1684,6 +1684,37 @@ function previousRegisterUser (req, res) {
      });
  }
 
+ function deleteChatLog (req, res) {
+     const email = req.body.email;
+     models.User.findOne({
+         attributes: ['chat_log'],
+         where: {
+             email: email
+         }
+     }).then(user => {
+        if(user){
+          models.User.update(
+            {
+             chat_log: null,
+            },     // What to update
+            {where: {
+                   email: email}
+            })  // Condition
+            .then(result => {
+             return res.status(200).json({success: true, message: result.chat_log});
+            }).catch(err => {
+               logger.error("DB Error in reset Chat Log :"+err.message);
+               return res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+            });
+        } else{
+           return res.status(400).json({message: 'Cant find user email : ' + err.message})
+        }
+     }).catch(err => {
+         logger.error("DB Error in findUserEmail :"+err.message);
+         return res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+     });
+ }
+
  function getSubwayListHistory (req, res) {
      const email = req.query.email;
 
@@ -1723,6 +1754,7 @@ module.exports = {
     updatePassword: updatePassword,
     updateSocket: updateSocket,
     getChatLog: getChatLog,
+    deleteChatLog: deleteChatLog,
 
     previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,
