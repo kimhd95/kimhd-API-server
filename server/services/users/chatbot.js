@@ -1753,12 +1753,22 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      }).then(result => {
          if(result){
              let drink_type_array = result.reduce((acc,cur) => {
-               acc.push(cur.drink_type);
+               if (String(cur.drink_type).includes(',')) {
+                 cur = cur.drink_type.split(',');
+                 cur.forEach(function(obj){
+                   acc.push(obj);
+                 });
+               } else {
+                 acc.push(cur.drink_type);
+               }
                return acc;
              },[]);
+             let uniq_array = drink_type_array.reduce(function(a,b){
+             	if ((a.indexOf(b) < 0) && b !== null ) a.push(b);
+             	return a;
+             },[]);
 
-             return res.status(200).json(drink_type_array);
-             // return '됨';
+             return res.status(200).json(uniq_array);
          }else{
              return res.status(404).json({error: 'no result'});
          }
