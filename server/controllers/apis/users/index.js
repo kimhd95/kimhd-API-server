@@ -53,7 +53,7 @@ router.post('/crawl_image', chatbotService.crawlImage);
 router.post('/crawl_two_image', chatbotService.crawlTwoImage);
 router.post('/previous_register_user', chatbotService.previousRegisterUser);
 router.post('/get_chat_log', chatbotService.getChatLog);
-router.post('/delete_chat_log' chatbotService.deleteChatLog);
+router.post('/delete_chat_log', chatbotService.deleteChatLog);
 router.get('/get_subway_list_history', chatbotService.getSubwayListHistory);
 
 
