@@ -1743,22 +1743,26 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    const subway = req.body.subway;
    const exit_quarter = req.body.exit_quarter;
 
-     models.Restaurant.findAll({
-         attributes: ['drink_type'],
-         group: 'drink_type',
-         where: {
-             subway: subway,
-             exit_quarter: exit_quarter
-         }
-     }).then(result => {
+   models.sequelize.query(`SELECT drink_type FROM restaurants WHERE
+     subway = '${subway}' and exit_quarter IN (${exit_quarter}) GROUP BY drink_type;`).then(result => {
          if(result){
-             let drink_type_array = result.reduce((acc,cur) => {
-               acc.push(cur.drink_type);
+             let drink_type_array = result[0].reduce((acc,cur) => {
+               if (String(cur.drink_type).includes(',')) {
+                 cur = cur.drink_type.split(',');
+                 cur.forEach(function(obj){
+                   acc.push(obj);
+                 });
+               } else {
+                 acc.push(cur.drink_type);
+               }
                return acc;
              },[]);
+             let uniq_array = drink_type_array.reduce(function(a,b){
+             	if ((a.indexOf(b) < 0) && b !== null ) a.push(b);
+             	return a;
+             },[]);
 
-             return res.status(200).json(drink_type_array);
-             // return '됨';
+             return res.status(200).json(uniq_array);
          }else{
              return res.status(404).json({error: 'no result'});
          }
