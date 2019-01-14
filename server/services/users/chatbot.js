@@ -55,7 +55,7 @@ function verifyToken (req, res) {
                     }
                 }).then(user => {
 
-                    return res.status(200).json({success: true, message: 'Token verified.', email: user.email, nickname: user.nickname, redirect: '/chat'})
+                    return res.status(200).json({success: true, message: 'Token verified.', email: user.email, nickname: user.nickname, redirect: '/lobby'})
                 }).catch(function (err){
                     return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
                 })
@@ -231,7 +231,7 @@ function login (req, res) {
                                 }
                             }
                             res.header('Access-Control-Allow-Credentials', 'true');
-                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/chat'});
+                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/lobby'});
                         });
                 } else {
                     return res.status(403).json({
@@ -268,7 +268,7 @@ function socialLogin (req, res) {
                     return res.status(200).json({
                         success: true,
                         message: 'successfully social login',
-                        redirect: '/chat'
+                        redirect: '/lobby'
                     })
                 } else {
                     return res.status(403).json({
@@ -283,7 +283,7 @@ function socialLogin (req, res) {
                     nickname: name,
                     social: social,
                 }).then(user => {
-                    res.status(201).json({success: true, meesage: 'Ok', redirect: '/chat'});
+                    res.status(201).json({success: true, meesage: 'Ok', redirect: '/lobby'});
                 }).catch(err => {
                     if(err) res.status(500).json({
                         success: false,
