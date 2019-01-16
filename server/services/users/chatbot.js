@@ -55,7 +55,7 @@ function verifyToken (req, res) {
                     }
                 }).then(user => {
 
-                    return res.status(200).json({success: true, message: 'Token verified.', email: user.email, nickname: user.nickname, redirect: '/lobby'})
+                    return res.status(200).json({success: true, message: 'Token verified.', email: user.email, nickname: user.name, redirect: '/lobby'})
                 }).catch(function (err){
                     return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
                 })
@@ -143,7 +143,7 @@ function registerUser (req, res) {
         models.User.create({
             email: email,
             password: hash,
-            nickname: nickname,
+            name: nickname,
             gender: gender,
             birthYear: parseInt(birthYear),
             phone: phone,
@@ -282,7 +282,7 @@ function socialLogin (req, res) {
                 // DB에 등록
                 models.User.create({
                     email: email,
-                    nickname: name,
+                    name: name,
                     social: social,
                 }).then(user => {
                     res.status(201).json({success: true, meesage: 'Ok', redirect: '/lobby'});
@@ -535,7 +535,7 @@ function updateUser (req, res) {
         return res.status(403).json({success: false, message: 'No input parameters received in body.'})
     }
 
-    const nickname = req.body.nickname;
+    const name = req.body.name;
     const birthday = req.body.birthday;
     const sex = req.body.sex;
     const hate_food = req.body.hate_food;
@@ -562,10 +562,11 @@ function updateUser (req, res) {
     const food_type = req.body.food_type;
     const chat_log = req.body.chat_log;
     const freq_subway = req.body.freq_subway;
+    const drink_before = req.body.drink_before;
 
 
 
-    if(nickname){
+    if(name){
         // models.Medicine_time.create({
         //     kakao_id: kakao_id,
         //     encrypted_kakao_id: kakao_id,
@@ -589,8 +590,6 @@ function updateUser (req, res) {
 
         models.User.update({
             registered: 0,
-            daily_scenario: 0,
-            stamp: 0,
             encrypted_kakao_id: kakao_id //todo: 카카오아이디 암호화
         }, {
             where: {
@@ -612,9 +611,9 @@ function updateUser (req, res) {
 
     let param_name;
     let param_value;
-    if (nickname){
-        param_name = 'nickname';
-        param_value = nickname;
+    if (name){
+        param_name = 'name';
+        param_value = name;
     } else if (chat_log) {
         param_name = 'chat_log';
         param_value = chat_log;
@@ -690,6 +689,9 @@ function updateUser (req, res) {
     } else if(freq_subway){
         param_name = 'freq_subway';
         param_value = freq_subway;
+    } else if(drink_before){
+        param_name = 'drink_before';
+        param_value = drink_before;
     }
 
     if (param_name === 'chat_log') {
