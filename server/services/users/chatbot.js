@@ -103,7 +103,8 @@ function registerUser (req, res) {
     const password = req.body.password;
     const nickname = req.body.nickname;
     const gender = req.body.gender;
-    const ageGroup = req.body.ageGroup;
+    const birthYear = req.body.birthYear;
+    const phone = req.body.phone;
 
     // Check if email arrived
     if (!email.length) {
@@ -144,7 +145,8 @@ function registerUser (req, res) {
             password: hash,
             nickname: nickname,
             gender: gender,
-            ageGroup: parseInt(ageGroup),
+            birthYear: parseInt(birthYear),
+            phone: phone,
             social: false
         }).then(user => {
             res.status(201).json({success: true, meesage: 'Ok'});
