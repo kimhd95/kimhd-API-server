@@ -55,7 +55,7 @@ function verifyToken (req, res) {
                     }
                 }).then(user => {
 
-                    return res.status(200).json({success: true, message: 'Token verified.', email: user.email, nickname: user.name, redirect: '/lobby'})
+                    return res.status(200).json({success: true, message: 'Token verified.', email: user.email, name: user.name, redirect: '/lobby'})
                 }).catch(function (err){
                     return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
                 })
@@ -101,7 +101,7 @@ function checkTokenVerified (req, res, next){
 function registerUser (req, res) {
     const email = req.body.email || '';
     const password = req.body.password;
-    const nickname = req.body.nickname;
+    const name = req.body.name;
     const gender = req.body.gender;
     const birthYear = req.body.birthYear;
     const phone = req.body.phone;
@@ -143,7 +143,7 @@ function registerUser (req, res) {
         models.User.create({
             email: email,
             password: hash,
-            name: nickname,
+            name: name,
             gender: gender,
             birthYear: parseInt(birthYear),
             phone: phone,
@@ -187,7 +187,7 @@ function login (req, res) {
                     jwt.sign({
                             id: user.id,
                             email: user.email,
-                            nickname: user.nickname
+                            name: user.name
                         },
                         secret, {
                             expiresIn: '7d',
