@@ -1771,10 +1771,22 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                if (String(cur.drink_type).includes(',')) {
                  cur = cur.drink_type.split(',');
                  cur.forEach(function(obj){
-                   acc.push(obj);
+                   if (String(obj).includes('맥주')) {
+                     acc.push('맥주');
+                   } else if (String(obj).includes('양주')) {
+                     acc.push('양주&칵테일');
+                   } else {
+                     acc.push(obj);
+                   }
                  });
                } else {
-                 acc.push(cur.drink_type);
+                 if (String(cur.drink_type).includes('맥주')) {
+                  acc.push('맥주');
+                } else if (String(cur.drink_type).includes('양주')) {
+                  acc.push('양주&칵테일');
+                } else {
+                  acc.push(cur.drink_type);
+                }
                }
                return acc;
              },[]);
