@@ -1873,11 +1873,11 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    if (exit_quarter.includes('999')){
      exit_quarter = '1,2,3,4';
    }
-   if (taste.includes('-')){
-     taste = taste.replace('-','');
-     taste_flag = 'NOT';
-   } else if (taste === null || taste === undefined) {
+   if (taste === null || taste === undefined) {
      taste = 'x';
+     taste_flag = 'NOT';
+   } else if (taste.includes('-')) {
+     taste = taste.replace('-','');
      taste_flag = 'NOT';
    }
    if (mood2 === null || mood2 === undefined) {
