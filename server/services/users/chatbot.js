@@ -1886,6 +1886,10 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    } else if (mood2.includes('-') || mood2 === 'all') {
      mood2_flag = 'NOT';
    }
+   if (drink_round === null || drink_round === undefined) {
+     drink_round = 'x';
+     drink_round_flag = 'NOT';
+   }
 
 
    if (drink_type === '소주' || drink_type === '맥주' || drink_type === '소주 맥주' || drink_type === '맥주 소주') {
