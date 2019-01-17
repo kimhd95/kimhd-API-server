@@ -80,6 +80,8 @@ const User = sequelize.define('user', {
     cnt: Sequelize.INTEGER,
     limit_cnt: {type: Sequelize.INTEGER, defaultValue: 0},
     decide_updated_at: Sequelize.STRING,
+    limit_cnt_drink: {type: Sequelize.INTEGER, defaultValue: 0},
+    decide_updated_at_drink: Sequelize.STRING,
     gender: Sequelize.STRING,
     birthYear: Sequelize.INTEGER,
     phone: Sequelize.STRING,

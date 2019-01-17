@@ -1480,6 +1480,107 @@ function verifyLimit (req, res) { // 30분 당 5회 제한 판별 API함수
     }
 }
 
+function updateLimitCntDrink (req, res) {
+    console.log('updateMidInfo called.')
+    const kakao_id = req.body.kakao_id;
+    const limit_cnt_drink = req.body.limit_cnt;
+    const date = moment().format();
+
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    if (limit_cnt === 1) {
+      models.User.update(
+          {
+              limit_cnt_drink: limit_cnt_drink,
+              decide_updated_at_drink: date,
+          },     // What to update
+          {where: {
+                  kakao_id: kakao_id}
+          })  // Condition
+          .then(result => {
+              return res.status(200).json({success: true, message: 'updateLimitCntDrink Update complete.'})
+          }).catch(function (err){
+          return res.status(403).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
+      });
+    } else {
+      models.User.update(
+          {
+              limit_cnt_drink: limit_cnt_drink,
+          },     // What to update
+          {where: {
+                  kakao_id: kakao_id}
+          })  // Condition
+          .then(result => {
+              return res.status(200).json({success: true, message: 'updateLimitCntDrink Update complete.'})
+          }).catch(function (err){
+          return res.status(403).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
+      });
+    }
+}
+
+function verifyLimit (req, res) { // 30분 당 5회 제한 판별 API함수
+    console.log('verifyLimit called.')
+    const kakao_id = req.body.kakao_id;
+    const limit_cnt_drink = req.body.limit_cnt_drink; //현재 유저DB의 메뉴결정 횟수
+    let decide_updated_at_drink = req.body.decide_updated_at_drink; //현재 유저의 마지막 메뉴결정 시간
+    const now_time = moment();
+    const last_select_min = now_time.diff(decide_updated_at_drink, 'minutes');
+
+    if (decide_updated_at_drink === null) {
+      decide_updated_at_drink = '2000-01-01 00:00:00';
+    }
+
+    /*
+    음식점 선택 횟수(limit_cnt)가 5이고 decide_updated_at이 null이 아닐 때(신규가입 유저 고려),
+      마지막 선택 시간으로부터 30분이 지나면,
+        음식점 선택 횟수를 0으로 초기화하고 시나리오 진행 가능(success)
+      마지막 선택 시간으로부터 30분이 지나지 않았으면,
+        시나리오 진행 불가(failed)
+    음식점 선택 횟수가 5가 아닐 때,
+      마지막 선택 시간으로부터 30분이 지나면,
+        음식점 선택 횟수를 0으로 초기화하고 시나리오 진행 가능(success)
+      마지막 선택 시간으로부터 30분이 지나지 않았으면,
+        시나리오 진행 가능(success)
+    */
+    if (limit_cnt_drink === 5) {
+      if (last_select_min > 30) {
+        models.User.update(
+            {
+                limit_cnt_drink: 0,
+            },     // What to update
+            {where: {
+                    kakao_id: kakao_id}
+            })  // Condition
+            .then(result => {
+              return res.status(200).json({result: 'success'})
+            }).catch(function (err){
+            return res.status(403).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
+        });
+      } else {
+        return res.status(200).json({result: 'failed'})
+      }
+    } else {
+      if (last_select_min > 30) {
+        models.User.update(
+            {
+                limit_cnt_drink: 0,
+            },     // What to update
+            {where: {
+                    kakao_id: kakao_id}
+            })  // Condition
+            .then(result => {
+              return res.status(200).json({result: 'success'})
+            }).catch(function (err){
+            return res.status(403).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
+        });
+      } else {
+        return res.status(200).json({result: 'success'})
+      }
+    }
+}
+
 function updateState (req, res) {
     const kakao_id = req.body.kakao_id;
     const scenario = req.body.scenario;
@@ -2075,6 +2176,8 @@ module.exports = {
     findSubwayDrinkType: findSubwayDrinkType,
     getDrinkRestaurant: getDrinkRestaurant,
     updateDrinkStart: updateDrinkStart,
+    updateLimitCntDrink: updateLimitCntDrink,
+    verifyLimitDrink: verifyLimitDrink,
 
     createDecideHistory: createDecideHistory,
 }

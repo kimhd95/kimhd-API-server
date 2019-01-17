@@ -58,7 +58,8 @@ router.post('/find_subway_drink_type', chatbotService.findSubwayDrinkType);
 router.post('/get_drink_restaurant', chatbotService.getDrinkRestaurant);
 router.post('/update_drink_start', chatbotService.updateDrinkStart);
 router.get('/get_subway_list_history', chatbotService.getSubwayListHistory);
-
+router.post('/update_limit_cnt_drink', chatbotService.updateLimitCntDrink);
+router.post('/verify_limit_drink', chatbotService.verifyLimitDrink);
 
 
 router.get('/get_users', userService.getUsers); // 현재 미사용
