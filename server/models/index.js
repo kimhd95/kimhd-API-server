@@ -167,6 +167,8 @@ const Restaurant = sequelize.define('restaurant', {
       { type: 'FULLTEXT', name: 'mood2_idx', fields: ['mood2'] },
       { type: 'FULLTEXT', name: 'taste_idx', fields: ['taste'] },
       { type: 'FULLTEXT', name: 'food_ingre_idx', fields: ['food_ingre'] },
+      { type: 'FULLTEXT', name: 'drink_type_idx', fields: ['drink_type'] },
+      { type: 'FULLTEXT', name: 'drink_round_idx', fields: ['drink_round'] },
       { method: 'BTREE', name: 'exit_quarter_idx', fields: ['exit_quarter'] }
     ]
   });
