@@ -69,6 +69,8 @@ const User = sequelize.define('user', {
     mood2: Sequelize.STRING,
     taste: Sequelize.STRING,
     food_type: Sequelize.STRING,
+    drink_type: Sequelize.STRING,
+    drink_round: Sequelize.STRING,
     rest1: Sequelize.INTEGER,
     rest2: Sequelize.INTEGER,
     rest_final: Sequelize.INTEGER,
@@ -148,12 +150,13 @@ const Restaurant = sequelize.define('restaurant', {
     lunch_option: Sequelize.BOOLEAN,
     taste: Sequelize.STRING,
     mood2: Sequelize.STRING,
+    drink_type: Sequelize.STRING,
+    drink_round: Sequelize.STRING,
     food_ingre: Sequelize.STRING,
     food_cost: Sequelize.STRING,
     res_size: Sequelize.STRING,
     calories: Sequelize.INTEGER,
     res_phone: Sequelize.STRING,
-    drink_type: Sequelize.STRING,
     closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
   },{
     indexes: [
