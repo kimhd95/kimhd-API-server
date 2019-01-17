@@ -1483,14 +1483,14 @@ function verifyLimit (req, res) { // 30분 당 5회 제한 판별 API함수
 function updateLimitCntDrink (req, res) {
     console.log('updateMidInfo called.')
     const kakao_id = req.body.kakao_id;
-    const limit_cnt_drink = req.body.limit_cnt;
+    const limit_cnt_drink = req.body.limit_cnt_drink;
     const date = moment().format();
 
     // let nowDate = new Date();
     // nowDate.getTime();
     // const now = nowDate;
 
-    if (limit_cnt === 1) {
+    if (limit_cnt_drink === 1) {
       models.User.update(
           {
               limit_cnt_drink: limit_cnt_drink,
