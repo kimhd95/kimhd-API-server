@@ -55,6 +55,7 @@ router.post('/previous_register_user', chatbotService.previousRegisterUser);
 router.post('/get_chat_log', chatbotService.getChatLog);
 router.post('/delete_chat_log', chatbotService.deleteChatLog);
 router.post('/find_subway_drink_type', chatbotService.findSubwayDrinkType);
+router.post('/get_drink_restaurant', chatbotService.getDrinkRestaurant);
 router.get('/get_subway_list_history', chatbotService.getSubwayListHistory);
 
 
