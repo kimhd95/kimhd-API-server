@@ -1827,6 +1827,10 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
 
    drink_type = drink_type.replace(/,/g,' ');
    drink_type = drink_type.replace('양주&칵테일','양주');
+   if (drink_type === '상관없음') {
+     drink_type = '맥주 양주 와인 사케 소주 전통주';
+   }
+   let drink_type_array = drink_type.split(' ');
 
    function shuffle(a) {
        for (let i = a.length - 1; i > 0; i--) {
@@ -1846,18 +1850,17 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    if (taste.includes('-')){
      taste = taste.replace('-','');
      taste_flag = 'NOT';
-   } else if (taste === null) {
+   } else if (taste === null || taste === undefined) {
      taste = 'x';
      taste_flag = 'NOT';
    }
-   if (mood2 === null) {
+   if (mood2 === null || mood2 === undefined) {
      mood2_flag = 'NOT';
      mood2 = 'x';
-   } else {
-     if (mood2.includes('-') || mood2 === 'all') {
-       mood2_flag = 'NOT';
-     }
+   } else if (mood2.includes('-') || mood2 === 'all') {
+     mood2_flag = 'NOT';
    }
+
 
    if (drink_type === '소주' || drink_type === '맥주' || drink_type === '소주 맥주' || drink_type === '맥주 소주') {
      drink_type = drink_type.replace('맥주','생맥주 병맥주 중식맥주');
@@ -1910,10 +1913,9 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      }).catch( err => {
            return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
      });
-   } else if (drink_type.length >= 2) {
-     drink_type = drink_type.split(' ');
-     shuffle(drink_type);
-     drink_type = drink_type.reduce((acc,cur) => {
+   } else if (drink_type_array.length >= 2) {
+     shuffle(drink_type_array);
+     drink_type_array = drink_type_array.reduce((acc,cur) => {
        if (cur === '맥주') {
          cur = '생맥주 중식맥주 병맥주';
        }
@@ -1921,39 +1923,35 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
        return acc;
      },[]);
      models.sequelize.query(`(SELECT * FROM restaurants WHERE
-      ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-     (exit_quarter IN (${exit_quarter})) AND
-     ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-     ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
-     ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
-     (match(drink_type) against('${drink_type[0]}' in boolean mode))
-   ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE
-    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-   (exit_quarter IN (${exit_quarter})) AND
-   ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-   ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
-   ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
-   (match(drink_type) against('${drink_type[1]}' in boolean mode))
- ORDER BY RAND() LIMIT 1);`).then(result => {
+        ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND (exit_quarter IN (${exit_quarter})) AND
+         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+          ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+           ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
+            (match(drink_type) against('${drink_type_array[0]}' in boolean mode))
+             ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE
+                ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+                 (exit_quarter IN (${exit_quarter})) AND
+                  ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+                   ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+                    ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
+                     (match(drink_type) against('${drink_type_array[1]}' in boolean mode)) ORDER BY RAND() LIMIT 1);`).then(result => {
          if (result[0].length === 2){
              console.log('result: ' + result.toString())
              return res.status(200).json({success: true, try: 1, message: result[0]})
          } else {
            models.sequelize.query(`(SELECT * FROM restaurants WHERE
-            ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-           (exit_quarter IN (1,2,3,4)) AND
-           ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-           ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
-           ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
-           (match(drink_type) against('${drink_type[0]}' in boolean mode))
-         ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE
-          ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-         (exit_quarter IN (1,2,3,4)) AND
-         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-         ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
-         ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
-         (match(drink_type) against('${drink_type[1]}' in boolean mode))
-       ORDER BY RAND() LIMIT 1);`).then(second_result => {
+              ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND (exit_quarter IN (1,2,3,4)) AND
+               ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+                ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+                 ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
+                  (match(drink_type) against('${drink_type_array[0]}' in boolean mode))
+                   ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE
+                      ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+                       (exit_quarter IN (1,2,3,4)) AND
+                        ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+                         ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+                          ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
+                           (match(drink_type) against('${drink_type_array[1]}' in boolean mode)) ORDER BY RAND() LIMIT 1);`).then(second_result => {
            if (second_result[0].length === 2) {
              console.log('second result: ' + second_result.toString())
              return res.status(200).json({success: true, try: 2, message: second_result[0]})
@@ -1967,27 +1965,23 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      }).catch( err => {
            return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
      });
-   } else if (drink_type.length === 1) {
+   } else if (drink_type_array.length === 1) {
      models.sequelize.query(`SELECT * FROM restaurants WHERE
-      ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-     (exit_quarter IN (${exit_quarter})) AND
-     ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-     ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
-     ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
-     (match(drink_type) against('${drink_type}' in boolean mode))
-   ORDER BY RAND() LIMIT 2;`).then(result => {
+        ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND (exit_quarter IN (${exit_quarter})) AND
+         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+          ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+           ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
+            (match(drink_type) against('${drink_type}' in boolean mode)) ORDER BY RAND() LIMIT 2;`).then(result => {
          if (result[0].length === 2){
              console.log('result: ' + result.toString())
              return res.status(200).json({success: true, try: 1, message: result[0]})
          } else {
            models.sequelize.query(`SELECT * FROM restaurants WHERE
-            ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-           (exit_quarter IN (1,2,3,4)) AND
-           ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-           ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
-           ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
-           (match(drink_type) against('${drink_type}' in boolean mode))
-         ORDER BY RAND() LIMIT 2;`).then(second_result => {
+              ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND (exit_quarter IN (1,2,3,4)) AND
+               ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+                ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+                 ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
+                  (match(drink_type) against('${drink_type}' in boolean mode)) ORDER BY RAND() LIMIT 2;`).then(second_result => {
            if (second_result[0].length === 2) {
              console.log('second result: ' + second_result.toString())
              return res.status(200).json({success: true, try: 2, message: second_result[0]})
@@ -2002,40 +1996,6 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
            return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
      });
    }
- //
- //   models.sequelize.query(`SELECT * FROM restaurants WHERE
- //    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
- //   (exit_quarter IN (${exit_quarter})) AND
- //   ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
- //   ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
- //   ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
- //   (match(drink_type) against('${drink_type}' in boolean mode))
- // ORDER BY RAND() LIMIT 2;`).then(result => {
- //       if (result[0].length === 2){
- //           console.log('result: ' + result.toString())
- //           return res.status(200).json({success: true, try: 1, message: result[0]})
- //       } else {
- //         models.sequelize.query(`SELECT * FROM restaurants WHERE
- //          ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
- //         (exit_quarter IN (1,2,3,4)) AND
- //         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
- //         ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
- //         ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
- //         ${drink_type_flag} (match(drink_type) against('${drink_type}' in boolean mode))
- //       ORDER BY RAND() LIMIT 2;`).then(second_result => {
- //         if (second_result[0].length === 2) {
- //           console.log('second result: ' + second_result.toString())
- //           return res.status(200).json({success: true, try: 2, message: second_result[0]})
- //         } else {
- //           return res.status(403).json({success: false, message: 'Unknown error while getting restaurant.'})
- //         }
- //       }).catch( err => {
- //             return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
- //       });
- //     }
- //   }).catch( err => {
- //         return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
- //   });
  }
 
 module.exports = {
