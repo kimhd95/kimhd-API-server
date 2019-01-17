@@ -1168,6 +1168,32 @@ function updatePlaceStart (req, res) {
     })
 }
 
+function updateDrinkStart (req, res) {
+    console.log('updateDrinkStart called.')
+    const kakao_id = req.body.kakao_id;
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            mood2: null,
+            rest1: null,
+            rest2: null,
+            taste: null,
+            drink_type: null,
+            drink_round: null,
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'UserStart Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
+    })
+}
+
 function updateRest2 (req, res) {
     console.log('updateRest called.')
     const kakao_id = req.body.kakao_id;
@@ -2044,6 +2070,7 @@ module.exports = {
     getUserInfoByEmail: getUserInfoByEmail,
     findSubwayDrinkType: findSubwayDrinkType,
     getDrinkRestaurant: getDrinkRestaurant,
+    updateDrinkStart: updateDrinkStart,
 
     createDecideHistory: createDecideHistory,
 }
