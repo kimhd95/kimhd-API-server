@@ -1520,8 +1520,8 @@ function updateLimitCntDrink (req, res) {
     }
 }
 
-function verifyLimit (req, res) { // 30분 당 5회 제한 판별 API함수
-    console.log('verifyLimit called.')
+function verifyLimitDrink (req, res) { // 30분 당 5회 제한 판별 API함수
+    console.log('verifyLimitDrink called.')
     const kakao_id = req.body.kakao_id;
     const limit_cnt_drink = req.body.limit_cnt_drink; //현재 유저DB의 메뉴결정 횟수
     let decide_updated_at_drink = req.body.decide_updated_at_drink; //현재 유저의 마지막 메뉴결정 시간
