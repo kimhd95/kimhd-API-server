@@ -563,6 +563,8 @@ function updateUser (req, res) {
     const chat_log = req.body.chat_log;
     const freq_subway = req.body.freq_subway;
     const drink_before = req.body.drink_before;
+    const drink_type = req.body.drink_type;
+    const drink_round = req.body.drink_round;
 
 
 
@@ -692,6 +694,12 @@ function updateUser (req, res) {
     } else if(drink_before){
         param_name = 'drink_before';
         param_value = drink_before;
+    } else if(drink_type){
+        param_name = 'drink_type';
+        param_value = drink_type;
+    } else if(drink_round){
+        param_name = 'drink_round';
+        param_value = drink_round;
     }
 
     if (param_name === 'chat_log') {
