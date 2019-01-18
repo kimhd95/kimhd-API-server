@@ -618,6 +618,9 @@ function updateUser (req, res) {
         param_value = name;
     } else if (chat_log) {
         param_name = 'chat_log';
+        if (String(chat_log).length > 1000000) {
+          chat_log = null;
+        }
         param_value = chat_log;
     } else if (birthday) {
         param_name = 'birthday';
@@ -883,7 +886,6 @@ function getAllHistory (req, res) {
         return res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
-        logger.error("DB Error in findUserEmail :"+err.message);
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
@@ -914,7 +916,6 @@ function getSubwayHistory (req, res) {
         return res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
-        logger.error("DB Error in findUserEmail :"+err.message);
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
@@ -944,7 +945,6 @@ function getCountHistory (req, res) {
         return res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
-        logger.error("DB Error in findUserEmail :"+err.message);
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
@@ -987,7 +987,7 @@ function updateChatLog (req, res) {
             chat_log_jellylab: chat_log,
         },     // What to update
         {where: {
-                socket_id: socket_id},
+                kakao_id: socket_id},
                 logging: false
         })  // Condition
         .then(result => {
@@ -1339,7 +1339,6 @@ function createDecideHistory (req, res) {
         return res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
-        logger.error("DB Error in findUserEmail :"+err.message);
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
@@ -1748,7 +1747,6 @@ function verifySubway (req, res) {
             res.status(200).json({result: 'no subway'})
         }
     }).catch(err => {
-        logger.error("DB Error in verifySubway :"+err.message);
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
@@ -1776,7 +1774,6 @@ function verifySubwayDrinktype (req, res) {
             res.status(200).json({result: 'no subway'})
         }
     }).catch(err => {
-        logger.error("DB Error in verifySubway :"+err.message);
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
@@ -1909,7 +1906,6 @@ function previousRegisterUser (req, res) {
              .then(update_result => {
                return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'permanent'});
              }).catch(err => {
-                 logger.error("DB Error in updateUserState :"+err.message);
                  return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
              });
          } else { // 마지막 접속으로부터 10분 이하 이내로 다시 접속 시, 일시적 접속 끊김으로 판단
@@ -1919,7 +1915,6 @@ function previousRegisterUser (req, res) {
          return res.status(401).json({message: 'Cant find user email : ' + err.message})
        }
      }).catch(err => {
-         logger.error("DB Error in findUserEmail :"+err.message);
          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
      });
  }
@@ -1943,14 +1938,12 @@ function previousRegisterUser (req, res) {
             .then(result => {
              return res.status(200).json({success: true, message: result.chat_log});
             }).catch(err => {
-               logger.error("DB Error in reset Chat Log :"+err.message);
                return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
             });
         } else{
            return res.status(401).json({message: 'Cant find user email : ' + err.message})
         }
      }).catch(err => {
-         logger.error("DB Error in findUserEmail :"+err.message);
          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
      });
  }
