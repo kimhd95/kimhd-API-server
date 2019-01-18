@@ -529,10 +529,10 @@ function updateUser (req, res) {
     if (req.body){
         kakao_id = req.body.kakao_id;
         if (!kakao_id){
-            return res.status(403).json({success: false, message: 'kakao_id not provided.'})
+            return res.status(401).json({success: false, message: 'kakao_id not provided.'})
         }
     } else {
-        return res.status(403).json({success: false, message: 'No input parameters received in body.'})
+        return res.status(401).json({success: false, message: 'No input parameters received in body.'})
     }
 
     const name = req.body.name;
@@ -602,7 +602,7 @@ function updateUser (req, res) {
             if (result){
                 return res.status(200).json({success: true, message: 'Update registered complete. Result: ' + result.toString()})
             } else {
-                return res.status(200).json({success: true, message: 'No user found to update or User does not exist with given kakao_id. ' +
+                return res.status(403).json({success: true, message: 'No user found to update or User does not exist with given kakao_id. ' +
                     + result.toString()})
             }
         }).catch(function (err){
@@ -713,7 +713,7 @@ function updateUser (req, res) {
               return res.status(403).json({success: false, message: 'user update query failed.'})
           }
       }).catch(function (err){
-          return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+          return res.status(500).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
       })
     } else {
       if (param_value){
@@ -728,7 +728,7 @@ function updateUser (req, res) {
                   return res.status(403).json({success: false, message: 'user update query failed.'})
               }
           }).catch(function (err){
-              return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+              return res.status(500).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
           })
         } else {
           models.sequelize.query(`UPDATE users SET ${param_name} = '${param_value}' WHERE kakao_id = '${kakao_id}';`).then(result => {
@@ -741,12 +741,12 @@ function updateUser (req, res) {
                   return res.status(403).json({success: false, message: 'user update query failed.'})
               }
           }).catch(function (err){
-              return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+              return res.status(500).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
           })
         }
         //  models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
       } else {
-          return res.status(403).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
+          return res.status(401).json({success: false, message: 'No parameter given. Please check again. Required: kakao_id. ' +
               'And one more parameter is required among name, initials, user_code, email, phone, sex, birthday'})
       }
     }
@@ -828,14 +828,14 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
           console.log('second result: ' + second_result.toString())
           return res.status(200).json({success: true, try: 2, message: second_result[0]})
         } else {
-          return res.status(403).json({success: false, message: 'Unknown error while getting restaurant.'})
+          return res.status(403).json({success: false, message: 'no result.'})
         }
       }).catch( err => {
-            return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+            return res.status(500).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
       });
     }
   }).catch( err => {
-        return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+        return res.status(500).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
   });
 }
 
@@ -853,7 +853,7 @@ function getTwoRestaurant (req, res) {
             return res.status(403).json({success: false, message: 'user update query failed.'})
         }
     }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+        return res.status(500).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
     });
     //}
 }
@@ -877,14 +877,14 @@ function getAllHistory (req, res) {
                 return res.status(403).json({success: false, message: 'user update query failed.'})
             }
         }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+            return res.status(500).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
         });
       }else{
-        res.status(400).json({message: 'Cant find user email : ' + err.message})
+        res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
         logger.error("DB Error in findUserEmail :"+err.message);
-        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+        res.status(500).json({message: 'Failed. DB Error: ' + err.message})
     });
 }
 
@@ -905,17 +905,17 @@ function getSubwayHistory (req, res) {
                 return res.status(200).json({success: true, message: result[0]})
             } else {
                 console.log('result없음');
-                return res.status(403).json({success: false, message: 'user update query failed.'})
+                return res.status(403).json({success: false, message: 'no result'})
             }
         }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+            return res.status(500).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
         });
       }else{
-        res.status(400).json({message: 'Cant find user email : ' + err.message})
+        res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
         logger.error("DB Error in findUserEmail :"+err.message);
-        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+        res.status(500).json({message: 'Failed. DB Error: ' + err.message})
     });
 }
 
@@ -935,17 +935,17 @@ function getCountHistory (req, res) {
                 return res.status(200).json({success: true, message: result[0]})
             } else {
                 console.log('result없음');
-                return res.status(403).json({success: false, message: 'user update query failed.'})
+                return res.status(403).json({success: false, message: 'no result'})
             }
         }).catch(function (err){
-            return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+            return res.status(500).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
         });
       }else{
-        res.status(400).json({message: 'Cant find user email : ' + err.message})
+        res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
         logger.error("DB Error in findUserEmail :"+err.message);
-        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+        res.status(500).json({message: 'Failed. DB Error: ' + err.message})
     });
 }
 
@@ -962,9 +962,13 @@ function updateSocket (req, res) {
                 silent: true
         })  // Condition
         .then(result => {
+          if (result) {
             return res.status(200).json({success: true, message: 'User Socket Update complete.', email: email})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'User Socket Update Update failed. Error: ' + err.message})
+        return res.status(500).json({success: false, message: 'User Socket Update Update failed. Error: ' + err.message})
     })
     //}
 }
@@ -987,9 +991,13 @@ function updateChatLog (req, res) {
                 logging: false
         })  // Condition
         .then(result => {
+          if (result) {
             return res.status(200).json({success: true, message: 'User Socket Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-            return res.status(403).json({success: false, message: 'User Socket Update Update failed. Error: ' + err.message})
+            return res.status(500).json({success: false, message: 'User Socket Update Update failed. Error: ' + err.message})
     })
     //}
 }
@@ -1035,13 +1043,13 @@ function getUserInfo (req, res) {
                     return res.status(403).json({success: false, message: 'No userLog found with given kakao_id.'})
                 }
             }).catch(function (err){
-                return res.status(403).json({success: false, user_info: user, message: 'user info found. But error occured while retrieving logs.', error: err.message})
+                return res.status(500).json({success: false, user_info: user, message: 'user info found. But error occured while retrieving logs.', error: err.message})
             })
         }).catch(function (err){
-            return res.status(403).json({success: false, message: err.message})
+            return res.status(500).json({success: false, message: err.message})
         })
     } else {
-        return res.status(403).json({success: false, message: 'kakao_id not given.'})
+        return res.status(401).json({success: false, message: 'kakao_id not given.'})
     }
 }
 
@@ -1085,13 +1093,13 @@ function getUserInfoByEmail (req, res) {
                     return res.status(403).json({success: false, message: 'No userLog found with given email.'})
                 }
             }).catch(function (err){
-                return res.status(403).json({success: false, user_info: user, message: 'user info found. But error occured while retrieving logs.', error: err.message})
+                return res.status(500).json({success: false, user_info: user, message: 'user info found. But error occured while retrieving logs.', error: err.message})
             })
         }).catch(function (err){
-            return res.status(403).json({success: false, message: err.message})
+            return res.status(500).json({success: false, message: err.message})
         })
     } else {
-        return res.status(403).json({success: false, message: 'email not given.'})
+        return res.status(401).json({success: false, message: 'email not given.'})
     }
 }
 
@@ -1105,10 +1113,10 @@ function getRestaurantInfo (req, res) {
             return res.status(200).json({success: true, message: result[0]})
         } else {
             console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
+            return res.status(403).json({success: false, message: 'no result.'})
         }
     }).catch(function (err){
-        return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
+        return res.status(500).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
     })
     //}
 }
@@ -1137,9 +1145,13 @@ function updateUserStart (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
+          if (result) {
             return res.status(200).json({success: true, message: 'UserStart Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
+        return res.status(500).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
     })
 }
 
@@ -1162,9 +1174,13 @@ function updatePlaceStart (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
+          if (result) {
             return res.status(200).json({success: true, message: 'UserStart Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
+        return res.status(500).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
     })
 }
 
@@ -1188,9 +1204,13 @@ function updateDrinkStart (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
-            return res.status(200).json({success: true, message: 'UserStart Update complete.'})
+          if (result) {
+            return res.status(200).json({success: true, message: 'UserDrinkStart Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
+        return res.status(500).json({success: false, message: 'UserStart Update Update failed. Error: ' + err.message})
     })
 }
 
@@ -1212,9 +1232,13 @@ function updateRest2 (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
+          if (result) {
             return res.status(200).json({success: true, message: 'UserRest2 Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'UserRest2 Update Update failed. Error: ' + err.message})
+        return res.status(500).json({success: false, message: 'UserRest2 Update Update failed. Error: ' + err.message})
     })
 }
 
@@ -1238,9 +1262,13 @@ function updatePlaceInfo (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
+          if (result) {
             return res.status(200).json({success: true, message: 'updatePlaceInfo Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'updatePlaceInfo Update Update failed. Error: ' + err.message})
+        return res.status(500).json({success: false, message: 'updatePlaceInfo Update Update failed. Error: ' + err.message})
     })
 }
 
@@ -1262,9 +1290,13 @@ function updateMidInfo (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
+          if (result) {
             return res.status(200).json({success: true, message: 'updatePlaceInfo Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'updatePlaceInfo Update Update failed. Error: ' + err.message})
+        return res.status(500).json({success: false, message: 'updatePlaceInfo Update failed. Error: ' + err.message})
     })
 }
 
@@ -1295,16 +1327,20 @@ function createDecideHistory (req, res) {
             date: date
         })
         .then(result => {
+          if (result) {
             return res.status(200).json({success: true, message: 'DecideHistory Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-          return res.status(403).json({success: false, message: 'DecideHistory Update Update failed. Error: ' + err.message})
+          return res.status(500).json({success: false, message: 'DecideHistory Update Update failed. Error: ' + err.message})
         });
       }else{
-        res.status(400).json({message: 'Cant find user email : ' + err.message})
+        res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
         logger.error("DB Error in findUserEmail :"+err.message);
-        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+        res.status(500).json({message: 'Failed. DB Error: ' + err.message})
     });
 }
 
@@ -1328,9 +1364,13 @@ function createUserFeedback (req, res) {
         date: date
     })
     .then(result => {
+      if (result) {
         return res.status(200).json({success: true, message: 'UserFeedback Create complete.'})
+      } else {
+        return res.status(403).json({success: false, message: 'no result'})
+      }
     }).catch(function (err){
-    return res.status(403).json({success: false, message: 'UserFeedback Create failed. Error: ' + err.message})
+    return res.status(500).json({success: false, message: 'UserFeedback Create failed. Error: ' + err.message})
     })
 }
 
@@ -1343,7 +1383,7 @@ function getFeedbackInfo (req, res) {
             return res.status(200).json({success: true, message: result})
         } else {
             console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
+            return res.status(403).json({success: false, message: 'no result'})
         }
     }).catch(function (err){
         return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
@@ -1373,7 +1413,11 @@ function createUserLog (req, res){
         type: type,
         answer_num: answer_num
     }).then(userLog => {
+      if (userLog) {
         return res.status(200).json({success: true, message: 'User Log and User both Update complete.'})
+      } else {
+        return res.status(403).json({success: false, message: 'no result'})
+      }
     }).catch(function (err){
         return res.status(500).json({success: false, error: err.message})
     })
@@ -1399,9 +1443,13 @@ function updateLimitCnt (req, res) {
                   kakao_id: kakao_id}
           })  // Condition
           .then(result => {
+            if (result) {
               return res.status(200).json({success: true, message: 'updateLimitCnt Update complete.'})
+            } else {
+              return res.status(403).json({success: false, message: 'no result'})
+            }
           }).catch(function (err){
-          return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+          return res.status(500).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
       });
     } else {
       models.User.update(
@@ -1412,9 +1460,13 @@ function updateLimitCnt (req, res) {
                   kakao_id: kakao_id}
           })  // Condition
           .then(result => {
+            if (result) {
               return res.status(200).json({success: true, message: 'updateLimitCnt Update complete.'})
+            } else {
+              return res.status(403).json({success: false, message: 'no result'})
+            }
           }).catch(function (err){
-          return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+          return res.status(500).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
       });
     }
 }
@@ -1453,9 +1505,13 @@ function verifyLimit (req, res) { // 30분 당 5회 제한 판별 API함수
                     kakao_id: kakao_id}
             })  // Condition
             .then(result => {
-              return res.status(200).json({result: 'success'})
+              if (result) {
+                return res.status(200).json({result: 'success'})
+              } else {
+                return res.status(403).json({success: false, message: 'no result'})
+              }
             }).catch(function (err){
-            return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+            return res.status(500).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
         });
       } else {
         return res.status(200).json({result: 'failed'})
@@ -1470,9 +1526,13 @@ function verifyLimit (req, res) { // 30분 당 5회 제한 판별 API함수
                     kakao_id: kakao_id}
             })  // Condition
             .then(result => {
-              return res.status(200).json({result: 'success'})
+              if (result) {
+                return res.status(200).json({result: 'success'})
+              } else {
+                return res.status(403).json({success: false, message: 'no result'})
+              }
             }).catch(function (err){
-            return res.status(403).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
+            return res.status(500).json({success: false, message: 'updateLimitCnt Update Update failed. Error: ' + err.message})
         });
       } else {
         return res.status(200).json({result: 'success'})
@@ -1500,9 +1560,13 @@ function updateLimitCntDrink (req, res) {
                   kakao_id: kakao_id}
           })  // Condition
           .then(result => {
+            if (result) {
               return res.status(200).json({success: true, message: 'updateLimitCntDrink Update complete.'})
+            } else {
+              return res.status(403).json({success: false, message: 'no result'})
+            }
           }).catch(function (err){
-          return res.status(403).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
+          return res.status(500).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
       });
     } else {
       models.User.update(
@@ -1513,9 +1577,13 @@ function updateLimitCntDrink (req, res) {
                   kakao_id: kakao_id}
           })  // Condition
           .then(result => {
+            if (result) {
               return res.status(200).json({success: true, message: 'updateLimitCntDrink Update complete.'})
+            } else {
+              return res.status(403).json({success: false, message: 'no result'})
+            }
           }).catch(function (err){
-          return res.status(403).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
+          return res.status(500).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
       });
     }
 }
@@ -1554,9 +1622,13 @@ function verifyLimitDrink (req, res) { // 30분 당 5회 제한 판별 API함수
                     kakao_id: kakao_id}
             })  // Condition
             .then(result => {
-              return res.status(200).json({result: 'success'})
+              if (result) {
+                return res.status(200).json({result: 'success'})
+              } else {
+                return res.status(403).json({success: false, message: 'no result'})
+              }
             }).catch(function (err){
-            return res.status(403).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
+            return res.status(500).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
         });
       } else {
         return res.status(200).json({result: 'failed'})
@@ -1571,9 +1643,13 @@ function verifyLimitDrink (req, res) { // 30분 당 5회 제한 판별 API함수
                     kakao_id: kakao_id}
             })  // Condition
             .then(result => {
-              return res.status(200).json({result: 'success'})
+              if (result) {
+                return res.status(200).json({result: 'success'})
+              } else {
+                return res.status(403).json({success: false, message: 'no result'})
+              }
             }).catch(function (err){
-            return res.status(403).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
+            return res.status(500).json({success: false, message: 'updateLimitCntDrink Update Update failed. Error: ' + err.message})
         });
       } else {
         return res.status(200).json({result: 'success'})
@@ -1595,9 +1671,13 @@ function updateState (req, res) {
                 kakao_id: kakao_id}
         })  // Condition
         .then(result => {
+          if (result) {
             return res.status(200).json({success: true, message: 'User State Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
         }).catch(function (err){
-        return res.status(403).json({success: false, message: 'User State Update Update failed. Error: ' + err.message})
+        return res.status(500).json({success: false, message: 'User State Update Update failed. Error: ' + err.message})
     })
     //}
 }
@@ -1621,9 +1701,11 @@ function getAllSubway(req, res) {
             return res.status(200).json(result_array);
             // return '됨';
         }else{
-            return res.status(404).json({error: 'no result'});
+            return res.status(403).json({error: 'no result'});
         }
-    })
+    }).catch(function (err){
+      return res.status(500).json({success: false, message: err.message})
+    });
 }
 
 function getAllRestsaurant(req, res) {
@@ -1641,7 +1723,9 @@ function getAllRestsaurant(req, res) {
         }else{
             return res.status(404).json({error: 'no result'});
         }
-    })
+    }).catch(function (err){
+      return res.status(500).json({success: false, message: err.message})
+    });
 }
 
 function verifySubway (req, res) {
@@ -1665,7 +1749,7 @@ function verifySubway (req, res) {
         }
     }).catch(err => {
         logger.error("DB Error in verifySubway :"+err.message);
-        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+        res.status(500).json({message: 'Failed. DB Error: ' + err.message})
     });
 }
 
@@ -1674,7 +1758,7 @@ function verifySubwayDrinktype (req, res) {
     if ((req.body.subway !== undefined)){
         subway = req.body.subway;
     } else {
-        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+        return res.status(401).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
             subway: req.body.subway});
     }
 
@@ -1693,7 +1777,7 @@ function verifySubwayDrinktype (req, res) {
         }
     }).catch(err => {
         logger.error("DB Error in verifySubway :"+err.message);
-        res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+        res.status(500).json({message: 'Failed. DB Error: ' + err.message})
     });
 }
 
@@ -1790,7 +1874,7 @@ function previousRegisterUser (req, res) {
                  social: false,
                  registered: '-1',
              }).then(user => {
-                 return res.status(201).json({success: true, message: 'user created.', user: user})
+                 return res.status(200).json({success: true, message: 'user created.', user: user})
              }).catch(function (err){
                  return res.status(500).json({success: false, message: 'Error while creating User in DB.', error: err.message, err: err})
              });
@@ -1826,17 +1910,17 @@ function previousRegisterUser (req, res) {
                return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'permanent'});
              }).catch(err => {
                  logger.error("DB Error in updateUserState :"+err.message);
-                 return res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+                 return res.status(500).json({message: 'Failed. DB Error: ' + err.message})
              });
          } else { // 마지막 접속으로부터 10분 이하 이내로 다시 접속 시, 일시적 접속 끊김으로 판단
            return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'temporary'});
          }
        }else{
-         return res.status(400).json({message: 'Cant find user email : ' + err.message})
+         return res.status(401).json({message: 'Cant find user email : ' + err.message})
        }
      }).catch(err => {
          logger.error("DB Error in findUserEmail :"+err.message);
-         return res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+         return res.status(500).json({message: 'Failed. DB Error: ' + err.message})
      });
  }
 
@@ -1860,14 +1944,14 @@ function previousRegisterUser (req, res) {
              return res.status(200).json({success: true, message: result.chat_log});
             }).catch(err => {
                logger.error("DB Error in reset Chat Log :"+err.message);
-               return res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+               return res.status(500).json({message: 'Failed. DB Error: ' + err.message})
             });
         } else{
-           return res.status(400).json({message: 'Cant find user email : ' + err.message})
+           return res.status(401).json({message: 'Cant find user email : ' + err.message})
         }
      }).catch(err => {
          logger.error("DB Error in findUserEmail :"+err.message);
-         return res.status(400).json({message: 'Failed. DB Error: ' + err.message})
+         return res.status(500).json({message: 'Failed. DB Error: ' + err.message})
      });
  }
 
@@ -1891,7 +1975,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
          return res.status(200).json([]);
        }
      }).catch(function (err){
-         return res.status(403).json({success: false, message: 'Unknown error while querying getSubwayListHistory. err: ' + err.message})
+         return res.status(500).json({success: false, message: 'Unknown error while querying getSubwayListHistory. err: ' + err.message})
      })
  }
 
@@ -1932,8 +2016,10 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
 
              return res.status(200).json(uniq_array);
          }else{
-             return res.status(404).json({error: 'no result'});
+             return res.status(403).json({error: 'no result'});
          }
+     }).catch(function (err){
+         return res.status(500).json({success: false, message: err.message})
      })
  }
 
@@ -2035,14 +2121,14 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
              console.log('second result: ' + second_result.toString())
              return res.status(200).json({success: true, try: 2, message: second_result[0]})
            } else {
-             return res.status(403).json({success: false, message: '결과없음'})
+             return res.status(403).json({success: false, message: 'no result'})
            }
          }).catch( err => {
-               return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+               return res.status(500).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
          });
        }
      }).catch( err => {
-           return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+           return res.status(500).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
      });
    } else if (drink_type_array.length >= 2) {
      shuffle(drink_type_array);
@@ -2087,14 +2173,14 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
              console.log('second result: ' + second_result.toString())
              return res.status(200).json({success: true, try: 2, message: second_result[0]})
            } else {
-             return res.status(403).json({success: false, message: 'Unknown error while getting restaurant.'})
+             return res.status(403).json({success: false, message: 'no result'})
            }
          }).catch( err => {
-               return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+               return res.status(500).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
          });
        }
      }).catch( err => {
-           return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+           return res.status(500).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
      });
    } else if (drink_type_array.length === 1) {
      models.sequelize.query(`SELECT * FROM restaurants WHERE
@@ -2117,14 +2203,14 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
              console.log('second result: ' + second_result.toString())
              return res.status(200).json({success: true, try: 2, message: second_result[0]})
            } else {
-             return res.status(403).json({success: false, message: 'Unknown error while getting restaurant.'})
+             return res.status(403).json({success: false, message: 'no result'})
            }
          }).catch( err => {
-               return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+               return res.status(500).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
          });
        }
      }).catch( err => {
-           return res.status(403).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
+           return res.status(500).json({success: false, message: 'Unknown error while getting restaurant. err: ' + err.message})
      });
    }
  }
