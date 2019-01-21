@@ -1656,6 +1656,44 @@ function verifyLimitDrink (req, res) { // 30분 당 5회 제한 판별 API함수
     }
 }
 
+function goToMenuState (req, res) {
+    console.log('goToMenuState called.')
+    const user_email = req.body.email;
+
+    models.User.update(
+        {
+            scenario: '1',
+            state: 'init',
+        },     // What to update
+        {where: {
+                email: user_email}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'goToMenuState Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'goToMenuState Update failed. Error: ' + err.message})
+    })
+}
+
+function goToDrinkState (req, res) {
+    console.log('goToDrinkState called.')
+    const user_email = req.body.email;
+
+    models.User.update(
+        {
+            scenario: '6',
+            state: 'init',
+        },     // What to update
+        {where: {
+                email: user_email}
+        })  // Condition
+        .then(result => {
+            return res.status(200).json({success: true, message: 'goToDrinkState Update complete.'})
+        }).catch(function (err){
+        return res.status(403).json({success: false, message: 'goToDrinkState Update failed. Error: ' + err.message})
+    })
+}
+
 function updateState (req, res) {
     const kakao_id = req.body.kakao_id;
     const scenario = req.body.scenario;
@@ -2224,6 +2262,9 @@ module.exports = {
     updateSocket: updateSocket,
     getChatLog: getChatLog,
     deleteChatLog: deleteChatLog,
+
+    goToMenuState: goToMenuState,
+    goToDrinkState: goToDrinkState,
 
     previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,
