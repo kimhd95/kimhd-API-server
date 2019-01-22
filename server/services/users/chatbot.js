@@ -985,6 +985,8 @@ function updateChatLogEmail (req, res) {
         {
             chat_log: chat_log,
             chat_log_jellylab: chat_log,
+            scenario: '1',
+            state: 'decide_menu'
         },     // What to update
         {where: {
                 email: emailValue},
