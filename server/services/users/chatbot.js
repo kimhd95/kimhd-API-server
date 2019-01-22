@@ -1969,6 +1969,8 @@ function previousRegisterUser (req, res) {
           models.User.update(
             {
              chat_log: null,
+             scenario: '100',
+             state: 'init',
             },     // What to update
             {where: {
                    email: email}
