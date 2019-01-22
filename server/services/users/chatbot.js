@@ -976,6 +976,16 @@ function updateSocket (req, res) {
 function updateChatLogEmail (req, res) {
     const chat_log = req.body.chat_log;
     const emailValue= req.body.email;
+    const feature=req.body.feat;
+    var finalscenario, finalstate;
+    
+    if(feature==='menu'){
+      finalscenario='1';
+      finalstate='decide_menu';
+    } else if(feature=='drink'){
+      finalscenario='6';
+      finalstate='decide_drink';
+    }
 
     if (String(chat_log).length > 1000000) {
       chat_log = null;
@@ -985,8 +995,8 @@ function updateChatLogEmail (req, res) {
         {
             chat_log: chat_log,
             chat_log_jellylab: chat_log,
-            scenario: '1',
-            state: 'decide_menu'
+            scenario: finalscenario,
+            state: finalstate
         },     // What to update
         {where: {
                 email: emailValue},
