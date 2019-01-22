@@ -22,10 +22,6 @@ router.post('/send_new_password', chatbotService.sendNewPassword);
 router.post('/member_withdraw', chatbotService.memberWithdraw);
 router.post('/update_password', chatbotService.updatePassword);
 
-
-router.post('/go_to_menu_state', chatbotService.goToMenuState);
-router.post('/go_to_drink_state', chatbotService.goToDrinkState);
-
 router.post('/update_user', chatbotService.updateUser);
 router.post('/get_restaurant', chatbotService.getRestaurant);
 router.post('/get_two_restaurant', chatbotService.getTwoRestaurant);
@@ -34,6 +30,9 @@ router.post('/get_subway_history', chatbotService.getSubwayHistory);
 router.post('/get_count_history', chatbotService.getCountHistory);
 router.post('/update_socket', chatbotService.updateSocket);
 router.post('/update_chatlog', chatbotService.updateChatLog);
+
+router.post('/update_chatlog_email', chatbotService.updateChatLogEmail);
+
 router.get('/get_user_info/:kakao_id', chatbotService.getUserInfo);
 router.get('/get_user_info2/:email', chatbotService.getUserInfoByEmail);
 router.post('/get_restaurant_info', chatbotService.getRestaurantInfo);

@@ -973,6 +973,35 @@ function updateSocket (req, res) {
     //}
 }
 
+function updateChatLogEmail (req, res) {
+    const chat_log = req.body.chat_log;
+    const emailValue= req.body.email;
+
+    if (String(chat_log).length > 1000000) {
+      chat_log = null;
+    }
+
+    models.User.update(
+        {
+            chat_log: chat_log,
+            chat_log_jellylab: chat_log,
+        },     // What to update
+        {where: {
+                email: emailValue},
+                logging: false
+        })  // Condition
+        .then(result => {
+          if (result) {
+            return res.status(200).json({success: true, message: 'User Socket Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
+        }).catch(function (err){
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+    //}
+}
+
 function updateChatLog (req, res) {
     const chat_log = req.body.chat_log;
     const socket_id = req.body.socket_id;
@@ -1656,44 +1685,6 @@ function verifyLimitDrink (req, res) { // 30분 당 5회 제한 판별 API함수
     }
 }
 
-function goToMenuState (req, res) {
-    console.log('goToMenuState called.')
-    const user_email = req.body.email;
-
-    models.User.update(
-        {
-            scenario: '100',
-            state: 'init',
-        },     // What to update
-        {where: {
-                email: user_email}
-        })  // Condition
-        .then(result => {
-            return res.status(200).json({success: true, message: 'goToMenuState Update complete.'})
-        }).catch(function (err){
-        return res.status(403).json({success: false, message: 'goToMenuState Update failed. Error: ' + err.message})
-    })
-}
-
-function goToDrinkState (req, res) {
-    console.log('goToDrinkState called.')
-    const user_email = req.body.email;
-
-    models.User.update(
-        {
-            scenario: '100',
-            state: 'init',
-        },     // What to update
-        {where: {
-                email: user_email}
-        })  // Condition
-        .then(result => {
-            return res.status(200).json({success: true, message: 'goToDrinkState Update complete.'})
-        }).catch(function (err){
-        return res.status(403).json({success: false, message: 'goToDrinkState Update failed. Error: ' + err.message})
-    })
-}
-
 function updateState (req, res) {
     const kakao_id = req.body.kakao_id;
     const scenario = req.body.scenario;
@@ -2265,14 +2256,15 @@ module.exports = {
     getChatLog: getChatLog,
     deleteChatLog: deleteChatLog,
 
-    goToMenuState: goToMenuState,
-    goToDrinkState: goToDrinkState,
-
     previousRegisterUser: previousRegisterUser,
     updateUser: updateUser,
     updateLimitCnt: updateLimitCnt,
     updateState: updateState,
     updateChatLog: updateChatLog,
+
+    updateChatLogEmail: updateChatLogEmail,
+
+
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
     getTwoRestaurant: getTwoRestaurant,
