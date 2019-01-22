@@ -1662,7 +1662,7 @@ function goToMenuState (req, res) {
 
     models.User.update(
         {
-            scenario: '1',
+            scenario: '100',
             state: 'init',
         },     // What to update
         {where: {
@@ -1681,7 +1681,7 @@ function goToDrinkState (req, res) {
 
     models.User.update(
         {
-            scenario: '6',
+            scenario: '100',
             state: 'init',
         },     // What to update
         {where: {
