@@ -1947,7 +1947,7 @@ function previousRegisterUser (req, res) {
      } else if(state==='decide_drink'){
        log='drink_chat_log';
      }
-     // const now_date = moment();
+     const now_date = moment();
      models.User.findOne({
          attributes: [log, 'updated_at'],
          where: {
