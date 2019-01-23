@@ -1941,6 +1941,7 @@ function previousRegisterUser (req, res) {
  function getPartLog (req, res) {
      const email = req.body.email;
      const state = req.body.state;
+     let log;
      if(state===null){
        log='chat_log';
      } else if(state==='decide_menu'){
