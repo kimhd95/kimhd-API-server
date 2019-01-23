@@ -1937,7 +1937,11 @@ function previousRegisterUser (req, res) {
      models.User.findOne({
          attributes: [req.body.col, 'updated_at'],
          where: {
+<<<<<<< HEAD
              email: emailValue,
+=======
+             email: emailvalue,
+>>>>>>> fed9755efed58d4ea226e0809bc4cdf0ac8ffae3
          }
      }).then(result => {
        if(result){
