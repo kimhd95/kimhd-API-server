@@ -975,25 +975,18 @@ function updateSocket (req, res) {
 
 function updatePartLog (req, res) {
     const chat_log = req.body.chat_log;
-    const stage = req.body.stage;
-    const socket_id = req.body.socket_id;
-    let destination;
+    const emailValue = req.body.email;
+    
     if (String(chat_log).length > 1000000) {
       chat_log = null;
     }
 
-    if(stage==='decide_menu'){
-      destination='menu_chat_log';
-    } else if(stage==='decide_drink'){
-      destination='drink_chat_log';
-    }
-
     models.User.update(
         {
-            [destination]: chat_log,
+            [req.body.col]: chat_log,
         },     // What to update
         {where: {
-                kakao_id: socket_id},
+                email: emailValue},
                 logging: false
         })  // Condition
         .then(result => {
