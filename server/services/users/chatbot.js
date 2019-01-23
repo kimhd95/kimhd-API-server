@@ -1933,9 +1933,10 @@ function previousRegisterUser (req, res) {
 
  function getPartLog (req, res) {
      const emailValue = req.body.email;
+     const targetcol= '"'+req.body.col+'"';
      const now_date = moment();
      models.User.findOne({
-         attributes: [req.body.col, 'updated_at'],
+         attributes: [targetcol, 'updated_at'],
          where: {
              email: emailValue,
          }
