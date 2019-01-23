@@ -976,7 +976,7 @@ function updateSocket (req, res) {
 function updatePartLog (req, res) {
     const chat_log = req.body.chat_log;
     const emailValue = req.body.email;
-    
+
     if (String(chat_log).length > 1000000) {
       chat_log = null;
     }
@@ -1932,12 +1932,12 @@ function previousRegisterUser (req, res) {
  }
 
  function getPartLog (req, res) {
-     const email = req.body.email;
-     const now_date = moment();
+     const emailValue = req.body.email;
+     // const now_date = moment();
      models.User.findOne({
          attributes: [req.body.col, 'updated_at'],
          where: {
-             email: email
+             email: emailvalue,
          }
      }).then(result => {
        if(result){
@@ -1951,7 +1951,7 @@ function previousRegisterUser (req, res) {
                state: 'init'
              },     // What to update
              {where: {
-                     email: email}
+                     email: emailValue}
              })  // Condition
              .then(update_result => {
                return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'permanent'});
