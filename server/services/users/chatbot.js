@@ -973,6 +973,42 @@ function updateSocket (req, res) {
     //}
 }
 
+function updatePartLog (req, res) {
+    const chat_log = req.body.chat_log;
+    const stage = req.body.stage;
+    const socket_id = req.body.socket_id;
+    let destination;
+    if (String(chat_log).length > 1000000) {
+      chat_log = null;
+    }
+
+    if(stage==='decide_menu'){
+      destination='menu_chat_log';
+    } else if(stage==='decide_drink'){
+      destination='drink_chat_log';
+    }
+
+    models.User.update(
+        {
+            [destination]: chat_log,
+        },     // What to update
+        {where: {
+                kakao_id: socket_id},
+                logging: false
+        })  // Condition
+        .then(result => {
+          if (result) {
+            return res.status(200).json({success: true, message: 'User Socket Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
+        }).catch(function (err){
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+    //}
+}
+
+
 function updateChatLog (req, res) {
     const chat_log = req.body.chat_log;
     const socket_id = req.body.socket_id;
@@ -1902,6 +1938,52 @@ function previousRegisterUser (req, res) {
      })
  }
 
+ function getPartLog (req, res) {
+     const email = req.body.email;
+     const state = req.body.state;
+     if(state===null){
+       log='chat_log';
+     } else if(state==='decide_menu'){
+       log='menu_chat_log';
+     } else if(state==='decide_drink'){
+       log='drink_chat_log';
+     }
+     // const now_date = moment();
+     models.User.findOne({
+         attributes: [log, 'updated_at'],
+         where: {
+             email: email
+         }
+     }).then(result => {
+       if(result){
+         const last_date = result.updated_at;
+         const disconn_min = now_date.diff(last_date, 'minutes');
+
+         if (disconn_min > 10) { // 마지막 접속으로 시나리오 진행으로부터 10분이 지나면 접속끊음으로 판단
+           models.User.update(
+             {
+               scenario: '100',
+               state: 'init'
+             },     // What to update
+             {where: {
+                     email: email}
+             })  // Condition
+             .then(update_result => {
+               return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'permanent'});
+             }).catch(err => {
+                 return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+             });
+         } else { // 마지막 접속으로부터 10분 이하 이내로 다시 접속 시, 일시적 접속 끊김으로 판단
+           return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'temporary'});
+         }
+       }else{
+         return res.status(401).json({message: 'Cant find user email : ' + err.message})
+       }
+     }).catch(err => {
+         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+     });
+ }
+
  function getChatLog (req, res) {
      const email = req.body.email;
      const now_date = moment();
@@ -2257,6 +2339,8 @@ module.exports = {
     updateChatLog: updateChatLog,
 
     updateStateEmail: updateStateEmail,
+    getPartLog: getPartLog,
+    updatePartLog: updatePartLog,
 
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,

@@ -93,7 +93,9 @@ const User = sequelize.define('user', {
     freq_subway: Sequelize.STRING,
     drink_before: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false},
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-    updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW }
+    updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
+    menu_chat_log: Sequelize.TEXT('medium'),
+    drink_chat_log: Sequelize.TEXT('medium')
 },
 {
   timestamps: true,
