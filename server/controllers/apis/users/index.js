@@ -31,7 +31,7 @@ router.post('/get_count_history', chatbotService.getCountHistory);
 router.post('/update_socket', chatbotService.updateSocket);
 router.post('/update_chatlog', chatbotService.updateChatLog);
 
-router.post('/update_chatlog_email', chatbotService.updateChatLogEmail);
+router.post('/update_state_email', chatbotService.updateStateEmail);
 
 router.get('/get_user_info/:kakao_id', chatbotService.getUserInfo);
 router.get('/get_user_info2/:email', chatbotService.getUserInfoByEmail);

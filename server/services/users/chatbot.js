@@ -973,47 +973,6 @@ function updateSocket (req, res) {
     //}
 }
 
-function updateChatLogEmail (req, res) {
-    const chat_log = req.body.chat_log;
-    const emailValue= req.body.email;
-    const feature=req.body.feat;
-    var finalscenario, finalstate;
-    
-    if(feature==='menu'){
-      finalscenario='1';
-      finalstate='decide_menu';
-    } else if(feature=='drink'){
-      finalscenario='6';
-      finalstate='decide_drink';
-    }
-
-    if (String(chat_log).length > 1000000) {
-      chat_log = null;
-    }
-
-    models.User.update(
-        {
-            chat_log: chat_log,
-            chat_log_jellylab: chat_log,
-            scenario: finalscenario,
-            state: finalstate
-        },     // What to update
-        {where: {
-                email: emailValue},
-                logging: false
-        })  // Condition
-        .then(result => {
-          if (result) {
-            return res.status(200).json({success: true, message: 'User Socket Update complete.'})
-          } else {
-            return res.status(403).json({success: false, message: 'no result'})
-          }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    })
-    //}
-}
-
 function updateChatLog (req, res) {
     const chat_log = req.body.chat_log;
     const socket_id = req.body.socket_id;
@@ -1722,6 +1681,29 @@ function updateState (req, res) {
     //}
 }
 
+function updateStateEmail (req, res) {
+    const emailValue = req.body.email;
+
+    models.User.update(
+        {
+            scenario: '100',
+            state: 'init'
+        },     // What to update
+        {where: {
+                email: emailValue}
+        })  // Condition
+        .then(result => {
+          if (result) {
+            return res.status(200).json({success: true, message: 'User State Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
+        }).catch(function (err){
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+    //}
+}
+
 function getAllSubway(req, res) {
     models.Restaurant.findAll({
         attributes: ['subway'],
@@ -2274,8 +2256,7 @@ module.exports = {
     updateState: updateState,
     updateChatLog: updateChatLog,
 
-    updateChatLogEmail: updateChatLogEmail,
-
+    updateStateEmail: updateStateEmail,
 
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
