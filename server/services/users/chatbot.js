@@ -2078,6 +2078,68 @@ function previousRegisterUser (req, res) {
      });
  }
 
+ function deleteMenuLog (req, res) {
+     const email = req.body.email;
+     models.User.findOne({
+         attributes: ['menu_chat_log'],
+         where: {
+             email: email
+         }
+     }).then(user => {
+        if(user){
+          models.User.update(
+            {
+             menu_chat_log: null,
+             scenario: '100',
+             state: 'init',
+            },     // What to update
+            {where: {
+                   email: email}
+            })  // Condition
+            .then(result => {
+             return res.status(200).json({success: true, message: result.menu_chat_log});
+            }).catch(err => {
+               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+            });
+        } else{
+           return res.status(401).json({message: 'Cant find user email : ' + err.message})
+        }
+     }).catch(err => {
+         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+     });
+ }
+
+ function deleteDrinkLog (req, res) {
+     const email = req.body.email;
+     models.User.findOne({
+         attributes: ['drink_chat_log'],
+         where: {
+             email: email
+         }
+     }).then(user => {
+        if(user){
+          models.User.update(
+            {
+             drink_chat_log: null,
+             scenario: '100',
+             state: 'init',
+            },     // What to update
+            {where: {
+                   email: email}
+            })  // Condition
+            .then(result => {
+             return res.status(200).json({success: true, message: result.drink_chat_log});
+            }).catch(err => {
+               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+            });
+        } else{
+           return res.status(401).json({message: 'Cant find user email : ' + err.message})
+        }
+     }).catch(err => {
+         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+     });
+ }
+
  function getSubwayListHistory (req, res) {
      const email = req.query.email;
 
@@ -2365,6 +2427,8 @@ module.exports = {
     getMenuLog: getMenuLog,
     getDrinkLog: getDrinkLog,
     updatePartLog: updatePartLog,
+    deleteMenuLog: deleteMenuLog,
+    deleteDrinkLog: deleteDrinkLog,
 
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
@@ -2395,4 +2459,8 @@ module.exports = {
     verifyLimitDrink: verifyLimitDrink,
 
     createDecideHistory: createDecideHistory,
+
+
+
+
 }
