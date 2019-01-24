@@ -1931,12 +1931,11 @@ function previousRegisterUser (req, res) {
      })
  }
 
- function getPartLog (req, res) {
+ function getMenuLog (req, res) {
      const emailValue = req.body.email;
-     const targetcol= req.body.col;
      const now_date = moment();
      models.User.findOne({
-         attributes: [targetcol, 'updated_at'],
+         attributes: ['menu_chat_log', 'updated_at'],
          where: {
              email: emailValue,
          }
@@ -1955,12 +1954,50 @@ function previousRegisterUser (req, res) {
                      email: emailValue}
              })  // Condition
              .then(update_result => {
-               return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'permanent'});
+               return res.status(200).json({success: true, message: result.menu_chat_log, disconn_type: 'permanent'});
              }).catch(err => {
                  return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
              });
          } else { // 마지막 접속으로부터 10분 이하 이내로 다시 접속 시, 일시적 접속 끊김으로 판단
-           return res.status(200).json({success: true, message: result.chat_log, disconn_type: 'temporary'});
+           return res.status(200).json({success: true, message: result.menu_chat_log, disconn_type: 'temporary'});
+         }
+       }else{
+         return res.status(401).json({message: 'Cant find user email : ' + err.message})
+       }
+     }).catch(err => {
+         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+     });
+ }
+
+ function getDrinkLog (req, res) {
+     const emailValue = req.body.email;
+     const now_date = moment();
+     models.User.findOne({
+         attributes: ['drink_chat_log', 'updated_at'],
+         where: {
+             email: emailValue,
+         }
+     }).then(result => {
+       if(result){
+         const last_date = result.updated_at;
+         const disconn_min = now_date.diff(last_date, 'minutes');
+
+         if (disconn_min > 10) { // 마지막 접속으로 시나리오 진행으로부터 10분이 지나면 접속끊음으로 판단
+           models.User.update(
+             {
+               scenario: '100',
+               state: 'init'
+             },     // What to update
+             {where: {
+                     email: emailValue}
+             })  // Condition
+             .then(update_result => {
+               return res.status(200).json({success: true, message: result.drink_chat_log, disconn_type: 'permanent'});
+             }).catch(err => {
+                 return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+             });
+         } else { // 마지막 접속으로부터 10분 이하 이내로 다시 접속 시, 일시적 접속 끊김으로 판단
+           return res.status(200).json({success: true, message: result.drink_chat_log, disconn_type: 'temporary'});
          }
        }else{
          return res.status(401).json({message: 'Cant find user email : ' + err.message})
@@ -2325,7 +2362,8 @@ module.exports = {
     updateChatLog: updateChatLog,
 
     updateStateEmail: updateStateEmail,
-    getPartLog: getPartLog,
+    getMenuLog: getMenuLog,
+    getDrinkLog: getDrinkLog,
     updatePartLog: updatePartLog,
 
     getUserInfo: getUserInfo,
