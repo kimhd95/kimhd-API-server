@@ -32,10 +32,9 @@ router.post('/update_socket', chatbotService.updateSocket);
 router.post('/update_chatlog', chatbotService.updateChatLog);
 
 router.post('/update_state_email', chatbotService.updateStateEmail);
-router.post('/get_menu_log', chatbotService.getMenuLog);
-router.post('/get_drink_log', chatbotService.getDrinkLog);
-router.post('/get_middle_log', chatbotService.getMiddleLog);
+router.post('/delete_part_log', chatbotService.deletePartLog);
 router.post('/get_part_log', chatbotService.getPartLog);
+
 router.post('/update_part_log', chatbotService.updatePartLog);
 router.post('/delete_menu_log', chatbotService.deleteMenuLog);
 router.post('/delete_drink_log', chatbotService.deleteDrinkLog);
