@@ -2046,7 +2046,7 @@ function previousRegisterUser (req, res) {
      const email = req.body.email;
      const targetcol = req.body.col;
      models.User.findOne({
-         attributes: targetcol,
+         attributes: [targetcol],
          where: {
              email: email
          }
