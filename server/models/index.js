@@ -97,6 +97,7 @@ const User = sequelize.define('user', {
     menu_chat_log: Sequelize.TEXT('medium'),
     drink_chat_log: Sequelize.TEXT('medium'),
     middle_chat_log: Sequelize.TEXT('medium'),
+    cafe_chat_log: Sequelize.TEXT('medium'),
 },
 {
   timestamps: true,
