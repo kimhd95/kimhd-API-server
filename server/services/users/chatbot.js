@@ -159,6 +159,99 @@ function registerUser (req, res) {
         });
     });
 }
+
+function loginOnetime (req, res) {
+    const email = req.body.email;
+    // const password = req.body.password;
+    const secret = config.jwt_secret;
+
+    if (!email) {
+        return res.status(400).json({success: false, message: 'Email not given.'});
+    }
+    models.User.findOne({
+        where: {
+            email: email
+        }
+    }).then(user => {
+        if(!user) {
+            return res.status(403).json({success: false, message: 'No user account found with given email address.'});
+        }
+        // bcrypt.compare(password, user.password, (err, isMatch) => {
+        //     if(err) {
+        //         return res.status(403).json({
+        //             success: false,
+        //             message: 'Error while login'
+        //         });
+        //     } else {
+        //         // if (isMatch) {
+                    jwt.sign({
+                            id: user.id,
+                            email: user.email,
+                            name: user.name
+                        },
+                        secret, {
+                            expiresIn: '7d',
+                            issuer: 'jellylab.io',
+                            subject: 'userInfo'
+                        }, (err, token) => {
+                            console.log(`err: ${err}, token: ${token}`);
+                            if(err) {
+                                console.log(`err.message: ${err.message}`);
+                                return res.status(403).json({
+                                    success: false,
+                                    message: err.message
+                                });
+                            }
+                            console.log(`req.header.origin = ${req.header('origin')}`);
+
+                            const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
+
+                            if(req.header('origin') === undefined) {
+                                console.log('req origin is undefined. Probably from postman.');
+                                if(req.secure) {
+                                    console.log('req. is secure');
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                                } else {
+                                    console.log('req is NOT secure');
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                                }
+                            } else if(req.header('origin').includes('localhost')) {
+                                console.log('req origin includes localhost OR it is from postman');
+                                if(req.secure) {
+                                    console.log('req. is secure');
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                                } else {
+                                    console.log('req is NOT secure');
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                                }
+                            } else {
+                                console.log('req origin does NOT include localhost');
+                                if(req.secure) {
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                                } else {
+                                    res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                                }
+                            }
+                            res.header('Access-Control-Allow-Credentials', 'true');
+                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/lobby'});
+                        });
+                // } else {
+                //     return res.status(403).json({
+                //         success: false,
+                //         message: 'Password wrong'
+                //     });
+                // }
+            }
+        });
+    }).catch(err => {
+        console.log(`err.message: ${err.message}`);
+        return res.status(403).json({
+            success: false,
+            message: `DB error. err: ${err.message}`
+        });
+    });
+}
+
 // 수정 필요.
 function login (req, res) {
     const email = req.body.email;
@@ -2387,6 +2480,7 @@ module.exports = {
     deletePartLog: deletePartLog,
     getPartLog: getPartLog,
     registerOnetimeUser: registerOnetimeUser,
+    loginOnetime: loginOnetime,
 
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,

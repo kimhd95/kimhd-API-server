@@ -36,6 +36,7 @@ router.post('/delete_part_log', chatbotService.deletePartLog);
 router.post('/get_part_log', chatbotService.getPartLog);
 router.post('/update_part_log', chatbotService.updatePartLog);
 router.post('/register_onetime_user', chatbotService.registerOnetimeUser);
+router.post('/login_onetime', chatbotService.loginOnetime);
 
 
 
