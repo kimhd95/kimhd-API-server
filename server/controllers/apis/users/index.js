@@ -34,11 +34,7 @@ router.post('/update_chatlog', chatbotService.updateChatLog);
 router.post('/update_state_email', chatbotService.updateStateEmail);
 router.post('/delete_part_log', chatbotService.deletePartLog);
 router.post('/get_part_log', chatbotService.getPartLog);
-
 router.post('/update_part_log', chatbotService.updatePartLog);
-router.post('/delete_menu_log', chatbotService.deleteMenuLog);
-router.post('/delete_drink_log', chatbotService.deleteDrinkLog);
-router.post('/delete_middle_log', chatbotService.deleteMiddleLog);
 
 
 router.get('/get_user_info/:kakao_id', chatbotService.getUserInfo);

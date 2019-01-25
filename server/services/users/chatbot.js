@@ -976,6 +976,7 @@ function updateSocket (req, res) {
 function updatePartLog (req, res) {
     const chat_log = req.body.chat_log;
     const emailValue = req.body.email;
+    const targetcol = req.body.col;
 
     if (String(chat_log).length > 1000000) {
       chat_log = null;
@@ -983,7 +984,7 @@ function updatePartLog (req, res) {
 
     models.User.update(
         {
-            [req.body.col]: chat_log,
+            [targetcol]: chat_log,
         },     // What to update
         {where: {
                 email: emailValue},
@@ -2450,13 +2451,7 @@ module.exports = {
     updateChatLog: updateChatLog,
 
     updateStateEmail: updateStateEmail,
-    getMenuLog: getMenuLog,
-    getDrinkLog: getDrinkLog,
-    getMiddleLog: getMiddleLog,
     updatePartLog: updatePartLog,
-    deleteMenuLog: deleteMenuLog,
-    deleteDrinkLog: deleteDrinkLog,
-    deleteMiddleLog: deleteMiddleLog,
     deletePartLog: deletePartLog,
     getPartLog: getPartLog,
 
