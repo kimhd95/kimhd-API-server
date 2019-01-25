@@ -1932,6 +1932,31 @@ function previousRegisterUser (req, res) {
      })
  }
 
+ function registerOnetimeUser (req, res) {
+     const email=req.body.email;
+     const name=req.body.name;
+     const pwd=req.body.password;
+
+     models.User.create({
+         email: email,
+         password: pwd,
+         name: name,
+         //encrypted_kakao_id: encrypted_kakao_id,
+         scenario: '100',
+         state: 'init',
+         social: false,
+         registered: '-1',
+     }).then(user => {
+       if(user){
+         return res.status(200).json({success: true, message: 'onetime user created.', user: user});
+       } else{
+         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+       }
+     }).catch(err => {
+         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+     });
+ }
+
  function getPartLog (req, res) {
      const email = req.body.email;
      const targetcol = req.body.col;
@@ -2361,6 +2386,7 @@ module.exports = {
     updatePartLog: updatePartLog,
     deletePartLog: deletePartLog,
     getPartLog: getPartLog,
+    registerOnetimeUser: registerOnetimeUser,
 
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
