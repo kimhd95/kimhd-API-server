@@ -92,6 +92,7 @@ const User = sequelize.define('user', {
     chat_log_jellylab: Sequelize.TEXT('medium'),
     freq_subway: Sequelize.STRING,
     drink_before: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false},
+    cafe_before: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false},
     created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     menu_chat_log: Sequelize.TEXT('medium'),
