@@ -81,6 +81,8 @@ const User = sequelize.define('user', {
     limit_cnt: {type: Sequelize.INTEGER, defaultValue: 0},
     decide_updated_at: Sequelize.STRING,
     limit_cnt_drink: {type: Sequelize.INTEGER, defaultValue: 0},
+    limit_cnt_cafe: {type: Sequelize.INTEGER, defaultValue: 0},
+    decide_updated_at_cafe: Sequelize.STRING,
     decide_updated_at_drink: Sequelize.STRING,
     gender: Sequelize.STRING,
     birthYear: Sequelize.INTEGER,
@@ -98,7 +100,11 @@ const User = sequelize.define('user', {
     menu_chat_log: Sequelize.TEXT('medium'),
     drink_chat_log: Sequelize.TEXT('medium'),
     middle_chat_log: Sequelize.TEXT('medium'),
-    cafe_chat_log: Sequelize.TEXT('medium')
+    cafe_chat_log: Sequelize.TEXT('medium'),
+    mainmenu_type: Sequelize.STRING,
+    subway_cafe: Sequelize.STRING,
+    freq_subway_cafe: Sequelize.STRING,
+    mood1: Sequelize.STRING
 },
 {
   timestamps: true,
