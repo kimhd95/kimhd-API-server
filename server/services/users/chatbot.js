@@ -153,8 +153,7 @@ function registerUser (req, res) {
         }).catch(err => {
             if(err) res.status(500).json({
                 success: false,
-                message: err.message,
-                log: 'Error while creating user row in db. check uniqueness of parameters'
+                message: 'Error while creating user row in db. check uniqueness of parameters'
             });
         });
     });
@@ -165,6 +164,8 @@ function login (req, res) {
     const password = req.body.password;
     const secret = config.jwt_secret;
 
+    console.log(req.body.email);
+    console.log(req.body.password);
     if (!email) {
         return res.status(400).json({success: false, message: 'Email not given.'});
     }
@@ -233,7 +234,7 @@ function login (req, res) {
                                 }
                             }
                             res.header('Access-Control-Allow-Credentials', 'true');
-                            return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/lobby'});
+                            return res.status(200).json({success: true, message: 'Ok', token: token, name: user.name, email: user.email, redirect: '/lobby'});
                         });
                 } else {
                     return res.status(403).json({
@@ -393,6 +394,54 @@ function sendNewPassword (req, res) {
     })
 }
 
+function sendInquiry (req, res) {
+    const email = req.body.email;
+    const name = req.body.name;
+    const subject = req.body.subject;
+    const message = req.body.message;
+
+    models.User.findOne({
+        where: {
+            email: email
+        }
+    }).then(user => {
+        if (!user) {
+            return res.status(403).json({ success: false, message: 'ERROR WHILE FIND EMAIL'})
+        } else {
+            let transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    type: 'OAuth2',
+                    user: 'support@jellylab.io',
+                    clientId: '732880438602-u5pbho778b6i4bsvig2ma7v13n7hk4nb.apps.googleusercontent.com', //환경변수로 설정해 놓는 것을 권장합니다.
+                    clientSecret: '6-XLCJjd-AWJ-qYkkBOO-CUr', //환경변수로 설정해 놓는 것을 권장합니다.
+                    refreshToken: '1/jU0ghdET2MC5LMmJ0FpyG1CJRQNWGcmJ20Jvwh0pW-c', //환경변수로 설정해 놓는 것을 권장합니다.
+                    accessToken: 'ya29.GlsOBsVLRfET8HR609HWOO65krRrwAJUFXbyROg6mrIG91NBFWL6sN3wz0KP71zp1LkxMQXKNcUf8RoLV-PnFkRIni-vA75BWLfXz2REQQVzmTxy4d_1IdmUpIGi', //환경변수로 설정해 놓는 것을 권장합니다.
+                    expires: 3600
+                }
+            });
+
+            let mailOptions = {
+                from: `${email}`,
+                to: 'support@jellylab.io',
+                subject: subject,
+                html: `<b>보낸이: ${name} ${email}</b><br><br>${message}`
+            }
+
+            transporter.sendMail(mailOptions, function(err, info) {
+                if (err) {
+                    console.error('Send Mail error : ', err);
+                    return res.status(403).json({ success: false, message: err })
+                } else {
+                    console.log('Message sent : ', info);
+                    return res.status(200).json({ success: true })
+                }
+            })
+        }
+    }).catch(errr => {
+        return res.status(403).json({ success: false, message: 'Unknown outer catch error. err: ' + err.message })
+    })
+}
 function memberWithdraw (req, res) {
     const email = req.body.email;
     const password = req.body.password;
@@ -426,8 +475,6 @@ function memberWithdraw (req, res) {
                 })
                 // 일반 로그인
             } else {
-                console.log(password);
-                console.log(user.password);
                 bcrypt.compare(password, user.password, (err, isMatch) => {
                     if (err) {
                         return res.status(403).json({success: false, message: 'The given password does not match with the account password.' })
@@ -2411,6 +2458,7 @@ module.exports = {
     socialLogin: socialLogin,
     logout: logout,
     sendNewPassword: sendNewPassword,
+    sendInquiry: sendInquiry,
     memberWithdraw: memberWithdraw,
     updatePassword: updatePassword,
     updateSocket: updateSocket,
