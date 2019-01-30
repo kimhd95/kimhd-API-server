@@ -158,6 +158,89 @@ function registerUser (req, res) {
         });
     });
 }
+
+function loginOnetime (req, res) {
+    const email = req.body.email;
+    // const password = req.body.password;
+    const secret = config.jwt_secret;
+
+    if (!email) {
+        return res.status(400).json({success: false, message: 'Email not given.'});
+    }
+    models.User.findOne({
+        where: {
+            email: email
+        }
+    }).then(user => {
+        if(!user) {
+            return res.status(403).json({success: false, message: 'No user account found with given email address.'});
+        }
+        jwt.sign({
+                id: user.id,
+                email: user.email,
+                name: user.name
+            },
+            secret, {
+                expiresIn: '7d',
+                issuer: 'jellylab.io',
+                subject: 'userInfo'
+            }, (err, token) => {
+                console.log(`err: ${err}, token: ${token}`);
+                if(err) {
+                    console.log(`err.message: ${err.message}`);
+                    return res.status(403).json({
+                        success: false,
+                        message: err.message
+                    });
+                }
+                console.log(`req.header.origin = ${req.header('origin')}`);
+
+                const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
+
+                if(req.header('origin') === undefined) {
+                    console.log('req origin is undefined. Probably from postman.');
+                    if(req.secure) {
+                        console.log('req. is secure');
+                        res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                    } else {
+                        console.log('req is NOT secure');
+                        res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                    }
+                } else if(req.header('origin').includes('localhost')) {
+                    console.log('req origin includes localhost OR it is from postman');
+                    if(req.secure) {
+                        console.log('req. is secure');
+                        res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                    } else {
+                        console.log('req is NOT secure');
+                        res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                    }
+                } else {
+                    console.log('req origin does NOT include localhost');
+                    if(req.secure) {
+                        res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                    } else {
+                        res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                    }
+                }
+                res.header('Access-Control-Allow-Credentials', 'true');
+                return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/lobby'});
+            });
+                // } else {
+                //     return res.status(403).json({
+                //         success: false,
+                //         message: 'Password wrong'
+                //     });
+                // }
+            }).catch(err => {
+        console.log(`err.message: ${err.message}`);
+        return res.status(403).json({
+            success: false,
+            message: `DB error. err: ${err.message}`
+        })
+    });
+}
+
 // 수정 필요.
 function login (req, res) {
     const email = req.body.email;
@@ -613,6 +696,13 @@ function updateUser (req, res) {
     const drink_type = req.body.drink_type;
     const drink_round = req.body.drink_round;
 
+    const limit_cnt_drink = req.body.limit_cnt_drink;
+    const cafe_before = req.body.cafe_before;
+    const limit_cnt_cafe = req.body.limit_cnt_cafe;
+    const mood1 = req.body.mood1;
+    const subway_cafe = req.body.subway_cafe;
+    const freq_subway_cafe = req.body.freq_subway_cafe;
+    const mainmenu_type = req.body.mainmenu_type;
 
 
     if(name){
@@ -750,6 +840,27 @@ function updateUser (req, res) {
     } else if(drink_round){
         param_name = 'drink_round';
         param_value = drink_round;
+    } else if(limit_cnt_drink){
+        param_name = 'limit_cnt_drink';
+        param_value = limit_cnt_drink;
+    } else if(limit_cnt_cafe){
+        param_name = 'limit_cnt_cafe';
+        param_value = limit_cnt_cafe;
+    } else if(cafe_before){
+        param_name = 'cafe_before';
+        param_value = cafe_before;
+    } else if(mainmenu_type){
+        param_name = 'mainmenu_type';
+        param_value = mainmenu_type;
+    } else if(subway_cafe){
+        param_name = 'subway_cafe';
+        param_value = subway_cafe;
+    } else if(freq_subway_cafe){
+        param_name = 'freq_subway_cafe';
+        param_value = freq_subway_cafe;
+    } else if(mood1){
+        param_name = 'mood1';
+        param_value = mood1;
     }
 
     if (param_name === 'chat_log') {
@@ -1023,6 +1134,7 @@ function updateSocket (req, res) {
 function updatePartLog (req, res) {
     const chat_log = req.body.chat_log;
     const emailValue = req.body.email;
+    const targetcol = req.body.col;
 
     if (String(chat_log).length > 1000000) {
       chat_log = null;
@@ -1030,7 +1142,7 @@ function updatePartLog (req, res) {
 
     models.User.update(
         {
-            [req.body.col]: chat_log,
+            [targetcol]: chat_log,
         },     // What to update
         {where: {
                 email: emailValue},
@@ -1282,6 +1394,34 @@ function updateDrinkStart (req, res) {
         .then(result => {
           if (result) {
             return res.status(200).json({success: true, message: 'UserDrinkStart Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
+        }).catch(function (err){
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+}
+
+function updateCafeStart (req, res) {
+    console.log('updateCafeStart called.')
+    const kakao_id = req.body.kakao_id;
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            mood1: null,
+            rest1: null,
+            rest2: null,
+            mainmenu_type: null,
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+          if (result) {
+            return res.status(200).json({success: true, message: 'UserCafeStart Update complete.'})
           } else {
             return res.status(403).json({success: false, message: 'no result'})
           }
@@ -1732,6 +1872,123 @@ function verifyLimitDrink (req, res) { // 30분 당 5회 제한 판별 API함수
     }
 }
 
+function updateLimitCntCafe (req, res) {
+    console.log('updateMidInfo called.')
+    const kakao_id = req.body.kakao_id;
+    const limit_cnt_cafe = req.body.limit_cnt_cafe;
+    const date = moment().format();
+
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    if (limit_cnt_cafe === 1) {
+      models.User.update(
+          {
+              limit_cnt_cafe: limit_cnt_cafe,
+              decide_updated_at_cafe: date,
+          },     // What to update
+          {where: {
+                  kakao_id: kakao_id}
+          })  // Condition
+          .then(result => {
+            if (result) {
+              return res.status(200).json({success: true, message: 'updateLimitCntCafe Update complete.'})
+            } else {
+              return res.status(403).json({success: false, message: 'no result'})
+            }
+          }).catch(function (err){
+            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+      });
+    } else {
+      models.User.update(
+          {
+              limit_cnt_cafe: limit_cnt_cafe,
+          },     // What to update
+          {where: {
+                  kakao_id: kakao_id}
+          })  // Condition
+          .then(result => {
+            if (result) {
+              return res.status(200).json({success: true, message: 'updateLimitCntCafe Update complete.'})
+            } else {
+              return res.status(403).json({success: false, message: 'no result'})
+            }
+          }).catch(function (err){
+            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+      });
+    }
+}
+
+function verifyLimitCafe (req, res) { // 30분 당 5회 제한 판별 API함수
+    console.log('verifyLimitCafe called.')
+    const kakao_id = req.body.kakao_id;
+    const limit_cnt_cafe = req.body.limit_cnt_cafe; //현재 유저DB의 메뉴결정 횟수
+    let decide_updated_at_cafe = req.body.decide_updated_at_cafe; //현재 유저의 마지막 메뉴결정 시간
+    const now_time = moment();
+    const last_select_min = now_time.diff(decide_updated_at_cafe, 'minutes');
+
+    if (decide_updated_at_cafe === null) {
+      decide_updated_at_cafe = '2000-01-01 00:00:00';
+    }
+
+    /*
+    음식점 선택 횟수(limit_cnt)가 5이고 decide_updated_at이 null이 아닐 때(신규가입 유저 고려),
+      마지막 선택 시간으로부터 30분이 지나면,
+        음식점 선택 횟수를 0으로 초기화하고 시나리오 진행 가능(success)
+      마지막 선택 시간으로부터 30분이 지나지 않았으면,
+        시나리오 진행 불가(failed)
+    음식점 선택 횟수가 5가 아닐 때,
+      마지막 선택 시간으로부터 30분이 지나면,
+        음식점 선택 횟수를 0으로 초기화하고 시나리오 진행 가능(success)
+      마지막 선택 시간으로부터 30분이 지나지 않았으면,
+        시나리오 진행 가능(success)
+    */
+    if (limit_cnt_cafe === 5) {
+      if (last_select_min > 30) {
+        models.User.update(
+            {
+                limit_cnt_cafe: 0,
+            },     // What to update
+            {where: {
+                    kakao_id: kakao_id}
+            })  // Condition
+            .then(result => {
+              if (result) {
+                return res.status(200).json({result: 'success'})
+              } else {
+                return res.status(403).json({success: false, message: 'no result'})
+              }
+            }).catch(function (err){
+              return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        });
+      } else {
+        return res.status(200).json({result: 'failed'})
+      }
+    } else {
+      if (last_select_min > 30) {
+        models.User.update(
+            {
+                limit_cnt_cafe: 0,
+            },     // What to update
+            {where: {
+                    kakao_id: kakao_id}
+            })  // Condition
+            .then(result => {
+              if (result) {
+                return res.status(200).json({result: 'success'})
+              } else {
+                return res.status(403).json({success: false, message: 'no result'})
+              }
+            }).catch(function (err){
+              return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        });
+      } else {
+        return res.status(200).json({result: 'success'})
+      }
+    }
+}
+
 function updateState (req, res) {
     const kakao_id = req.body.kakao_id;
     const scenario = req.body.scenario;
@@ -1978,51 +2235,40 @@ function previousRegisterUser (req, res) {
      })
  }
 
- function getMenuLog (req, res) {
-     const emailValue = req.body.email;
-     const now_date = moment();
-     models.User.findOne({
-         attributes: ['menu_chat_log', 'updated_at'],
-         where: {
-             email: emailValue,
-         }
-     }).then(result => {
-       if(result){
-         const last_date = result.updated_at;
-         const disconn_min = now_date.diff(last_date, 'minutes');
+ function registerOnetimeUser (req, res) {
+     const email=req.body.email;
+     const name=req.body.name;
+     const pwd=req.body.password;
 
-         if (disconn_min > 10) { // 마지막 접속으로 시나리오 진행으로부터 10분이 지나면 접속끊음으로 판단
-           models.User.update(
-             {
-               scenario: '100',
-               state: 'init'
-             },     // What to update
-             {where: {
-                     email: emailValue}
-             })  // Condition
-             .then(update_result => {
-               return res.status(200).json({success: true, message: result.menu_chat_log, disconn_type: 'permanent'});
-             }).catch(err => {
-                 return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-             });
-         } else { // 마지막 접속으로부터 10분 이하 이내로 다시 접속 시, 일시적 접속 끊김으로 판단
-           return res.status(200).json({success: true, message: result.menu_chat_log, disconn_type: 'temporary'});
-         }
-       }else{
-         return res.status(401).json({message: 'Cant find user email : ' + err.message})
+     models.User.create({
+         email: email,
+         password: pwd,
+         name: name,
+         //encrypted_kakao_id: encrypted_kakao_id,
+         scenario: '100',
+         state: 'init',
+         social: false,
+         registered: '-1',
+     }).then(user => {
+       if(user){
+         return res.status(200).json({success: true, message: 'onetime user created.', user: user});
+       } else{
+         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
        }
      }).catch(err => {
          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
      });
  }
 
- function getDrinkLog (req, res) {
-     const emailValue = req.body.email;
+ function getPartLog (req, res) {
+     const email = req.body.email;
+     const targetcol = req.body.col;
      const now_date = moment();
+
      models.User.findOne({
-         attributes: ['drink_chat_log', 'updated_at'],
+         attributes: [targetcol, 'updated_at'],
          where: {
-             email: emailValue,
+             email: email
          }
      }).then(result => {
        if(result){
@@ -2036,15 +2282,15 @@ function previousRegisterUser (req, res) {
                state: 'init'
              },     // What to update
              {where: {
-                     email: emailValue}
+                     email: email}
              })  // Condition
              .then(update_result => {
-               return res.status(200).json({success: true, message: result.drink_chat_log, disconn_type: 'permanent'});
+               return res.status(200).json({success: true, message: result[targetcol], disconn_type: 'permanent'});
              }).catch(err => {
                  return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
              });
          } else { // 마지막 접속으로부터 10분 이하 이내로 다시 접속 시, 일시적 접속 끊김으로 판단
-           return res.status(200).json({success: true, message: result.drink_chat_log, disconn_type: 'temporary'});
+           return res.status(200).json({success: true, message: result[targetcol], disconn_type: 'temporary'});
          }
        }else{
          return res.status(401).json({message: 'Cant find user email : ' + err.message})
@@ -2057,7 +2303,6 @@ function previousRegisterUser (req, res) {
  function getChatLog (req, res) {
      const email = req.body.email;
      const now_date = moment();
-
 
      models.User.findOne({
          attributes: ['chat_log', 'updated_at'],
@@ -2125,10 +2370,11 @@ function previousRegisterUser (req, res) {
      });
  }
 
- function deleteMenuLog (req, res) {
+ function deletePartLog (req, res) {
      const email = req.body.email;
+     const targetcol = req.body.col;
      models.User.findOne({
-         attributes: ['menu_chat_log'],
+         attributes: [targetcol],
          where: {
              email: email
          }
@@ -2136,7 +2382,7 @@ function previousRegisterUser (req, res) {
         if(user){
           models.User.update(
             {
-             menu_chat_log: null,
+             [targetcol]: null,
              scenario: '100',
              state: 'init',
             },     // What to update
@@ -2144,38 +2390,7 @@ function previousRegisterUser (req, res) {
                    email: email}
             })  // Condition
             .then(result => {
-             return res.status(200).json({success: true, message: result.menu_chat_log});
-            }).catch(err => {
-               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-            });
-        } else{
-           return res.status(401).json({message: 'Cant find user email : ' + err.message})
-        }
-     }).catch(err => {
-         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-     });
- }
-
- function deleteDrinkLog (req, res) {
-     const email = req.body.email;
-     models.User.findOne({
-         attributes: ['drink_chat_log'],
-         where: {
-             email: email
-         }
-     }).then(user => {
-        if(user){
-          models.User.update(
-            {
-             drink_chat_log: null,
-             scenario: '100',
-             state: 'init',
-            },     // What to update
-            {where: {
-                   email: email}
-            })  // Condition
-            .then(result => {
-             return res.status(200).json({success: true, message: result.drink_chat_log});
+             return res.status(200).json({success: true, message: result[targetcol]});
             }).catch(err => {
                return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
             });
@@ -2472,11 +2687,11 @@ module.exports = {
     updateChatLog: updateChatLog,
 
     updateStateEmail: updateStateEmail,
-    getMenuLog: getMenuLog,
-    getDrinkLog: getDrinkLog,
     updatePartLog: updatePartLog,
-    deleteMenuLog: deleteMenuLog,
-    deleteDrinkLog: deleteDrinkLog,
+    deletePartLog: deletePartLog,
+    getPartLog: getPartLog,
+    registerOnetimeUser: registerOnetimeUser,
+    loginOnetime: loginOnetime,
 
     getUserInfo: getUserInfo,
     getRestaurant: getRestaurant,
@@ -2505,6 +2720,9 @@ module.exports = {
     updateDrinkStart: updateDrinkStart,
     updateLimitCntDrink: updateLimitCntDrink,
     verifyLimitDrink: verifyLimitDrink,
+    updateLimitCntCafe: updateLimitCntCafe,
+    verifyLimitCafe: verifyLimitCafe,
+    updateCafeStart: updateCafeStart,
 
     createDecideHistory: createDecideHistory,
 
