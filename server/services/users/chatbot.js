@@ -2151,7 +2151,7 @@ function verifySubwayThema (req, res) {
 
     models.Cafe.findOne({
         where: {
-            subway: subway
+            subway: subway,
             mainmenu_type: {
               [Op.or]: ["테마(보드게임)", "테마(고양이)"]
             }
