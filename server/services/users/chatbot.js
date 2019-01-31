@@ -703,7 +703,7 @@ function updateUser (req, res) {
     const subway_cafe = req.body.subway_cafe;
     const freq_subway_cafe = req.body.freq_subway_cafe;
     const mainmenu_type = req.body.mainmenu_type;
-
+    const food_name = req.body.food_name;
 
     if(name){
         // models.Medicine_time.create({
@@ -861,6 +861,9 @@ function updateUser (req, res) {
     } else if(mood1){
         param_name = 'mood1';
         param_value = mood1;
+    } else if(food_name){
+        param_name = 'food_name';
+        param_value = food_name;
     }
 
     if (param_name === 'chat_log') {
