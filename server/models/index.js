@@ -211,6 +211,20 @@ const Beer = sequelize.define('beer', {
     comment: Sequelize.STRING
 });
 
+const Cafe = sequelize.define('cafe', {
+  region: Sequelize.STRING,
+  subway: Sequelize.STRING,
+  exit_quarter: Sequelize.INTEGER,
+  cafe_name: Sequelize.STRING,
+  mainmenu_type: Sequelize.STRING,
+  drink_name: Sequelize.STRING,
+  food_name: Sequelize.STRING,
+  mood2: Sequelize.STRING,
+  mood1: Sequelize.STRING,
+  phone: Sequelize.STRING,
+  closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
+});
+
 module.exports = {
     sequelize: sequelize,
     User: User,
@@ -219,6 +233,7 @@ module.exports = {
     Decide_history: Decide_history,
     User_feedback: User_feedback,
     Beer: Beer,
+    Cafe: Cafe,
     Restaurant: Restaurant,
     verifyAPIKEY: verifyAPIKEY
 };

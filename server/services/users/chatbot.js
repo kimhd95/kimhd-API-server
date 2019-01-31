@@ -1418,6 +1418,8 @@ function updateCafeStart (req, res) {
             rest1: null,
             rest2: null,
             mainmenu_type: null,
+            food_name: null,
+            mood2: null,
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
@@ -2137,6 +2139,50 @@ function verifySubwayDrinktype (req, res) {
     });
 }
 
+function verifySubwayThema (req, res) {
+    let subway;
+    if ((req.body.subway !== undefined)){
+        subway = req.body.subway;
+    } else {
+        return res.status(401).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+            subway: req.body.subway});
+    }
+
+    models.Cafe.findOne({
+        where: {
+            subway: subway,
+            $or: [
+                   {
+                       mainmenu_type:
+                       {
+                           $eq: "테마(보드게임)"
+                       }
+                   },
+                   {
+                       mainmenu_type:
+                       {
+                           $eq: "테마(고양이)"
+                       }
+                   },
+                   {
+                       mainmenu_type:
+                       {
+                           $eq: "테마(상담)"
+                       }
+                   }
+               ]
+        }})
+        .then(result => {
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
+        } else {
+            res.status(200).json({result: 'no subway'})
+        }
+    }).catch(err => {
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    });
+}
+
 function crawlImage (req, res) {
   const res1 = req.body.res1;
 
@@ -2716,6 +2762,7 @@ module.exports = {
     getAllRestsaurant: getAllRestsaurant,
     verifySubway: verifySubway,
     verifySubwayDrinktype: verifySubwayDrinktype,
+    verifySubwayThema: verifySubwayThema,
     getSubwayListHistory: getSubwayListHistory,
     getUserInfoByEmail: getUserInfoByEmail,
     findSubwayDrinkType: findSubwayDrinkType,
