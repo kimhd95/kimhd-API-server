@@ -2151,10 +2151,10 @@ function verifySubwayThema (req, res) {
 
     models.Cafe.findOne({
         where: {
-            subway: subway,
-            mainmenu_type: {
-              [Op.or]: ["테마(보드게임)", "테마(고양이)"]
-            }
+            subway: subway
+            // mainmenu_type: {
+            //   [Op.or]: ["테마(보드게임)", "테마(고양이)"]
+            // }
         }})
         .then(result => {
         if(result !== null) {
