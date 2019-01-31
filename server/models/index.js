@@ -104,7 +104,8 @@ const User = sequelize.define('user', {
     mainmenu_type: Sequelize.STRING,
     subway_cafe: Sequelize.STRING,
     freq_subway_cafe: Sequelize.STRING,
-    mood1: Sequelize.STRING
+    mood1: Sequelize.STRING,
+    food_name: Sequelize.STRING
 },
 {
   timestamps: true,
