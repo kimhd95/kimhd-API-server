@@ -2142,6 +2142,7 @@ function verifySubwayDrinktype (req, res) {
 function verifySubwayThema (req, res) {
     let subway;
     console.log("verifySubwayThema called");
+    console.log(models.Cafe);
     if ((req.body.subway !== undefined)){
         subway = req.body.subway;
     } else {
