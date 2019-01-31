@@ -2142,7 +2142,6 @@ function verifySubwayDrinktype (req, res) {
 function verifySubwayThema (req, res) {
     let subway;
     console.log("verifySubwayThema called");
-    console.log(models.Cafe);
     if ((req.body.subway !== undefined)){
         subway = req.body.subway;
     } else {
@@ -2153,9 +2152,9 @@ function verifySubwayThema (req, res) {
     models.Cafe.findOne({
         where: {
             subway: subway
-            // mainmenu_type: {
-            //   [Op.or]: ["테마(보드게임)", "테마(고양이)"]
-            // }
+            mainmenu_type: {
+              [Op.or]: ["테마(보드게임)", "테마(고양이)"]
+            }
         }})
         .then(result => {
         if(result !== null) {
