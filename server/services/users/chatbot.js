@@ -2549,6 +2549,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    if (drink_type === '상관없음') {
      drink_type = '맥주 양주 와인 사케 소주 전통주';
    }
+
    let drink_type_array = drink_type.split(' ');
 
    function shuffle(a) {
@@ -2588,6 +2589,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      drink_round = '1';
      drink_round_flag = 'NOT';
    }
+   drink_round.replace(/-/g, '');
 
 
    if (drink_type === '소주' || drink_type === '맥주' || drink_type === '소주 맥주' || drink_type === '맥주 소주') {
