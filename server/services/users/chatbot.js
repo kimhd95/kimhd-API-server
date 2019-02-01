@@ -2153,7 +2153,7 @@ function verifySubwayDrinktype (req, res) {
 }
 
 function verifySubwayThema (req, res) {
-    const subway = req.body.subway;;
+    const subway = req.body.subway;
     console.log("verifySubwayThema called");
 
     models.Cafe.findOne({
@@ -2177,21 +2177,19 @@ function verifySubwayThema (req, res) {
 }
 
 function verifySubwayDetailThema (req, res) {
-    let subway;
+    const subway = req.body.subway;
     console.log("verifySubwayDetailThema called");
-    if ((req.body.subway !== undefined)){
-        subway = req.body.subway;
-    } else {
-        return res.status(401).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
-            subway: req.body.subway});
+    const category_list = req.body.category_list;
+    const condition = [];
+    const leng = category_list.split(',').length;
+    for (var i = 0; i < leng; i++) {
+      condition.push(`${category_list.split(',')[i]}`);
     }
-
     models.Cafe.findOne({
         where: {
             subway: subway,
             mainmenu_type: {
-              [Op.or]: ["테마(낮잠)", "테마(닥터피쉬)", "테마(고양이)", "테마(강아지)", "테마(양)", "테마(토끼)", "테마(앵무새)", "테마(이색동물)", "테마(상담)", "테마(사주)", "테마(공예)", "테마(갤러리)",
-            "테마(사진)", "테마(캐릭터)", "테마(만화)", "테마(키덜트)"]
+              [Op.or]: condition
             }
         }})
         .then(result => {
