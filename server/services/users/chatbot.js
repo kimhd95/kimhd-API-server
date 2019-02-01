@@ -2140,32 +2140,44 @@ function verifySubwayDrinktype (req, res) {
 }
 
 function verifySubwayThema (req, res) {
-    let subway;
+    const subway = req.body.subway;;
     console.log("verifySubwayThema called");
-    if ((req.body.subway !== undefined)){
-        subway = req.body.subway;
-    } else {
-        return res.status(401).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
-            subway: req.body.subway});
-    }
+    // if ((req.body.subway !== undefined)){
+    //     subway = req.body.subway;
+    // } else {
+    //     return res.status(401).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+    //         subway: req.body.subway});
+    // }
 
-    models.Cafe.findOne({
-        where: {
-            subway: subway,
-            mainmenu_type: {
-              [Op.ne]: null
-            }
-        }})
-        .then(result => {
+    models.sequelize.query(`SELECT * FROM cafes WHERE subway = '${subway}';`).then(result => {
+      if (result) {
         console.log(result);
-        if(result !== null) {
-            res.status(200).json({result: 'success'})
-        } else {
-            res.status(200).json({result: 'no subway'})
-        }
-    }).catch(err => {
-        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    });
+        return res.status(200).json({result : 'success'});
+      } else {
+        console.log(result);
+        return res.status(200).json([]);
+      }
+    }).catch(function (err){
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+
+    // models.Cafe.findOne({
+    //     where: {
+    //         subway: subway,
+    //         mainmenu_type: {
+    //           [Op.ne]: null
+    //         }
+    //     }})
+    //     .then(result => {
+    //     console.log(result);
+    //     if(result !== null) {
+    //         res.status(200).json({result: 'success'})
+    //     } else {
+    //         res.status(200).json({result: 'no subway'})
+    //     }
+    // }).catch(err => {
+    //     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    // });
 }
 
 function crawlImage (req, res) {
