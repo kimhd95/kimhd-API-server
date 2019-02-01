@@ -2180,16 +2180,16 @@ function verifySubwayDetailThema (req, res) {
     const subway = req.body.subway;
     console.log("verifySubwayDetailThema called");
     const category_list = req.body.category_list;
-    console.log(category_list);
-    console.log(category_list.split(',')[0]);
-    console.log(typeof category_list.split(',')[0]);
-
+    const condition = [];
+    const leng = category_list.split(',').length;
+    for (var i = 0; i < leng; i++) {
+      condition.push(`${category_list.split(',')[i]}`);
+    }
     models.Cafe.findOne({
         where: {
             subway: subway,
             mainmenu_type: {
-              [Op.or]: ["테마(낮잠)", "테마(닥터피쉬)", "테마(고양이)", "테마(강아지)", "테마(양)", "테마(토끼)", "테마(앵무새)", "테마(이색동물)", "테마(상담)", "테마(사주)", "테마(공예)", "테마(갤러리)",
-            "테마(사진)", "테마(캐릭터)", "테마(만화)", "테마(키덜트)"]
+              [Op.or]: condition
             }
         }})
         .then(result => {
