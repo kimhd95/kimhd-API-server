@@ -2153,7 +2153,7 @@ function verifySubwayDrinktype (req, res) {
 }
 
 function verifySubwayThema (req, res) {
-    const subway = req.body.subway;;
+    const subway = req.body.subway;
     console.log("verifySubwayThema called");
 
     models.Cafe.findOne({
@@ -2177,14 +2177,12 @@ function verifySubwayThema (req, res) {
 }
 
 function verifySubwayDetailThema (req, res) {
-    let subway;
+    const subway = req.body.subway;
     console.log("verifySubwayDetailThema called");
-    if ((req.body.subway !== undefined)){
-        subway = req.body.subway;
-    } else {
-        return res.status(401).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
-            subway: req.body.subway});
-    }
+    const category_list = req.body.category_list;
+    console.log(category_list);
+    console.log(category_list.split(',')[0]);
+    console.log(typeof category_list.split(',')[0]);
 
     models.Cafe.findOne({
         where: {
