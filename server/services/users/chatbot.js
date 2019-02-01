@@ -2599,11 +2599,10 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    }
 
    if (drink_round === null || drink_round === undefined) {
-     drink_round = '1';
-     drink_round_flag = 'NOT';
+     drink_round = '2 3 4';
+     // drink_round_flag = 'NOT';
    }
-   drink_round.replace(/-/g, '');
-
+   // let drink_round_array=drink_round.replace(/-/g, '').split(' ');
 
    if (drink_type === '소주' || drink_type === '맥주' || drink_type === '소주 맥주' || drink_type === '맥주 소주') {
      drink_type = drink_type.replace('맥주','생맥주 병맥주 중식맥주');
