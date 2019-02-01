@@ -2154,7 +2154,38 @@ function verifySubwayThema (req, res) {
         where: {
             subway: subway,
             mainmenu_type: {
-              [Op.or]: ["테마(보드게임)", "테마(고양이)"]
+              [Op.or]: ["테마(낮잠)", "테마(닥터피쉬)", "테마(고양이)", "테마(강아지)", "테마(양)", "테마(토끼)", "테마(앵무새)", "테마(이색동물)", "테마(상담)", "테마(사주)", "테마(공예)", "테마(갤러리)",
+            "테마(사진)", "테마(캐릭터)", "테마(만화)", "테마(키덜트)"]
+            }
+        }})
+        .then(result => {
+          console.log(result);
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
+        } else {
+            res.status(200).json({result: 'no subway'})
+        }
+    }).catch(err => {
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    });
+}
+
+function verifySubwayDetailThema (req, res) {
+    let subway;
+    console.log("verifySubwayDetailThema called");
+    if ((req.body.subway !== undefined)){
+        subway = req.body.subway;
+    } else {
+        return res.status(401).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+            subway: req.body.subway});
+    }
+
+    models.Cafe.findOne({
+        where: {
+            subway: subway,
+            mainmenu_type: {
+              [Op.or]: ["테마(낮잠)", "테마(닥터피쉬)", "테마(고양이)", "테마(강아지)", "테마(양)", "테마(토끼)", "테마(앵무새)", "테마(이색동물)", "테마(상담)", "테마(사주)", "테마(공예)", "테마(갤러리)",
+            "테마(사진)", "테마(캐릭터)", "테마(만화)", "테마(키덜트)"]
             }
         }})
         .then(result => {
@@ -2749,6 +2780,7 @@ module.exports = {
     verifySubway: verifySubway,
     verifySubwayDrinktype: verifySubwayDrinktype,
     verifySubwayThema: verifySubwayThema,
+    verifySubwayDetailThema: verifySubwayDetailThema,
     getSubwayListHistory: getSubwayListHistory,
     getUserInfoByEmail: getUserInfoByEmail,
     findSubwayDrinkType: findSubwayDrinkType,
