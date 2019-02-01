@@ -2153,10 +2153,11 @@ function verifySubwayThema (req, res) {
         where: {
             subway: subway,
             mainmenu_type: {
-              [Op.or]: ["테마(보드게임)", "테마(고양이)"]
+              [Op.ne]: null
             }
         }})
         .then(result => {
+        console.log(result);
         if(result !== null) {
             res.status(200).json({result: 'success'})
         } else {
