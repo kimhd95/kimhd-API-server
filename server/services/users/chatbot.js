@@ -933,18 +933,42 @@ function getRestaurant (req, res) {
   let food_type_flag = '';
   let mood2_flag = '';
 
+  // 특정 역을 입력하므로 일단은 안 쓰임
+  if(subway === '서울 어디든 좋아' || subway === null){
+    subway = 'x';
+    subway_flag = 'NOT';
+  }
 
-  if(mood === '캐주얼' || mood2 === '상관없음'){
+  if(exit_quarter.includes('999')){
+    exit_quarter = '1,2,3,4';
+  }
+
+  // 일상적인 식사일 경우에는 mood2 고려 안 함
+  // 일상적인 식사가 아닌 경우에는 keyword를 공백을 두어 문자열로 만듦
+  if(mood === '캐주얼' || mood2 === '999'){
     mood2_flag = 'NOT';
     mood2 = 'x';
-  }else{
-  mood2= mood2.replace(/,/g,' ');
+  } else{
+  // 밥 약속이나 술 약속인 경우 keyword를 공백을 두어 문자열로 만듦
+    mood2= mood2.replace(/,/g,' ');
   }
+
+  // !-가벼운 == 헤비한 이므로, 예를 들어 헤비한 음식을 고른 경우에는 flag를 not으로 만들어서 가벼운 음식을 제외
+  if(taste.includes('!-')){
+    taste = taste.replace('!-','');
+    taste_flag = 'NOT';
+  } else if(taste === 'all'){
+    taste = 'x';
+    taste_flag = 'NOT';
+  }
+
+
   food_type = food_type.replace(/,/g,' ');
+
   if(food_type === '이국적'){
     food_type = '한식 일식 중식 양식';
     food_type_flag = 'NOT';
-  }else if(food_type === 'all'){
+  } else if(food_type === 'all'){
     food_type = 'x';
     food_type_flag = 'NOT';
   }
@@ -952,20 +976,8 @@ function getRestaurant (req, res) {
   if(food_ingre === null){
     food_ingre = 'x';
   }
-  if(subway === '서울 어디든 좋아' || subway === null){
-    subway = 'x';
-    subway_flag = 'NOT';
-  }
-  if(exit_quarter.includes('999')){
-    exit_quarter = '1,2,3,4';
-  }
-  if(taste.includes('!-')){
-    taste = taste.replace('!-','');
-    taste_flag = 'NOT';
-  }else if(taste === 'all'){
-    taste = 'x';
-    taste_flag = 'NOT';
-  }
+
+
 
   models.sequelize.query(`SELECT * FROM restaurants WHERE
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
@@ -2141,14 +2153,8 @@ function verifySubwayDrinktype (req, res) {
 }
 
 function verifySubwayThema (req, res) {
-    let subway;
+    const subway = req.body.subway;;
     console.log("verifySubwayThema called");
-    if ((req.body.subway !== undefined)){
-        subway = req.body.subway;
-    } else {
-        return res.status(401).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
-            subway: req.body.subway});
-    }
 
     models.Cafe.findOne({
         where: {
@@ -2556,6 +2562,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    if (drink_type === '상관없음') {
      drink_type = '맥주 양주 와인 사케 소주 전통주';
    }
+
    let drink_type_array = drink_type.split(' ');
 
    function shuffle(a) {
@@ -2566,13 +2573,16 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
        return a;
    }
 
+
    if (subway === '서울 어디든 좋아' || subway === null){
      subway = 'x';
      subway_flag = 'NOT';
    }
+
    if (exit_quarter.includes('999')){
      exit_quarter = '1,2,3,4';
    }
+
    if (taste === null || taste === undefined) {
      taste = 'x';
      taste_flag = 'NOT';
@@ -2580,16 +2590,19 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      taste = taste.replace('-','');
      taste_flag = 'NOT';
    }
+
    if (mood2 === null || mood2 === undefined) {
      mood2_flag = 'NOT';
      mood2 = 'x';
    } else if (mood2.includes('-') || mood2 === 'all') {
      mood2_flag = 'NOT';
    }
+
    if (drink_round === null || drink_round === undefined) {
-     drink_round = 'x';
+     drink_round = '1';
      drink_round_flag = 'NOT';
    }
+   drink_round.replace(/-/g, '');
 
 
    if (drink_type === '소주' || drink_type === '맥주' || drink_type === '소주 맥주' || drink_type === '맥주 소주') {
