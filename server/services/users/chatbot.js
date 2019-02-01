@@ -1,3 +1,4 @@
+// 원격에서 작업중
 const models = require('../../models');
 const config = require('../../../configs');
 const Op = models.sequelize.Op;
@@ -2157,6 +2158,7 @@ function verifySubwayThema (req, res) {
             }
         }})
         .then(result => {
+          console.log(result);
         if(result !== null) {
             res.status(200).json({result: 'success'})
         } else {
@@ -2759,8 +2761,4 @@ module.exports = {
     updateCafeStart: updateCafeStart,
 
     createDecideHistory: createDecideHistory,
-
-
-
-
 }
