@@ -1,3 +1,4 @@
+// 원격에서 작업중
 const models = require('../../models');
 const config = require('../../../configs');
 const Op = models.sequelize.Op;
@@ -2789,8 +2790,4 @@ module.exports = {
     updateCafeStart: updateCafeStart,
 
     createDecideHistory: createDecideHistory,
-
-
-
-
 }

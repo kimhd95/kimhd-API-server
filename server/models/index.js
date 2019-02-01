@@ -223,6 +223,9 @@ const Cafe = sequelize.define('cafe', {
   mood1: Sequelize.STRING,
   phone: Sequelize.STRING,
   closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
+},{
+  tableName: 'cafes',
+  freezeTableName: true
 });
 
 module.exports = {
