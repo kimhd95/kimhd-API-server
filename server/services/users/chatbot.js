@@ -2154,25 +2154,30 @@ function verifySubwayDrinktype (req, res) {
 
 function verifySubwayThema (req, res) {
     const subway = req.body.subway;
-    console.log("verifySubwayThema called");
-
-    models.Cafe.findOne({
-        where: {
-            subway: subway,
-            mainmenu_type: {
-              [Op.or]: ["테마(낮잠)", "테마(닥터피쉬)", "테마(고양이)", "테마(강아지)", "테마(양)", "테마(토끼)", "테마(앵무새)", "테마(이색동물)", "테마(상담)", "테마(사주)", "테마(공예)", "테마(갤러리)",
-            "테마(사진)", "테마(캐릭터)", "테마(만화)", "테마(키덜트)"]
+    models.Cafe.findAll({
+      where: {
+        subway: subway
+      }
+    }).then(result => {
+        if(result){
+            let subway_array = result.reduce((acc,cur) => {
+              acc.push(cur.mainmenu_type);
+              return acc;
+            },[]);
+            let result_array = subway_array.reduce((acc, cur) => {
+              if (Hangul.search(cur, '테마', true) === 0) acc.push(cur);
+              return acc;
+            }, []);
+            if(result_array){
+              return res.status(200).json({result: 'success', result_array: result_array});
+            } else {
+              return res.status(200).json({result: 'fail');
             }
-        }})
-        .then(result => {
-          console.log(result);
-        if(result !== null) {
-            res.status(200).json({result: 'success'})
         } else {
-            res.status(200).json({result: 'no subway'})
+            return res.status(403).json({error: 'no result'});
         }
-    }).catch(err => {
-        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    }).catch(function (err){
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
 
