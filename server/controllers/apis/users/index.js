@@ -75,7 +75,7 @@ router.post('/verify_limit_cafe', chatbotService.verifyLimitCafe);
 router.post('/update_cafe_start', chatbotService.updateCafeStart);
 router.post('/verify_subway_thema', chatbotService.verifySubwayThema);
 router.post('/verify_subway_detail_thema', chatbotService.verifySubwayDetailThema);
-// router.post('/get_cafe_restaurant', chatbotService.getCafeRestaurant);
+router.post('/get_cafe_restaurant', chatbotService.getCafeRestaurant);
 
 router.get('/get_users', userService.getUsers); // 현재 미사용
 router.get('/:id', userService.getUserWithId); // 현재 미사용
