@@ -705,7 +705,6 @@ function updateUser (req, res) {
     const freq_subway_cafe = req.body.freq_subway_cafe;
     const mainmenu_type = req.body.mainmenu_type;
     const food_name = req.body.food_name;
-    const price_level = req.body.price_level;
 
     if(name){
         // models.Medicine_time.create({
@@ -866,9 +865,6 @@ function updateUser (req, res) {
     } else if(food_name){
         param_name = 'food_name';
         param_value = food_name;
-    } else if(price_level){
-        param_name = 'price_level';
-        param_value = price_level;
     }
 
     if (param_name === 'chat_log') {
@@ -2771,23 +2767,36 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
            subway: subway,
            exit_quarter: {
              [Op.or]: condition2
+           },
+           mainmenu_type: {
+             [Op.or]: condition
            }
-           // mainmenu_type: {
-           //   [Op.or]: condition
-           // }
        }})
        .then(result => {
          console.log(result);
-       if(result !== null) {
+       if(result.length !== 0) {
          const leng = result.length;
          const rand = Math.floor(Math.random() * leng);
-         console.log(rand);
-         res.status(200).json({success: true, message: result[rand]})
+         res.status(200).json({success: true, message: result[rand], exit_quarter: true})
        } else {
-         res.status(200).json({success: false, message: 'no subway'})
+         models.Cafe.findAll({
+           where: {
+               subway: subway,
+               mainmenu_type: {
+                 [Op.or]: condition
+               }
+             }
+         }).then(result => {
+           console.log(result);
+           const leng = result.length;
+           const rand = Math.floor(Math.random() * leng);
+           res.status(200).json({success: true, message: result[rand], exit_quarter: false})
+         }).catch(err => {
+           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+         });
        }
    }).catch(err => {
-       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
    });
  }
 
