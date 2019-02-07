@@ -393,7 +393,6 @@ function logout (req, res) {
     let token = cookies.token || req.body.token;
     const secret = config.jwt_secret;
 
-    console.log(token);
     if (token) {
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
