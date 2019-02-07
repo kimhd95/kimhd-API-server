@@ -1,3 +1,4 @@
+// 원격에서 작업중
 const models = require('../../models');
 const config = require('../../../configs');
 const Op = models.sequelize.Op;
@@ -702,7 +703,9 @@ function updateUser (req, res) {
     const subway_cafe = req.body.subway_cafe;
     const freq_subway_cafe = req.body.freq_subway_cafe;
     const mainmenu_type = req.body.mainmenu_type;
-
+    const food_name = req.body.food_name;
+    const price_level = req.body.price_level;
+    const cafe_final = req.body.cafe_final;
 
     if(name){
         // models.Medicine_time.create({
@@ -860,6 +863,15 @@ function updateUser (req, res) {
     } else if(mood1){
         param_name = 'mood1';
         param_value = mood1;
+    } else if(food_name){
+        param_name = 'food_name';
+        param_value = food_name;
+    } else if(price_level){
+        param_name = 'price_level';
+        param_value = price_level;
+    } else if (cafe_final){
+        param_name = 'cafe_final';
+        param_value = cafe_final;
     }
 
     if (param_name === 'chat_log') {
@@ -928,18 +940,42 @@ function getRestaurant (req, res) {
   let food_type_flag = '';
   let mood2_flag = '';
 
+  // 특정 역을 입력하므로 일단은 안 쓰임
+  if(subway === '서울 어디든 좋아' || subway === null){
+    subway = 'x';
+    subway_flag = 'NOT';
+  }
 
-  if(mood === '캐주얼' || mood2 === '상관없음'){
+  if(exit_quarter.includes('999')){
+    exit_quarter = '1,2,3,4';
+  }
+
+  // 일상적인 식사일 경우에는 mood2 고려 안 함
+  // 일상적인 식사가 아닌 경우에는 keyword를 공백을 두어 문자열로 만듦
+  if(mood === '캐주얼' || mood2 === '999' || mood2 === '998'){
     mood2_flag = 'NOT';
     mood2 = 'x';
-  }else{
-  mood2= mood2.replace(/,/g,' ');
+  } else{
+  // 밥 약속이나 술 약속인 경우 keyword를 공백을 두어 문자열로 만듦
+    mood2= mood2.replace(/,/g,' ');
   }
+
+  // !-가벼운 == 헤비한 이므로, 예를 들어 헤비한 음식을 고른 경우에는 flag를 not으로 만들어서 가벼운 음식을 제외
+  if(taste.includes('!-')){
+    taste = taste.replace('!-','');
+    taste_flag = 'NOT';
+  } else if(taste === 'all'){
+    taste = 'x';
+    taste_flag = 'NOT';
+  }
+
+
   food_type = food_type.replace(/,/g,' ');
+
   if(food_type === '이국적'){
     food_type = '한식 일식 중식 양식';
     food_type_flag = 'NOT';
-  }else if(food_type === 'all'){
+  } else if(food_type === 'all'){
     food_type = 'x';
     food_type_flag = 'NOT';
   }
@@ -947,20 +983,8 @@ function getRestaurant (req, res) {
   if(food_ingre === null){
     food_ingre = 'x';
   }
-  if(subway === '서울 어디든 좋아' || subway === null){
-    subway = 'x';
-    subway_flag = 'NOT';
-  }
-  if(exit_quarter.includes('999')){
-    exit_quarter = '1,2,3,4';
-  }
-  if(taste.includes('!-')){
-    taste = taste.replace('!-','');
-    taste_flag = 'NOT';
-  }else if(taste === 'all'){
-    taste = 'x';
-    taste_flag = 'NOT';
-  }
+
+
 
   models.sequelize.query(`SELECT * FROM restaurants WHERE
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
@@ -1308,6 +1332,23 @@ function getRestaurantInfo (req, res) {
     //}
 }
 
+function getCafeInfo (req, res) {
+    console.log('getCafeInfo called.')
+    const id = req.body.id
+
+    models.sequelize.query('SELECT * FROM cafes WHERE id= '+id+';').then(result => {
+        if (result){
+            console.log('result: ' + result.toString())
+            return res.status(200).json({success: true, message: result[0]})
+        } else {
+            console.log('result없음');
+            return res.status(403).json({success: false, message: 'no result.'})
+        }
+    }).catch(function (err){
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+    //}
+}
 
 function updateUserStart (req, res) {
     console.log('updateUserStart called.')
@@ -1324,6 +1365,8 @@ function updateUserStart (req, res) {
             with_mood: null,
             rest1: null,
             rest2: null,
+            cafe1: null,
+            cafe2: null,
             taste: null,
             food_type: null,
             mood2: null
@@ -1411,9 +1454,11 @@ function updateCafeStart (req, res) {
     models.User.update(
         {
             mood1: null,
-            rest1: null,
-            rest2: null,
+            cafe1: null,
+            cafe2: null,
             mainmenu_type: null,
+            food_name: null,
+            mood2: null,
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
@@ -1449,6 +1494,34 @@ function updateRest2 (req, res) {
         .then(result => {
           if (result) {
             return res.status(200).json({success: true, message: 'UserRest2 Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
+        }).catch(function (err){
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+}
+
+function updateCafe2 (req, res) {
+    console.log('updateCafe called.')
+    const kakao_id = req.body.kakao_id;
+    const cafe1 = req.body.cafe1;
+    const cafe2 = req.body.cafe2;
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            cafe1: cafe1,
+            cafe2: cafe2,
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+          if (result) {
+            return res.status(200).json({success: true, message: 'UserCafe2 Update complete.'})
           } else {
             return res.status(403).json({success: false, message: 'no result'})
           }
@@ -2133,6 +2206,63 @@ function verifySubwayDrinktype (req, res) {
     });
 }
 
+function verifySubwayThema (req, res) {
+    const subway = req.body.subway;
+    models.Cafe.findAll({
+      where: {
+        subway: subway
+      }
+    }).then(result => {
+        if(result){
+            let subway_array = result.reduce((acc,cur) => {
+              // acc.push(cur.mainmenu_type);
+              acc.push(cur);
+              return acc;
+            },[]);
+            let result_array = subway_array.reduce((acc, cur) => {
+              if (Hangul.search(cur.mainmenu_type, '테마', true) === 0) acc.push(cur);
+              return acc;
+            }, []);
+            if(result_array){
+              return res.status(200).json({result: 'success', result_array: result_array});
+            } else {
+              return res.status(200).json({result: 'fail'});
+            }
+        } else {
+            return res.status(403).json({error: 'no result'});
+        }
+    }).catch(function (err){
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    });
+}
+
+function verifySubwayDetailThema (req, res) {
+    const subway = req.body.subway;
+    console.log("verifySubwayDetailThema called");
+    const category_list = req.body.category_list;
+    const condition = [];
+    const leng = category_list.split(',').length;
+    for (var i = 0; i < leng; i++) {
+      condition.push(`${category_list.split(',')[i]}`);
+    }
+    models.Cafe.findOne({
+        where: {
+            subway: subway,
+            mainmenu_type: {
+              [Op.or]: condition
+            }
+        }})
+        .then(result => {
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
+        } else {
+            res.status(200).json({result: 'no subway'})
+        }
+    }).catch(err => {
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    });
+}
+
 function crawlImage (req, res) {
   const res1 = req.body.res1;
 
@@ -2489,6 +2619,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    if (drink_type === '상관없음') {
      drink_type = '맥주 양주 와인 사케 소주 전통주';
    }
+
    let drink_type_array = drink_type.split(' ');
 
    function shuffle(a) {
@@ -2499,13 +2630,16 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
        return a;
    }
 
+
    if (subway === '서울 어디든 좋아' || subway === null){
      subway = 'x';
      subway_flag = 'NOT';
    }
+
    if (exit_quarter.includes('999')){
      exit_quarter = '1,2,3,4';
    }
+
    if (taste === null || taste === undefined) {
      taste = 'x';
      taste_flag = 'NOT';
@@ -2513,17 +2647,19 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      taste = taste.replace('-','');
      taste_flag = 'NOT';
    }
+
    if (mood2 === null || mood2 === undefined) {
      mood2_flag = 'NOT';
      mood2 = 'x';
    } else if (mood2.includes('-') || mood2 === 'all') {
      mood2_flag = 'NOT';
    }
-   if (drink_round === null || drink_round === undefined) {
-     drink_round = 'x';
-     drink_round_flag = 'NOT';
-   }
 
+   if (drink_round === null || drink_round === undefined) {
+     drink_round = '2 3 4';
+     // drink_round_flag = 'NOT';
+   }
+   // let drink_round_array=drink_round.replace(/-/g, '').split(' ');
 
    if (drink_type === '소주' || drink_type === '맥주' || drink_type === '소주 맥주' || drink_type === '맥주 소주') {
      drink_type = drink_type.replace('맥주','생맥주 병맥주 중식맥주');
@@ -2661,6 +2797,63 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    }
  }
 
+ function getCafe(req, res) {
+   const kakao_id = req.body.kakao_id;
+   let subway = req.body.subway_cafe;
+   let exit_quarter = req.body.exit_quarter;
+   let mainmenu_type = req.body.mainmenu_type;
+   console.log(`getCafe함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mainmenu_type : ${mainmenu_type}`);
+
+   const condition = [];
+   const cLeng = mainmenu_type.split(',').length;
+   for (var i = 0; i < cLeng; i++) {
+     condition.push(`${mainmenu_type.split(',')[i]}`);
+   }
+
+   const condition2 = [];
+   const cLeng2 = exit_quarter.split(',').length;
+   for(var j = 0; j < cLeng2; j++) {
+     condition2.push(`${exit_quarter.split(',')[j]}`);
+   }
+   console.log(condition2);
+   models.Cafe.findAll({
+       where: {
+           subway: subway,
+           exit_quarter: {
+             [Op.or]: condition2
+           },
+           mainmenu_type: {
+             [Op.or]: condition
+           }
+       }})
+       .then(result => {
+         console.log(result);
+       if(result.length !== 0) {
+         const leng = result.length;
+         const rand = Math.floor(Math.random() * leng);
+         res.status(200).json({success: true, message: result[rand], exit_quarter: true})
+       } else {
+         models.Cafe.findAll({
+           where: {
+               subway: subway,
+               mainmenu_type: {
+                 [Op.or]: condition
+               }
+             }
+         }).then(result => {
+           console.log(result);
+           const leng = result.length;
+           const rand = Math.floor(Math.random() * leng);
+           res.status(200).json({success: true, message: result[rand], exit_quarter: false})
+         }).catch(err => {
+           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+         });
+       }
+   }).catch(err => {
+     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+   });
+ }
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
@@ -2712,6 +2905,8 @@ module.exports = {
     getAllRestsaurant: getAllRestsaurant,
     verifySubway: verifySubway,
     verifySubwayDrinktype: verifySubwayDrinktype,
+    verifySubwayThema: verifySubwayThema,
+    verifySubwayDetailThema: verifySubwayDetailThema,
     getSubwayListHistory: getSubwayListHistory,
     getUserInfoByEmail: getUserInfoByEmail,
     findSubwayDrinkType: findSubwayDrinkType,
@@ -2722,10 +2917,8 @@ module.exports = {
     updateLimitCntCafe: updateLimitCntCafe,
     verifyLimitCafe: verifyLimitCafe,
     updateCafeStart: updateCafeStart,
-
+    updateCafe2: updateCafe2,
+    getCafe: getCafe,
+    getCafeInfo: getCafeInfo,
     createDecideHistory: createDecideHistory,
-
-
-
-
 }

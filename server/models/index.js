@@ -72,6 +72,9 @@ const User = sequelize.define('user', {
     drink_round: Sequelize.STRING,
     rest1: Sequelize.INTEGER,
     rest2: Sequelize.INTEGER,
+    cafe1: Sequelize.INTEGER,
+    cafe2: Sequelize.INTEGER,
+    cafe_final: Sequelize.INTEGER,
     rest_final: Sequelize.INTEGER,
     lat: Sequelize.FLOAT,
     lng: Sequelize.FLOAT,
@@ -104,7 +107,9 @@ const User = sequelize.define('user', {
     mainmenu_type: Sequelize.STRING,
     subway_cafe: Sequelize.STRING,
     freq_subway_cafe: Sequelize.STRING,
-    mood1: Sequelize.STRING
+    mood1: Sequelize.STRING,
+    food_name: Sequelize.STRING,
+    price_level: Sequelize.STRING,
 },
 {
   timestamps: true,
@@ -210,6 +215,23 @@ const Beer = sequelize.define('beer', {
     comment: Sequelize.STRING
 });
 
+const Cafe = sequelize.define('cafe', {
+  region: Sequelize.STRING,
+  subway: Sequelize.STRING,
+  exit_quarter: Sequelize.INTEGER,
+  cafe_name: Sequelize.STRING,
+  mainmenu_type: Sequelize.STRING,
+  drink_name: Sequelize.STRING,
+  food_name: Sequelize.STRING,
+  mood2: Sequelize.STRING,
+  mood1: Sequelize.STRING,
+  phone: Sequelize.STRING,
+  closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
+},{
+  tableName: 'cafes',
+  freezeTableName: true
+});
+
 module.exports = {
     sequelize: sequelize,
     User: User,
@@ -218,6 +240,7 @@ module.exports = {
     Decide_history: Decide_history,
     User_feedback: User_feedback,
     Beer: Beer,
+    Cafe: Cafe,
     Restaurant: Restaurant,
     verifyAPIKEY: verifyAPIKEY
 };

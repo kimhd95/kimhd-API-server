@@ -39,8 +39,6 @@ router.post('/update_part_log', chatbotService.updatePartLog);
 router.post('/register_onetime_user', chatbotService.registerOnetimeUser);
 router.post('/login_onetime', chatbotService.loginOnetime);
 
-
-
 router.get('/get_user_info/:kakao_id', chatbotService.getUserInfo);
 router.get('/get_user_info2/:email', chatbotService.getUserInfoByEmail);
 router.post('/get_restaurant_info', chatbotService.getRestaurantInfo);
@@ -71,9 +69,15 @@ router.post('/update_drink_start', chatbotService.updateDrinkStart);
 router.get('/get_subway_list_history', chatbotService.getSubwayListHistory);
 router.post('/update_limit_cnt_drink', chatbotService.updateLimitCntDrink);
 router.post('/verify_limit_drink', chatbotService.verifyLimitDrink);
+
 router.post('/update_limit_cnt_cafe', chatbotService.updateLimitCntCafe);
 router.post('/verify_limit_cafe', chatbotService.verifyLimitCafe);
 router.post('/update_cafe_start', chatbotService.updateCafeStart);
+router.post('/verify_subway_thema', chatbotService.verifySubwayThema);
+router.post('/verify_subway_detail_thema', chatbotService.verifySubwayDetailThema);
+router.post('/get_cafe', chatbotService.getCafe);
+router.post('/update_cafe2', chatbotService.updateCafe2);
+router.post('/get_cafe_info', chatbotService.getCafeInfo);
 
 router.get('/get_users', userService.getUsers); // 현재 미사용
 router.get('/:id', userService.getUserWithId); // 현재 미사용
