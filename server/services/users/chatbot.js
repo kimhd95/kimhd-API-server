@@ -945,7 +945,7 @@ function getRestaurant (req, res) {
 
   // 일상적인 식사일 경우에는 mood2 고려 안 함
   // 일상적인 식사가 아닌 경우에는 keyword를 공백을 두어 문자열로 만듦
-  if(mood === '캐주얼' || mood2 === '999'){
+  if(mood === '캐주얼' || mood2 === '999' || mood2 === '998'){
     mood2_flag = 'NOT';
     mood2 = 'x';
   } else{
