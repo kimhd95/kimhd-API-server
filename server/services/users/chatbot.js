@@ -1325,6 +1325,23 @@ function getRestaurantInfo (req, res) {
     //}
 }
 
+function getCafeInfo (req, res) {
+    console.log('getCafeInfo called.')
+    const id = req.body.id
+
+    models.sequelize.query('SELECT * FROM cafes WHERE id= '+id+';').then(result => {
+        if (result){
+            console.log('result: ' + result.toString())
+            return res.status(200).json({success: true, message: result[0]})
+        } else {
+            console.log('result없음');
+            return res.status(403).json({success: false, message: 'no result.'})
+        }
+    }).catch(function (err){
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+    //}
+}
 
 function updateUserStart (req, res) {
     console.log('updateUserStart called.')
@@ -1468,6 +1485,34 @@ function updateRest2 (req, res) {
         .then(result => {
           if (result) {
             return res.status(200).json({success: true, message: 'UserRest2 Update complete.'})
+          } else {
+            return res.status(403).json({success: false, message: 'no result'})
+          }
+        }).catch(function (err){
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+}
+
+function updateCafe2 (req, res) {
+    console.log('updateCafe called.')
+    const kakao_id = req.body.kakao_id;
+    const cafe1 = req.body.cafe1;
+    const cafe2 = req.body.cafe2;
+    // let nowDate = new Date();
+    // nowDate.getTime();
+    // const now = nowDate;
+
+    models.User.update(
+        {
+            cafe1: cafe1,
+            cafe2: cafe2,
+        },     // What to update
+        {where: {
+                kakao_id: kakao_id}
+        })  // Condition
+        .then(result => {
+          if (result) {
+            return res.status(200).json({success: true, message: 'UserCafe2 Update complete.'})
           } else {
             return res.status(403).json({success: false, message: 'no result'})
           }
@@ -2743,12 +2788,12 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    }
  }
 
- function getCafeRestaurant (req, res) {
+ function getCafe(req, res) {
    const kakao_id = req.body.kakao_id;
    let subway = req.body.subway_cafe;
    let exit_quarter = req.body.exit_quarter;
    let mainmenu_type = req.body.mainmenu_type;
-   console.log(`getCafeRestaurant함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mainmenu_type : ${mainmenu_type}`);
+   console.log(`getCafe함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mainmenu_type : ${mainmenu_type}`);
 
    const condition = [];
    const cLeng = mainmenu_type.split(',').length;
@@ -2863,6 +2908,8 @@ module.exports = {
     updateLimitCntCafe: updateLimitCntCafe,
     verifyLimitCafe: verifyLimitCafe,
     updateCafeStart: updateCafeStart,
-    getCafeRestaurant: getCafeRestaurant,
+    updateCafe2: updateCafe2,
+    getCafe: getCafe,
+    getCafeInfo: getCafeInfo,
     createDecideHistory: createDecideHistory,
 }
