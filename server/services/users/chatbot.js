@@ -706,6 +706,7 @@ function updateUser (req, res) {
     const mainmenu_type = req.body.mainmenu_type;
     const food_name = req.body.food_name;
     const price_level = req.body.price_level;
+    const cafe_final = req.body.cafe_final;
 
     if(name){
         // models.Medicine_time.create({
@@ -869,6 +870,9 @@ function updateUser (req, res) {
     } else if(price_level){
         param_name = 'price_level';
         param_value = price_level;
+    } else if (cafe_final){
+        param_name = 'cafe_final';
+        param_value = cafe_final;
     }
 
     if (param_name === 'chat_log') {
