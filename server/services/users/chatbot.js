@@ -1362,6 +1362,8 @@ function updateUserStart (req, res) {
             with_mood: null,
             rest1: null,
             rest2: null,
+            cafe1: null,
+            cafe2: null,
             taste: null,
             food_type: null,
             mood2: null
@@ -1449,8 +1451,8 @@ function updateCafeStart (req, res) {
     models.User.update(
         {
             mood1: null,
-            rest1: null,
-            rest2: null,
+            cafe1: null,
+            cafe2: null,
             mainmenu_type: null,
             food_name: null,
             mood2: null,
