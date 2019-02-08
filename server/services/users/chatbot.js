@@ -2806,16 +2806,23 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
 
    const condition = [];
    const cLeng = mainmenu_type.split(',').length;
-   for (var i = 0; i < cLeng; i++) {
-     condition.push(`${mainmenu_type.split(',')[i]}`);
+   if(mainmenu_type.includes('!')) {
+     for (var i = 0; i < cLeng; i++) {
+       condition.push(`${mainmenu_type.split(',')[i].split('!')[1]}`);
+     }
+   } else {
+     for (var i = 0; i < cLeng; i++) {
+       condition.push(`${mainmenu_type.split(',')[i]}`);
+     }
    }
+   console.log(condition);
 
    const condition2 = [];
    const cLeng2 = exit_quarter.split(',').length;
    for(var j = 0; j < cLeng2; j++) {
      condition2.push(`${exit_quarter.split(',')[j]}`);
    }
-   console.log(condition2);
+
    models.Cafe.findAll({
        where: {
            subway: subway,
@@ -2827,7 +2834,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
            }
        }})
        .then(result => {
-         console.log(result);
+         // console.log(result);
        if(result.length !== 0) {
          const leng = result.length;
          const rand = Math.floor(Math.random() * leng);
@@ -2841,7 +2848,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                }
              }
          }).then(result => {
-           console.log(result);
+           // console.log(result);
            const leng = result.length;
            const rand = Math.floor(Math.random() * leng);
            res.status(200).json({success: true, message: result[rand], exit_quarter: false})
