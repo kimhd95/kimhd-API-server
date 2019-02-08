@@ -2245,7 +2245,7 @@ function verifySubwayDetailThema (req, res) {
     for (var i = 0; i < leng; i++) {
       condition.push(`${category_list.split(',')[i]}`);
     }
-    models.Cafe.findOne({
+    models.Cafe.findAll({
         where: {
             subway: subway,
             mainmenu_type: {
@@ -2254,7 +2254,7 @@ function verifySubwayDetailThema (req, res) {
         }})
         .then(result => {
         if(result !== null) {
-            res.status(200).json({result: 'success'})
+            res.status(200).json({result: 'success', result_array: result})
         } else {
             res.status(200).json({result: 'no subway'})
         }
