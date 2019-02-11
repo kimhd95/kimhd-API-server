@@ -46,6 +46,7 @@ const sequelize = new Sequelize(
             // transform all passed model names (first parameter of define) into plural.
             // if you don't want that, set the following
             freezeTableName: false,
+            operatorsAliases: false,
         }
 
     }
@@ -229,7 +230,18 @@ const Cafe = sequelize.define('cafe', {
   closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
 },{
   tableName: 'cafes',
-  freezeTableName: true
+  freezeTableName: true,
+  indexes: [
+    // add a FULLTEXT index
+    { type: 'FULLTEXT', name: 'subway_idx', fields: ['subway'] },
+    { type: 'FULLTEXT', name: 'food_name_idx', fields: ['food_name'] },
+    { type: 'FULLTEXT', name: 'mood1_idx', fields: ['mood1'] },
+    { type: 'FULLTEXT', name: 'mood2_idx', fields: ['mood2'] },
+    { type: 'FULLTEXT', name: 'mainmenu_type_idx', fields: ['mainmenu_type'] },
+    { type: 'FULLTEXT', name: 'cafe_name_idx', fields: ['cafe_name'] },
+    { type: 'FULLTEXT', name: 'drink_name_idx', fields: ['drink_name'] },
+    { method: 'BTREE', name: 'exit_quarter_idx', fields: ['exit_quarter'] }
+  ]
 });
 
 module.exports = {

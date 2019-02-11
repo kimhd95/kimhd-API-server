@@ -76,6 +76,8 @@ router.post('/update_cafe_start', chatbotService.updateCafeStart);
 router.post('/verify_subway_thema', chatbotService.verifySubwayThema);
 router.post('/verify_subway_detail_thema', chatbotService.verifySubwayDetailThema);
 router.post('/get_cafe', chatbotService.getCafe);
+router.post('/get_cafe2', chatbotService.getCafe2);
+router.post('/get_cafe3', chatbotService.getCafe3);
 router.post('/update_cafe2', chatbotService.updateCafe2);
 router.post('/get_cafe_info', chatbotService.getCafeInfo);
 
