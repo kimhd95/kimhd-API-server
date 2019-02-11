@@ -2836,6 +2836,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
        .then(result => {
          // console.log(result);
        if(result.length !== 0) {
+         console.log("if");
          const leng = result.length;
          const rand = Math.floor(Math.random() * leng);
          res.status(200).json({success: true, message: result[rand], exit_quarter: true})
@@ -2848,7 +2849,8 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                }
              }
          }).then(result => {
-           // console.log(result);
+           console.log("else");
+           console.log(result);
            const leng = result.length;
            const rand = Math.floor(Math.random() * leng);
            res.status(200).json({success: true, message: result[rand], exit_quarter: false})
