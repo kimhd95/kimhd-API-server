@@ -704,7 +704,8 @@ function updateUser (req, res) {
     const freq_subway_cafe = req.body.freq_subway_cafe;
     const mainmenu_type = req.body.mainmenu_type;
     const food_name = req.body.food_name;
-    const price_level = req.body.price_level;
+    const price_lunch = req.body.price_lunch;
+    const price_dinner = req.body.price_dinner;
     const cafe_final = req.body.cafe_final;
 
     if(name){
@@ -866,9 +867,12 @@ function updateUser (req, res) {
     } else if(food_name){
         param_name = 'food_name';
         param_value = food_name;
-    } else if(price_level){
-        param_name = 'price_level';
-        param_value = price_level;
+    } else if(price_lunch){
+        param_name = 'price_lunch';
+        param_value = price_lunch;
+    } else if(price_dinner){
+        param_name = 'price_dinner';
+        param_value = price_dinner;
     } else if (cafe_final){
         param_name = 'cafe_final';
         param_value = cafe_final;
@@ -934,11 +938,15 @@ function getRestaurant (req, res) {
   let food_type = req.body.food_type;
   let taste = req.body.taste;
   let food_ingre = req.body.food_ingre;
+  let price_lunch = req.body.price_lunch;
+  let price_dinner = req.body.price_dinner;
 
   let subway_flag = '';
   let taste_flag = '';
   let food_type_flag = '';
   let mood2_flag = '';
+  let price_lunch_flag = '';
+  let price_dinner_flag = '';
 
   // 특정 역을 입력하므로 일단은 안 쓰임
   if(subway === '서울 어디든 좋아' || subway === null){
@@ -948,6 +956,14 @@ function getRestaurant (req, res) {
 
   if(exit_quarter.includes('999')){
     exit_quarter = '1,2,3,4';
+  }
+
+  if(price_dinner === 'x'){ //점심식사
+      price_lunch= price_lunch.replace(/,/g,' ');
+      price_dinner_flag = 'NOT'
+  } else if (price_lunch === 'x') { //저녁식사
+      price_dinner = price_dinner.replace(/,/g, ' ');
+      price_lunch_flag = 'NOT'
   }
 
   // 일상적인 식사일 경우에는 mood2 고려 안 함
@@ -989,6 +1005,8 @@ function getRestaurant (req, res) {
   models.sequelize.query(`SELECT * FROM restaurants WHERE
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
   (exit_quarter IN (${exit_quarter})) AND
+  ${price_lunch_flag} (match(price_lunch) agianst('${price_lunch}' in boolean mode)) AND
+  ${price_dinner_flag} (match(price_dinner) agianst('${price_dinner}' in boolean mode)) AND
   (match(mood) against('${mood}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
   NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
@@ -1002,6 +1020,8 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         models.sequelize.query(`SELECT * FROM restaurants WHERE
          ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
         (exit_quarter IN (1,2,3,4)) AND
+         ${price_lunch_flag} (match(price_lunch) agianst('${price_lunch}' in boolean mode)) AND
+         ${price_dinner_flag} (match(price_dinner) agianst('${price_dinner}' in boolean mode)) AND
         (match(mood) against('${mood}' in boolean mode)) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
         NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
@@ -1369,7 +1389,9 @@ function updateUserStart (req, res) {
             cafe2: null,
             taste: null,
             food_type: null,
-            mood2: null
+            mood2: null,
+            price_lunch: null,
+            price_dinner: null,
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
