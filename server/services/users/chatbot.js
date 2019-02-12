@@ -1389,7 +1389,9 @@ function updateUserStart (req, res) {
             cafe2: null,
             taste: null,
             food_type: null,
-            mood2: null
+            mood2: null,
+            price_lunch: null,
+            price_dinner: null,
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
