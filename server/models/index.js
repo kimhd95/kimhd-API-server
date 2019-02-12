@@ -110,7 +110,8 @@ const User = sequelize.define('user', {
     freq_subway_cafe: Sequelize.STRING,
     mood1: Sequelize.STRING,
     food_name: Sequelize.STRING,
-    price_level: Sequelize.STRING,
+    price_lunch: Sequelize.STRING,
+    price_dinner: Sequelize.STRING,
 },
 {
   timestamps: true,
