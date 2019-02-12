@@ -232,6 +232,7 @@ const Cafe = sequelize.define('cafe', {
 },{
   tableName: 'cafes',
   freezeTableName: true,
+  operatorsAliases: false,
   indexes: [
     // add a FULLTEXT index
     { type: 'FULLTEXT', name: 'subway_idx', fields: ['subway'] },
