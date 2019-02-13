@@ -930,7 +930,7 @@ function updateUser (req, res) {
 }
 
 function getRestaurant (req, res) {
-    console.log('price_lunch, price_dinner0:'+price_lunch+price_dinner);
+
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let exit_quarter = req.body.exit_quarter;
@@ -941,7 +941,7 @@ function getRestaurant (req, res) {
   let food_ingre = req.body.food_ingre;
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
-
+  console.log('price_lunch, price_dinner0:'+price_lunch+price_dinner);
   let subway_flag = '';
   let taste_flag = '';
   let food_type_flag = '';
