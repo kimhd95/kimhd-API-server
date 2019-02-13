@@ -41,13 +41,14 @@ function verifyToken (req, res) {
 
     console.log(`cookie: ${cookie}`);
     console.log(`token: ${token}`);
-
+    console.log(`onetime: ${onetime}`);
     if (token) {
         console.log('token given');
 
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
                 res.clearCookie('token');
+                res.clearCookie('onetime');
                 return res.status(403).json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
             } else {
                 models.User.findOne({
@@ -188,8 +189,8 @@ function loginOnetime (req, res) {
                 expiresIn: '7d',
                 issuer: 'jellylab.io',
                 subject: 'userInfo'
-            }, (err, token) => {
-                console.log(`err: ${err}, token: ${token}`);
+            }, (err, token, onetime ) => {
+                console.log(`err: ${err}, token: ${token}, onetime : ${onetime}`);
                 if(err) {
                     console.log(`err.message: ${err.message}`);
                     return res.status(403).json({
@@ -206,6 +207,7 @@ function loginOnetime (req, res) {
                     if(req.secure) {
                         console.log('req. is secure');
                         res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                        res.cookie('onetime', '1', {maxAge: 900000, secure: false});
                     } else {
                         console.log('req is NOT secure');
                         res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
@@ -216,16 +218,20 @@ function loginOnetime (req, res) {
                     if(req.secure) {
                         console.log('req. is secure');
                         res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                        res.cookie('onetime', '1', {maxAge: 900000, secure: false});
                     } else {
                         console.log('req is NOT secure');
                         res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                        res.cookie('onetime', '1', {maxAge: 900000, secure: false});
                     }
                 } else {
                     console.log('req origin does NOT include localhost');
                     if(req.secure) {
                         res.cookie('token', token, {maxAge: cookieMaxAge, secure: true});
+                        res.cookie('onetime', '1', {maxAge: 900000, secure: false});
                     } else {
                         res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                        res.cookie('onetime', '1', {maxAge: 900000, secure: false});
                     }
                 }
                 res.header('Access-Control-Allow-Credentials', 'true');
@@ -254,6 +260,7 @@ function login (req, res) {
 
     console.log(req.body.email);
     console.log(req.body.password);
+    res.clearCookie('onetime');
     if (!email) {
         return res.status(400).json({success: false, message: 'Email not given.'});
     }
