@@ -679,7 +679,6 @@ function updateUser (req, res) {
     const register = req.body.register;
     const subway = req.body.subway;
     const exit_quarter = req.body.exit_quarter;
-    const with_mood = req.body.with_mood;
     const rest_final = req.body.rest_final;
     const lat = req.body.lat;
     const lng = req.body.lng;
@@ -699,7 +698,7 @@ function updateUser (req, res) {
     const limit_cnt_drink = req.body.limit_cnt_drink;
     const cafe_before = req.body.cafe_before;
     const limit_cnt_cafe = req.body.limit_cnt_cafe;
-    const mood1 = req.body.mood1;
+    //const mood1 = req.body.mood1;
     const subway_cafe = req.body.subway_cafe;
     const freq_subway_cafe = req.body.freq_subway_cafe;
     const mainmenu_type = req.body.mainmenu_type;
@@ -934,7 +933,7 @@ function getRestaurant (req, res) {
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let exit_quarter = req.body.exit_quarter;
-  let mood = req.body.mood;
+
   let mood2 = req.body.mood2;
   let food_type = req.body.food_type;
   let taste = req.body.taste;
@@ -969,7 +968,7 @@ function getRestaurant (req, res) {
     console.log('price_lunch, price_dinner2:'+price_lunch+price_dinner);
   // 일상적인 식사일 경우에는 mood2 고려 안 함
   // 일상적인 식사가 아닌 경우에는 keyword를 공백을 두어 문자열로 만듦
-  if(mood === '캐주얼' || mood2 === '999' || mood2 === '998'){
+  if(mood2 === '999' || mood2 === '998'){
     mood2_flag = 'NOT';
     mood2 = 'x';
   } else{
@@ -1009,7 +1008,6 @@ function getRestaurant (req, res) {
   (exit_quarter IN (${exit_quarter})) AND
   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-  (match(mood) against('${mood}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
   NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
    ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
@@ -1024,7 +1022,6 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         (exit_quarter IN (1,2,3,4)) AND
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-        (match(mood) against('${mood}' in boolean mode)) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
         NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
