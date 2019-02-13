@@ -36,12 +36,12 @@ function verifyToken (req, res) {
     const cookie = req.cookies || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
     let token = cookies.token;
+    let onetime = cookies.onetime;
     const secret = config.jwt_secret;
 
     console.log(`cookie: ${cookie}`);
     console.log(`token: ${token}`);
 
-    console.log(token);
     if (token) {
         console.log('token given');
 
@@ -55,8 +55,11 @@ function verifyToken (req, res) {
                         email: decoded.email
                     }
                 }).then(user => {
-
-                    return res.status(200).json({success: true, message: 'Token verified.', email: user.email, name: user.name, redirect: '/lobby'})
+                    if(onetime === '1') {
+                      return res.status(403).json({success: false, message: 'One time user.'})
+                    } else {
+                      return res.status(200).json({success: true, message: 'Token verified.', email: user.email, name: user.name, redirect: '/lobby'})
+                    }
                 }).catch(function (err){
                     return res.status(403).json({success: false, message: 'Token verified, but new token cannot be assigned. err: ' + err.message})
                 })
@@ -206,6 +209,7 @@ function loginOnetime (req, res) {
                     } else {
                         console.log('req is NOT secure');
                         res.cookie('token', token, {maxAge: cookieMaxAge, secure: false});
+                        res.cookie('onetime', '1', {maxAge: 900000, secure: false});
                     }
                 } else if(req.header('origin').includes('localhost')) {
                     console.log('req origin includes localhost OR it is from postman');
@@ -225,7 +229,7 @@ function loginOnetime (req, res) {
                     }
                 }
                 res.header('Access-Control-Allow-Credentials', 'true');
-                return res.status(200).json({success: true, message: 'Ok', token: token, redirect: '/lobby'});
+                return res.status(200).json({success: true, message: 'Ok', token: token, onetime: onetime, redirect: '/lobby'});
             });
                 // } else {
                 //     return res.status(403).json({
