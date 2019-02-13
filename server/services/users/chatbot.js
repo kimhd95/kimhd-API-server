@@ -930,6 +930,7 @@ function updateUser (req, res) {
 }
 
 function getRestaurant (req, res) {
+    console.log('price_lunch, price_dinner0:'+price_lunch+price_dinner);
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let exit_quarter = req.body.exit_quarter;
@@ -947,7 +948,7 @@ function getRestaurant (req, res) {
   let mood2_flag = '';
   let price_lunch_flag = '';
   let price_dinner_flag = '';
-
+    console.log('price_lunch, price_dinner1:'+price_lunch+price_dinner);
   // 특정 역을 입력하므로 일단은 안 쓰임
   if(subway === '서울 어디든 좋아' || subway === null){
     subway = 'x';
@@ -965,7 +966,7 @@ function getRestaurant (req, res) {
       price_dinner = price_dinner.replace(/,/g, ' ');
       price_lunch_flag = 'NOT'
   }
-
+    console.log('price_lunch, price_dinner2:'+price_lunch+price_dinner);
   // 일상적인 식사일 경우에는 mood2 고려 안 함
   // 일상적인 식사가 아닌 경우에는 keyword를 공백을 두어 문자열로 만듦
   if(mood === '캐주얼' || mood2 === '999' || mood2 === '998'){
@@ -1000,12 +1001,14 @@ function getRestaurant (req, res) {
     food_ingre = 'x';
   }
 
+  console.log('price_lunch, price_dinner3:'+price_lunch+price_dinner);
 
 
   models.sequelize.query(`SELECT * FROM restaurants WHERE
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
   (exit_quarter IN (${exit_quarter})) AND
-
+  ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+  ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
   (match(mood) against('${mood}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
   NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
@@ -1019,7 +1022,8 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         models.sequelize.query(`SELECT * FROM restaurants WHERE
          ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
         (exit_quarter IN (1,2,3,4)) AND
-
+         ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+         ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
         (match(mood) against('${mood}' in boolean mode)) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
         NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
@@ -1033,10 +1037,12 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
           return res.status(403).json({success: false, message: 'no result.'})
         }
       }).catch( err => {
+            console.log('price_lunch, price_dinner4:'+price_lunch+price_dinner);
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
       });
     }
   }).catch( err => {
+      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
 }
