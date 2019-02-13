@@ -1005,8 +1005,7 @@ function getRestaurant (req, res) {
   models.sequelize.query(`SELECT * FROM restaurants WHERE
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
   (exit_quarter IN (${exit_quarter})) AND
-  ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-  ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+
   (match(mood) against('${mood}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
   NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
@@ -1020,8 +1019,7 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         models.sequelize.query(`SELECT * FROM restaurants WHERE
          ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
         (exit_quarter IN (1,2,3,4)) AND
-         ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-         ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+
         (match(mood) against('${mood}' in boolean mode)) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
         NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
