@@ -797,9 +797,6 @@ function updateUser (req, res) {
     } else if (exit_quarter){
         param_name = 'exit_quarter';
         param_value = exit_quarter;
-    } else if (with_mood){
-        param_name = 'with_mood';
-        param_value = with_mood;
     } else if (rest_final){
         param_name = 'rest_final';
         param_value = rest_final;
@@ -860,9 +857,6 @@ function updateUser (req, res) {
     } else if(freq_subway_cafe){
         param_name = 'freq_subway_cafe';
         param_value = freq_subway_cafe;
-    } else if(mood1){
-        param_name = 'mood1';
-        param_value = mood1;
     } else if(food_name){
         param_name = 'food_name';
         param_value = food_name;
