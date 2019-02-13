@@ -248,8 +248,6 @@ function login (req, res) {
     const password = req.body.password;
     const secret = config.jwt_secret;
 
-    console.log(req.body.email);
-    console.log(req.body.password);
     if (!email) {
         return res.status(400).json({success: false, message: 'Email not given.'});
     }
@@ -391,13 +389,13 @@ function socialLogin (req, res) {
 function logout (req, res) {
     const cookie = req.cookie || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
-    let token = cookies.token || req.body.token;
+    let token = cookies.token;
     const secret = config.jwt_secret;
 
     if (token) {
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
-                return res.json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
+                return res.status(401).json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
             } else {
                 res.clearCookie('token');
                 const aftertoken = cookies.token;
@@ -422,7 +420,7 @@ function sendNewPassword (req, res) {
         }
     }).then(user => {
         if (!user) {
-            return res.status(403).json({success: false, message: 'No user account with given email address found'})
+            return res.status(404).json({success: false, message: 'No user account with given email address found'})
         } else {
             let newPassword = '';
             let SALT_FACTOR = 5;
@@ -438,7 +436,7 @@ function sendNewPassword (req, res) {
             })
             bcrypt.hash(newPassword, SALT_FACTOR, function(err, hash) {
                 if (err) {
-                    return res.status(403).json({success: false, message: 'ERROR WHILE GENERATING PASSWORD'})
+                    return res.status(500).json({success: false, message: 'ERROR WHILE GENERATING PASSWORD'})
                 }
                 user.password = hash;
                 user.save().then(_ => {
@@ -526,70 +524,87 @@ function sendInquiry (req, res) {
     })
 }
 function memberWithdraw (req, res) {
+    const cookie = req.cookie || req.headers.cookie || '';
+    const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
+    let token = cookies.token;
+    const secret = config.jwt_secret;
+
     const email = req.body.email;
     const password = req.body.password;
 
-    if (!email) return res.status(400).json({ success: false, message: 'Email not provided.'});
-    models.User.find({
-        where: {
-            email: email
-        }
-    }).then(user => {
-        if (!user) {
-            return res.status(403).json({ success: false, message: 'No user account with given email address found'})
-        } else {
-            // 소셜 로그인
-            if (user.social) {
-                models.User.destroy({
+    if (token) {
+        jwt.verify(token, secret, (err, decoded) => {
+            if (err) {
+                return res.status(401).json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
+            } else {
+                if (!email) return res.status(400).json({ success: false, message: 'Email not provided.'});
+                models.User.find({
                     where: {
                         email: email
                     }
-                }).then(result => {
-                    console.log('User destroy result: ' + result);
-
-                    if (result === 0) {
-                        return res.status(403).json({ success: false, message: 'User email and '})
+                }).then(user => {
+                    if (!user) {
+                        return res.status(403).json({ success: false, message: 'No user account with given email address found'})
                     } else {
-                        res.clearCookie('token');
-                        return res.status(200).json({ success: true, message: 'User account successfully deleted.', redirect: '/'});
-                    }
-                }).catch(err => {
-                    return res.status(403).json({ success: false, message: 'Unknown inner catch error on User destroy. err: ' + err.message});
-                })
-                // 일반 로그인
-            } else {
-                bcrypt.compare(password, user.password, (err, isMatch) => {
-                    if (err) {
-                        return res.status(403).json({success: false, message: 'The given password does not match with the account password.' })
-                    } else {
-                        if (isMatch) {
+                        // 소셜 로그인
+                        if (user.social) {
                             models.User.destroy({
                                 where: {
-                                    email: email,
-                                    password: user.password
+                                    email: email
                                 }
                             }).then(result => {
                                 console.log('User destroy result: ' + result);
-
+            
                                 if (result === 0) {
-                                    return res.status(403).json({ success: false, message: 'User email and password match. but somehow the delete failed.'});
+                                    return res.status(403).json({ success: false, message: 'User email and '})
                                 } else {
                                     res.clearCookie('token');
                                     return res.status(200).json({ success: true, message: 'User account successfully deleted.', redirect: '/'});
                                 }
                             }).catch(err => {
-                                return res.status(403).json({ success: false, message: 'Unknown inner catch error on Doctor.destroy. err: ' + err.message});
+                                return res.status(403).json({ success: false, message: 'Unknown inner catch error on User destroy. err: ' + err.message});
                             })
+                            // 일반 로그인
                         } else {
-                            return res.status(403).json({ success: false, message: 'User email and password not match.'});
+                            bcrypt.compare(password, user.password, (err, isMatch) => {
+                                if (err) {
+                                    return res.status(403).json({success: false, message: 'The given password does not match with the account password.' })
+                                } else {
+                                    if (isMatch) {
+                                        models.User.destroy({
+                                            where: {
+                                                email: email,
+                                                password: user.password
+                                            }
+                                        }).then(result => {
+                                            console.log('User destroy result: ' + result);
+            
+                                            if (result === 0) {
+                                                return res.status(403).json({ success: false, message: 'User email and password match. but somehow the delete failed.'});
+                                            } else {
+                                                res.clearCookie('token');
+                                                return res.status(200).json({ success: true, message: 'User account successfully deleted.', redirect: '/'});
+                                            }
+                                        }).catch(err => {
+                                            return res.status(403).json({ success: false, message: 'Unknown inner catch error on Doctor.destroy. err: ' + err.message});
+                                        })
+                                    } else {
+                                        return res.status(403).json({ success: false, message: 'User email and password not match.'});
+                                    }
+                                }
+                            })
                         }
                     }
+                }).catch(err => {
+                    return res.status(403).json({ success: false, message: 'Unknown outer catch error on User destroy. err: ' + err.message});
                 })
             }
-        }
-    }).catch(err => {
-        return res.status(403).json({ success: false, message: 'Unknown outer catch error on User destroy. err: ' + err.message});
-    })
+        })
+    } else {
+        res.clearCookie('token');
+        return res.status(403).send({ success: false, message: 'No token given.' });
+    }
+    
 }
 
 function updatePassword (req, res) {
@@ -704,8 +719,7 @@ function updateUser (req, res) {
     const freq_subway_cafe = req.body.freq_subway_cafe;
     const mainmenu_type = req.body.mainmenu_type;
     const food_name = req.body.food_name;
-    const price_lunch = req.body.price_lunch;
-    const price_dinner = req.body.price_dinner;
+    const price_level = req.body.price_level;
     const cafe_final = req.body.cafe_final;
 
     if(name){
@@ -867,12 +881,9 @@ function updateUser (req, res) {
     } else if(food_name){
         param_name = 'food_name';
         param_value = food_name;
-    } else if(price_lunch){
-        param_name = 'price_lunch';
-        param_value = price_lunch;
-    } else if(price_dinner){
-        param_name = 'price_dinner';
-        param_value = price_dinner;
+    } else if(price_level){
+        param_name = 'price_level';
+        param_value = price_level;
     } else if (cafe_final){
         param_name = 'cafe_final';
         param_value = cafe_final;
@@ -930,7 +941,6 @@ function updateUser (req, res) {
 }
 
 function getRestaurant (req, res) {
-    console.log('price_lunch, price_dinner0:'+price_lunch+price_dinner);
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let exit_quarter = req.body.exit_quarter;
@@ -939,16 +949,12 @@ function getRestaurant (req, res) {
   let food_type = req.body.food_type;
   let taste = req.body.taste;
   let food_ingre = req.body.food_ingre;
-  let price_lunch = req.body.price_lunch;
-  let price_dinner = req.body.price_dinner;
 
   let subway_flag = '';
   let taste_flag = '';
   let food_type_flag = '';
   let mood2_flag = '';
-  let price_lunch_flag = '';
-  let price_dinner_flag = '';
-    console.log('price_lunch, price_dinner1:'+price_lunch+price_dinner);
+
   // 특정 역을 입력하므로 일단은 안 쓰임
   if(subway === '서울 어디든 좋아' || subway === null){
     subway = 'x';
@@ -959,14 +965,6 @@ function getRestaurant (req, res) {
     exit_quarter = '1,2,3,4';
   }
 
-  if(price_dinner === 'x'){ //점심식사
-      price_lunch= price_lunch.replace(/,/g,' ');
-      price_dinner_flag = 'NOT'
-  } else if (price_lunch === 'x') { //저녁식사
-      price_dinner = price_dinner.replace(/,/g, ' ');
-      price_lunch_flag = 'NOT'
-  }
-    console.log('price_lunch, price_dinner2:'+price_lunch+price_dinner);
   // 일상적인 식사일 경우에는 mood2 고려 안 함
   // 일상적인 식사가 아닌 경우에는 keyword를 공백을 두어 문자열로 만듦
   if(mood === '캐주얼' || mood2 === '999' || mood2 === '998'){
@@ -1001,14 +999,11 @@ function getRestaurant (req, res) {
     food_ingre = 'x';
   }
 
-  console.log('price_lunch, price_dinner3:'+price_lunch+price_dinner);
 
 
   models.sequelize.query(`SELECT * FROM restaurants WHERE
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
   (exit_quarter IN (${exit_quarter})) AND
-  ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-  ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
   (match(mood) against('${mood}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
   NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
@@ -1022,8 +1017,6 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         models.sequelize.query(`SELECT * FROM restaurants WHERE
          ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
         (exit_quarter IN (1,2,3,4)) AND
-         ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-         ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
         (match(mood) against('${mood}' in boolean mode)) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
         NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
@@ -1037,12 +1030,10 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
           return res.status(403).json({success: false, message: 'no result.'})
         }
       }).catch( err => {
-            console.log('price_lunch, price_dinner4:'+price_lunch+price_dinner);
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
       });
     }
   }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
 }
@@ -1393,9 +1384,7 @@ function updateUserStart (req, res) {
             cafe2: null,
             taste: null,
             food_type: null,
-            mood2: null,
-            price_lunch: null,
-            price_dinner: null,
+            mood2: null
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
@@ -2271,7 +2260,7 @@ function verifySubwayDetailThema (req, res) {
     for (var i = 0; i < leng; i++) {
       condition.push(`${category_list.split(',')[i]}`);
     }
-    models.Cafe.findAll({
+    models.Cafe.findOne({
         where: {
             subway: subway,
             mainmenu_type: {
@@ -2279,8 +2268,8 @@ function verifySubwayDetailThema (req, res) {
             }
         }})
         .then(result => {
-        if(result.length !== 0) {
-            res.status(200).json({result: 'success', result_array: result})
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
         } else {
             res.status(200).json({result: 'no subway'})
         }
@@ -2824,6 +2813,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
  }
 
  function getCafe(req, res) {
+   const kakao_id = req.body.kakao_id;
    let subway = req.body.subway_cafe;
    let exit_quarter = req.body.exit_quarter;
    let mainmenu_type = req.body.mainmenu_type;
@@ -2831,23 +2821,16 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
 
    const condition = [];
    const cLeng = mainmenu_type.split(',').length;
-   if(mainmenu_type.includes('!')) {
-     for (var i = 0; i < cLeng; i++) {
-       condition.push(`${mainmenu_type.split(',')[i].split('!')[1]}`);
-     }
-   } else {
-     for (var i = 0; i < cLeng; i++) {
-       condition.push(`${mainmenu_type.split(',')[i]}`);
-     }
+   for (var i = 0; i < cLeng; i++) {
+     condition.push(`${mainmenu_type.split(',')[i]}`);
    }
-   console.log(condition);
 
    const condition2 = [];
    const cLeng2 = exit_quarter.split(',').length;
    for(var j = 0; j < cLeng2; j++) {
      condition2.push(`${exit_quarter.split(',')[j]}`);
    }
-
+   console.log(condition2);
    models.Cafe.findAll({
        where: {
            subway: subway,
@@ -2859,9 +2842,8 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
            }
        }})
        .then(result => {
-         // console.log(result);
+         console.log(result);
        if(result.length !== 0) {
-         console.log("if");
          const leng = result.length;
          const rand = Math.floor(Math.random() * leng);
          res.status(200).json({success: true, message: result[rand], exit_quarter: true})
@@ -2874,7 +2856,6 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                }
              }
          }).then(result => {
-           console.log("else");
            console.log(result);
            const leng = result.length;
            const rand = Math.floor(Math.random() * leng);
@@ -2886,326 +2867,6 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    }).catch(err => {
      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
    });
- }
-
- // function getCafe(req, res) {
- //   let subway = req.body.subway_cafe;
- //   let exit_quarter = req.body.exit_quarter;
- //   let mainmenu_type = req.body.mainmenu_type;
- //   console.log(`getCafe함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mainmenu_type : ${mainmenu_type}`);
- //
- //   const condition = [];
- //   const cLeng = mainmenu_type.split(',').length;
- //   if(mainmenu_type.includes('!')) {
- //     for (var i = 0; i < cLeng; i++) {
- //       condition.push(`${mainmenu_type.split(',')[i].split('!')[1]}`);
- //     }
- //   } else {
- //     for (var i = 0; i < cLeng; i++) {
- //       condition.push(`${mainmenu_type.split(',')[i]}`);
- //     }
- //   }
- //   console.log(condition);
- //   let query1 = `SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and match(mainmenu_type) against ('${mainmenu_type}') order by RAND() LIMIT 1;`;
- //
- //   models.sequelize.query(query1).then(result => {
- //       if (result[0].length !== 0){
- //         console.log("result !== 0");
- //       }
- //   }).catch(function (err){
- //     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
- //   })
- // }
-
- function getCafe2(req, res) {
-   let subway = req.body.subway_cafe;
-   let exit_quarter = req.body.exit_quarter;
-   let mainmenu_type = req.body.mainmenu_type;
-   let mood1 = req.body.mood1;
-   let query1, query2, query3;
-   if (mood1 === null || mood1 === '전체포함') {
-     mood1 = '';
-     query1 = `SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and not match(mood2) against('큰프') and match(mainmenu_type) against ('${mainmenu_type}') order by RAND() LIMIT 2;`;
-     query2 = `SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and match(mainmenu_type) against ('${mainmenu_type}') order by RAND() LIMIT 2;`;
-     query3 = `SELECT * from cafes where subway = '${subway}' and match(mainmenu_type) against ('${mainmenu_type}') order by RAND() LIMIT 2;`;
-   } else {
-     query1 = `SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and not match(mood2) against('큰프') and match(mainmenu_type) against ('${mainmenu_type}') and mood1 not LIKE ('%포장만%') order by RAND() LIMIT 2;`;
-     query2 = `SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and match(mainmenu_type) against ('${mainmenu_type}') and mood1 not LIKE ('%포장만%') order by RAND() LIMIT 2;`;
-     query3 = `SELECT * from cafes where subway = '${subway}' and match(mainmenu_type) against ('${mainmenu_type}') and mood1 not LIKE ('%포장만%') order by RAND() LIMIT 2;`;
-   }
-   console.log(`getCafe2함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mainmenu_type : ${mainmenu_type}, mood1 : ${mood1}`);
-   models.sequelize.query(query1).then(result => {
-       if (result[0].length !== 0){
-         console.log("result !== 0");
-         // 2개 발견
-         if (result[0].length >= 2) {
-           return res.status(200).json({success: true, message: '2', result: result[0]})
-         }
-         // 1개만 발견
-         else {
-           models.sequelize.query(query2).then(result => {
-             if (result[0].length >= 2) {
-               return res.status(200).json({success: true, message: '1', result: result[0]})
-             } else {
-               models.sequelize.query(query3).then(result => {
-                 if (result[0].length >= 2) {
-                   return res.status(200).json({success: true, message: '0', result: result[0]})
-                 } else {
-                   return res.status(200).json({success: false})
-                 }
-               }).catch(function (err){
-                 return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-               })
-             }
-           }).catch(function (err){
-             return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-           })
-         }
-
-       }
-       else {
-         console.log("result == 0");
-         models.sequelize.query(query3).then(result => {
-           if (result[0].length >= 2) {
-             return res.status(200).json({success: true, message: '0', result: result[0]})
-           } else {
-             return res.status(200).json({success: false})
-           }
-         }).catch(function (err){
-           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-         })
-       }
-   }).catch(function (err){
-     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-   })
- }
-
- function getCafe3(req, res) {
-   const kakao_id = req.body.kakao_id;
-   let subway = req.body.subway_cafe;
-   let exit_quarter = req.body.exit_quarter;
-   let mood1 = req.body.mood1;
-   console.log(`getCafe3함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mood1 : ${mood1}`);
-   let query;
-   if (mood1.includes('&&')) {
-     console.log("&& included");
-     models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and not match(mood2) against('큰프') and mood1 in ('수다,노트북') order by RAND() LIMIT 2;`).then(result => {
-         if (result[0].length !== 0){
-           console.log("result !== 0");
-           // 2개 발견
-           if (result[0].length >= 2) {
-             return res.status(200).json({success: true, message: '2', result: result[0]})
-           }
-           // 1개만 발견
-           else {
-             models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and mood1 in ('수다,노트북') order by RAND() LIMIT 2;`).then(result => {
-               if (result[0].length >= 2) {
-                 return res.status(200).json({success: true, message: '1', result: result[0]})
-               } else {
-                 models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and mood1 in ('수다,노트북') order by RAND() LIMIT 2;`).then(result => {
-                   if (result[0].length >= 2) {
-                     return res.status(200).json({success: true, message: '0', result: result[0]})
-                   } else {
-                     return res.status(200).json({success: false})
-                   }
-                 }).catch(function (err){
-                   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-                 })
-               }
-             }).catch(function (err){
-               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-             })
-          }
-         }
-         else {
-           console.log("result == 0");
-           models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and mood1 in ('수다,노트북') order by RAND() LIMIT 2;`).then(result => {
-             if (result[0].length >= 2) {
-               return res.status(200).json({success: true, message: '0', result: result[0]})
-             } else {
-               return res.status(200).json({success: false})
-             }
-           }).catch(function (err){
-             return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-           })
-         }
-     }).catch(function (err){
-       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-     })
-   } else {
-     console.log("&& not included");
-     models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and not match(mood2) against('큰프') and match(mood1) against ('${mood1}') order by RAND() LIMIT 2;`).then(result => {
-         if (result[0].length !== 0){
-           console.log("result !== 0");
-           // 2개 발견
-           if (result[0].length >= 2) {
-             return res.status(200).json({success: true, message: '2', result: result[0]})
-           }
-           // 1개만 발견
-           else {
-             models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and match(mood1) against ('${mood1}') order by RAND() LIMIT 2;`).then(result => {
-               if (result[0].length >= 2) {
-                 return res.status(200).json({success: true, message: '1', result: result[0]})
-               } else {
-                 models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and match(mood1) against ('${mood1}') order by RAND() LIMIT 2;`).then(result => {
-                   if (result[0].length >= 2) {
-                     return res.status(200).json({success: true, message: '0', result: result[0]})
-                   } else {
-                     return res.status(200).json({success: false})
-                   }
-                 }).catch(function (err){
-                   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-                 })
-               }
-             }).catch(function (err){
-               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-             })
-          }
-         }
-         else {
-           console.log("result == 0");
-           models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and match(mood1) against ('${mood1}') order by RAND() LIMIT 2;`).then(result => {
-             if (result[0].length >= 2) {
-               return res.status(200).json({success: true, message: '0', result: result[0]})
-             } else {
-               return res.status(200).json({success: false})
-             }
-           }).catch(function (err){
-             return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-           })
-         }
-     }).catch(function (err){
-       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-     })
-   }
- }
-
- function getCafe4(req, res) {
-   let subway = req.body.subway_cafe;
-   let exit_quarter = req.body.exit_quarter;
-   let mainmenu_type = req.body.mainmenu_type;
-   let food_name = req.body.food_name;
-   let mood2 = req.body.mood2;
-   if(food_name === null || food_name === 'null') {
-     food_name = '';
-   }
-   if(mood2 === null || mood2 === 'null') {
-     mood2 = '';
-   }
-   console.log(`getCafe4함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mainmenu_type : ${mainmenu_type}, food_name : ${food_name}, mood2 : ${mood2}`);
-
-   models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and not match(mood2) against('큰프') and mood2 LIKE '%${mood2}%' and match(mainmenu_type) against ('${mainmenu_type}') and food_name LIKE '%${food_name}%' order by RAND() LIMIT 2;`).then(result => {
-       if (result[0].length !== 0){
-         console.log("result !== 0");
-         // 2개 발견
-         if (result[0].length >= 2) {
-           return res.status(200).json({success: true, message: '2', result: result[0]})
-         }
-         // 1개만 발견
-         else {
-           models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and mood2 LIKE '%${mood2}%' and match(mainmenu_type) against ('${mainmenu_type}') and food_name LIKE '%${food_name}%' order by RAND() LIMIT 2;`).then(result => {
-             if (result[0].length >= 2) {
-               return res.status(200).json({success: true, message: '1', result: result[0]})
-             } else {
-               models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and mood2 LIKE '%${mood2}%' and match(mainmenu_type) against ('${mainmenu_type}') and food_name LIKE '%${food_name}%' order by RAND() LIMIT 2;`).then(result => {
-                 if (result[0].length >= 2) {
-                   return res.status(200).json({success: true, message: '0', result: result[0]})
-                 } else {
-                   return res.status(200).json({success: false})
-                 }
-               }).catch(function (err){
-                 return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-               })
-             }
-           }).catch(function (err){
-             return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-           })
-         }
-       }
-       else {
-         console.log("result == 0");
-         models.sequelize.query(`SELECT * from cafes where subway = '${subway}' and mood2 LIKE '%${mood2}%' and match(mainmenu_type) against ('${mainmenu_type}') and food_name LIKE '%${food_name}%' order by RAND() LIMIT 2;`).then(result => {
-           if (result[0].length >= 2) {
-             return res.status(200).json({success: true, message: '0', result: result[0]})
-           } else {
-             return res.status(200).json({success: false})
-           }
-         }).catch(function (err){
-           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-         })
-       }
-   }).catch(function (err){
-     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-   })
- }
-
- function getCafe5(req, res) {
-   console.log(req.body);
-   let subway = req.body.subway_cafe;
-   let exit_quarter = req.body.exit_quarter;
-   let mainmenu_type = req.body.mainmenu_type;
-   let food_name = req.body.food_name;
-   let query1, query2, query3;
-   if (mainmenu_type === null) {
-     mainmenu_type = '';
-   } else {
-     mainmenu_type = req.body.mainmenu_type;
-   }
-   if (food_name === null) {
-     food_name = '';
-     query1 = `SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and not match(mood2) against('큰프') and mainmenu_type LIKE ('%${mainmenu_type}%') order by RAND() LIMIT 2;`;
-     query2 = `SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and mainmenu_type LIKE ('%${mainmenu_type}%') order by RAND() LIMIT 2;`;
-     query3 = `SELECT * from cafes where subway = '${subway}' and mainmenu_type LIKE ('%${mainmenu_type}%') order by RAND() LIMIT 2;`;
-   } else {
-     query1 = `SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and not match(mood2) against('큰프') and mainmenu_type LIKE ('%${mainmenu_type}%') and match(food_name) against('${food_name}') order by RAND() LIMIT 2;`;
-     query2 = `SELECT * from cafes where subway = '${subway}' and exit_quarter in (${exit_quarter}) and mainmenu_type LIKE ('%${mainmenu_type}%') and match(food_name) against('${food_name}') order by RAND() LIMIT 2;`;
-     query3 = `SELECT * from cafes where subway = '${subway}' and mainmenu_type LIKE ('%${mainmenu_type}%') and match(food_name) against('${food_name}') order by RAND() LIMIT 2;`;
-   }
-   console.log(`getCafe5함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mainmenu_type : ${mainmenu_type}, food_name : ${food_name}`);
-
-   models.sequelize.query(query1).then(result => {
-       if (result[0].length !== 0){
-         console.log("result !== 0");
-         // 2개 발견
-         if (result[0].length >= 2) {
-           return res.status(200).json({success: true, message: '2', result: result[0]})
-         }
-         // 1개만 발견
-         else {
-           models.sequelize.query(query2).then(result => {
-             if (result[0].length >= 2) {
-               return res.status(200).json({success: true, message: '1', result: result[0]})
-             } else {
-               models.sequelize.query(query3).then(result => {
-                 if (result[0].length >= 2) {
-                   return res.status(200).json({success: true, message: '0', result: result[0]})
-                 } else {
-                   return res.status(200).json({success: false})
-                 }
-               }).catch(function (err){
-                 return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-               })
-             }
-           }).catch(function (err){
-             return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-           })
-         }
-       }
-       else {
-         console.log("result == 0");
-         models.sequelize.query(query3).then(result => {
-           if (result[0].length >= 2) {
-             return res.status(200).json({success: true, message: '0', result: result[0]})
-           } else {
-             return res.status(200).json({success: false})
-           }
-         }).catch(function (err){
-           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-         })
-       }
-   }).catch(function (err){
-     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-   })
  }
 
 module.exports = {
@@ -3273,10 +2934,6 @@ module.exports = {
     updateCafeStart: updateCafeStart,
     updateCafe2: updateCafe2,
     getCafe: getCafe,
-    getCafe2: getCafe2,
-    getCafe3: getCafe3,
-    getCafe4: getCafe4,
-    getCafe5: getCafe5,
     getCafeInfo: getCafeInfo,
     createDecideHistory: createDecideHistory,
 }
