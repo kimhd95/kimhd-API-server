@@ -709,7 +709,7 @@ function updateUser (req, res) {
     const limit_cnt_drink = req.body.limit_cnt_drink;
     const cafe_before = req.body.cafe_before;
     const limit_cnt_cafe = req.body.limit_cnt_cafe;
-    //const mood1 = req.body.mood1;
+    const mood1 = req.body.mood1;
     const subway_cafe = req.body.subway_cafe;
     const freq_subway_cafe = req.body.freq_subway_cafe;
     const mainmenu_type = req.body.mainmenu_type;
