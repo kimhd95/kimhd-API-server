@@ -153,7 +153,7 @@ function registerUser (req, res) {
             birthYear: parseInt(birthYear),
             phone: phone,
             social: false,
-        }).then(user => {            
+        }).then(user => {
             return res.status(200).json({success: true, meesage: 'Ok'});
         }).catch(err => {
             if(err) res.status(500).json({
@@ -567,7 +567,7 @@ function memberWithdraw (req, res) {
                                 }
                             }).then(result => {
                                 console.log('User destroy result: ' + result);
-            
+
                                 if (result === 0) {
                                     return res.status(403).json({ success: false, message: 'User email and '})
                                 } else {
@@ -591,7 +591,7 @@ function memberWithdraw (req, res) {
                                             }
                                         }).then(result => {
                                             console.log('User destroy result: ' + result);
-            
+
                                             if (result === 0) {
                                                 return res.status(403).json({ success: false, message: 'User email and password match. but somehow the delete failed.'});
                                             } else {
@@ -617,7 +617,7 @@ function memberWithdraw (req, res) {
         res.clearCookie('token');
         return res.status(403).send({ success: false, message: 'No token given.' });
     }
-    
+
 }
 
 function updatePassword (req, res) {
@@ -2203,6 +2203,28 @@ function getAllRestsaurant(req, res) {
     });
 }
 
+function getSimilarRestaurant (req, res) {
+  const rest = req.body.rest;
+  console.log(`getSimilarRestaurant에서 rest : ${rest}`);
+  models.sequelize.query(`select * from restaurants where id = ${rest}`).then(result => {
+    if (result[0].length !== 0) {
+      models.sequelize.query(`select * from restaurants where subway = '${result[0][0].subway}' and food_type = '${result[0][0].food_type}' and match(price_dinner) against('${result[0][0].price_dinner}') ORDER BY RAND() LIMIT 2;`).then(result2 => {
+        if(result2[0].length >= 2){
+          return res.status(200).json({success: true, message: result2[0]});
+        } else {
+          return res.status(403).json({success: false, message: 'no result.'});
+        }
+      }).catch(function (err) {
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+      });
+    } else {
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    }
+  }).catch(function (err) {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+}
+
 function verifySubway (req, res) {
     let subway;
     if ((req.body.subway !== undefined)){
@@ -3308,6 +3330,7 @@ module.exports = {
     getFeedbackInfo: getFeedbackInfo,
     getAllSubway: getAllSubway,
     getAllRestsaurant: getAllRestsaurant,
+    getSimilarRestaurant: getSimilarRestaurant,
     verifySubway: verifySubway,
     verifySubwayDrinktype: verifySubwayDrinktype,
     verifySubwayThema: verifySubwayThema,
