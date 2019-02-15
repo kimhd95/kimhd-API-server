@@ -112,6 +112,8 @@ const User = sequelize.define('user', {
     price_level: Sequelize.STRING,
 },
 {
+  tableName: 'users',
+  freezeTableName: true,
   timestamps: true,
   underscored: true,
 });
