@@ -832,6 +832,9 @@ function updateUser (req, res) {
     } else if(mood2){
         param_name = 'mood2';
         param_value = mood2;
+    } else if(mood1){
+        param_name = 'mood1';
+        param_value = mood1;
     } else if(taste){
         param_name = 'taste';
         param_value = taste;
