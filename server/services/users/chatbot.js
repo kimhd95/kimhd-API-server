@@ -148,9 +148,9 @@ function registerUser (req, res) {
             gender: gender,
             birthYear: parseInt(birthYear),
             phone: phone,
-            social: false
-        }).then(user => {
-            res.status(201).json({success: true, meesage: 'Ok'});
+            social: false,
+        }).then(user => {            
+            return res.status(200).json({success: true, meesage: 'Ok'});
         }).catch(err => {
             if(err) res.status(500).json({
                 success: false,
