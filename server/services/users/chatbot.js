@@ -258,12 +258,9 @@ function login (req, res) {
     const password = req.body.password;
     const secret = config.jwt_secret;
 
-<<<<<<< HEAD
-=======
     console.log(req.body.email);
     console.log(req.body.password);
     res.clearCookie('onetime');
->>>>>>> ab70ae1da11a30ad39fef4d8f1f261f6b1a1c6d1
     if (!email) {
         return res.status(400).json({success: false, message: 'Email not given.'});
     }
@@ -953,10 +950,6 @@ function updateUser (req, res) {
 }
 
 function getRestaurant (req, res) {
-<<<<<<< HEAD
-=======
-
->>>>>>> ab70ae1da11a30ad39fef4d8f1f261f6b1a1c6d1
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let exit_quarter = req.body.exit_quarter;
@@ -965,13 +958,9 @@ function getRestaurant (req, res) {
   let food_type = req.body.food_type;
   let taste = req.body.taste;
   let food_ingre = req.body.food_ingre;
-<<<<<<< HEAD
-
-=======
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
   console.log('price_lunch, price_dinner0:'+price_lunch+price_dinner);
->>>>>>> ab70ae1da11a30ad39fef4d8f1f261f6b1a1c6d1
   let subway_flag = '';
   let taste_flag = '';
   let food_type_flag = '';
@@ -987,8 +976,6 @@ function getRestaurant (req, res) {
     exit_quarter = '1,2,3,4';
   }
 
-<<<<<<< HEAD
-=======
   if(price_dinner === 'x'){ //점심식사
       price_lunch= price_lunch.replace(/,/g,' ');
       price_dinner_flag = 'NOT'
@@ -999,7 +986,6 @@ function getRestaurant (req, res) {
     console.log('price_lunch, price_dinner2:'+price_lunch+price_dinner);
     console.log(`price_lunch_flag : ${price_lunch_flag}, price_dinner_flag : ${price_dinner_flag}`);
     console.log(`mood2 : ${mood2}`);
->>>>>>> ab70ae1da11a30ad39fef4d8f1f261f6b1a1c6d1
   // 일상적인 식사일 경우에는 mood2 고려 안 함
   // 일상적인 식사가 아닌 경우에는 keyword를 공백을 두어 문자열로 만듦
   if(mood2 === '999' || mood2 === '998'){
@@ -2307,12 +2293,8 @@ function verifySubwayDetailThema (req, res) {
     for (var i = 0; i < leng; i++) {
       condition.push(`${category_list.split(',')[i]}`);
     }
-<<<<<<< HEAD
-    models.Cafe.findOne({
-=======
     console.log(condition);
     models.Cafe.findAll({
->>>>>>> ab70ae1da11a30ad39fef4d8f1f261f6b1a1c6d1
         where: {
             subway: subway,
             mainmenu_type: {
@@ -2864,65 +2846,6 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    }
  }
 
-<<<<<<< HEAD
- function getCafe(req, res) {
-   const kakao_id = req.body.kakao_id;
-   let subway = req.body.subway_cafe;
-   let exit_quarter = req.body.exit_quarter;
-   let mainmenu_type = req.body.mainmenu_type;
-   console.log(`getCafe함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mainmenu_type : ${mainmenu_type}`);
-
-   const condition = [];
-   const cLeng = mainmenu_type.split(',').length;
-   for (var i = 0; i < cLeng; i++) {
-     condition.push(`${mainmenu_type.split(',')[i]}`);
-   }
-
-   const condition2 = [];
-   const cLeng2 = exit_quarter.split(',').length;
-   for(var j = 0; j < cLeng2; j++) {
-     condition2.push(`${exit_quarter.split(',')[j]}`);
-   }
-   console.log(condition2);
-   models.Cafe.findAll({
-       where: {
-           subway: subway,
-           exit_quarter: {
-             [Op.or]: condition2
-           },
-           mainmenu_type: {
-             [Op.or]: condition
-           }
-       }})
-       .then(result => {
-         console.log(result);
-       if(result.length !== 0) {
-         const leng = result.length;
-         const rand = Math.floor(Math.random() * leng);
-         res.status(200).json({success: true, message: result[rand], exit_quarter: true})
-       } else {
-         models.Cafe.findAll({
-           where: {
-               subway: subway,
-               mainmenu_type: {
-                 [Op.or]: condition
-               }
-             }
-         }).then(result => {
-           console.log(result);
-           const leng = result.length;
-           const rand = Math.floor(Math.random() * leng);
-           res.status(200).json({success: true, message: result[rand], exit_quarter: false})
-         }).catch(err => {
-           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-         });
-       }
-   }).catch(err => {
-     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-   });
- }
-
-=======
  // function getCafe(req, res) {
 //   let subway = req.body.subway_cafe;
 //   let exit_quarter = req.body.exit_quarter;
@@ -3336,7 +3259,6 @@ function getCafe5(req, res) {
   })
 }
 
->>>>>>> ab70ae1da11a30ad39fef4d8f1f261f6b1a1c6d1
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
