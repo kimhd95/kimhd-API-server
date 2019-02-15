@@ -46,6 +46,7 @@ const sequelize = new Sequelize(
             // transform all passed model names (first parameter of define) into plural.
             // if you don't want that, set the following
             freezeTableName: false,
+            operatorsAliases: false,
         }
 
     }
@@ -109,7 +110,8 @@ const User = sequelize.define('user', {
     freq_subway_cafe: Sequelize.STRING,
     mood1: Sequelize.STRING,
     food_name: Sequelize.STRING,
-    price_level: Sequelize.STRING,
+    price_lunch: Sequelize.STRING,
+    price_dinner: Sequelize.STRING,
 },
 {
   tableName: 'users',
@@ -166,6 +168,8 @@ const Restaurant = sequelize.define('restaurant', {
     exit_quarter: Sequelize.INTEGER,
     food_type: Sequelize.STRING,
     food_name: Sequelize.STRING,
+    price_lunch: Sequelize.STRING,
+    price_dinner: Sequelize.STRING,
     mood: Sequelize.STRING,
     lunch_option: Sequelize.BOOLEAN,
     taste: Sequelize.STRING,
@@ -186,6 +190,8 @@ const Restaurant = sequelize.define('restaurant', {
       { type: 'FULLTEXT', name: 'mood_idx', fields: ['mood'] },
       { type: 'FULLTEXT', name: 'mood2_idx', fields: ['mood2'] },
       { type: 'FULLTEXT', name: 'taste_idx', fields: ['taste'] },
+      { type: 'FULLTEXT', name: 'price_lunch_idx', fields: ['price_lunch'] },
+      { type: 'FULLTEXT', name: 'price_dinner_idx', fields: ['price_dinner'] },
       { type: 'FULLTEXT', name: 'food_ingre_idx', fields: ['food_ingre'] },
       { type: 'FULLTEXT', name: 'drink_type_idx', fields: ['drink_type'] },
       { type: 'FULLTEXT', name: 'drink_round_idx', fields: ['drink_round'] },
@@ -231,7 +237,19 @@ const Cafe = sequelize.define('cafe', {
   closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
 },{
   tableName: 'cafes',
-  freezeTableName: true
+  freezeTableName: true,
+  operatorsAliases: false,
+  indexes: [
+    // add a FULLTEXT index
+    { type: 'FULLTEXT', name: 'subway_idx', fields: ['subway'] },
+    { type: 'FULLTEXT', name: 'food_name_idx', fields: ['food_name'] },
+    { type: 'FULLTEXT', name: 'mood1_idx', fields: ['mood1'] },
+    { type: 'FULLTEXT', name: 'mood2_idx', fields: ['mood2'] },
+    { type: 'FULLTEXT', name: 'mainmenu_type_idx', fields: ['mainmenu_type'] },
+    { type: 'FULLTEXT', name: 'cafe_name_idx', fields: ['cafe_name'] },
+    { type: 'FULLTEXT', name: 'drink_name_idx', fields: ['drink_name'] },
+    { method: 'BTREE', name: 'exit_quarter_idx', fields: ['exit_quarter'] }
+  ]
 });
 
 module.exports = {
