@@ -56,7 +56,6 @@ router.post('/verify_limit', chatbotService.verifyLimit);
 router.post('/update_state', chatbotService.updateState);
 router.get('/get_all_subway', chatbotService.getAllSubway);
 router.get('/get_all_restaurant', chatbotService.getAllRestsaurant);
-router.post('/get_similar_restaurant', chatbotService.getSimilarRestaurant);
 router.post('/verify_subway', chatbotService.verifySubway);
 router.post('/verify_subway_drinktype', chatbotService.verifySubwayDrinktype);
 router.post('/crawl_image', chatbotService.crawlImage);
@@ -77,6 +76,10 @@ router.post('/update_cafe_start', chatbotService.updateCafeStart);
 router.post('/verify_subway_thema', chatbotService.verifySubwayThema);
 router.post('/verify_subway_detail_thema', chatbotService.verifySubwayDetailThema);
 router.post('/get_cafe', chatbotService.getCafe);
+router.post('/get_cafe2', chatbotService.getCafe2);
+router.post('/get_cafe3', chatbotService.getCafe3);
+router.post('/get_cafe4', chatbotService.getCafe4);
+router.post('/get_cafe5', chatbotService.getCafe5);
 router.post('/update_cafe2', chatbotService.updateCafe2);
 router.post('/get_cafe_info', chatbotService.getCafeInfo);
 

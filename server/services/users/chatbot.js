@@ -731,7 +731,8 @@ function updateUser (req, res) {
     const freq_subway_cafe = req.body.freq_subway_cafe;
     const mainmenu_type = req.body.mainmenu_type;
     const food_name = req.body.food_name;
-    const price_level = req.body.price_level;
+    const price_lunch = req.body.price_lunch;
+    const price_dinner = req.body.price_dinner;
     const cafe_final = req.body.cafe_final;
 
     if(name){
@@ -890,10 +891,14 @@ function updateUser (req, res) {
     } else if(food_name){
         param_name = 'food_name';
         param_value = food_name;
-    } else if(price_level){
-        param_name = 'price_level';
-        param_value = price_level;
-    } else if (cafe_final){
+    } else if(price_lunch){
+        param_name = 'price_lunch';
+        param_value = price_lunch;
+    } else if(price_dinner){
+        param_name = 'price_dinner';
+        param_value = price_dinner;
+    }
+    else if (cafe_final){
         param_name = 'cafe_final';
         param_value = cafe_final;
     }
@@ -950,6 +955,7 @@ function updateUser (req, res) {
 }
 
 function getRestaurant (req, res) {
+
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let exit_quarter = req.body.exit_quarter;
@@ -965,7 +971,9 @@ function getRestaurant (req, res) {
   let taste_flag = '';
   let food_type_flag = '';
   let mood2_flag = '';
-
+  let price_lunch_flag = '';
+  let price_dinner_flag = '';
+    console.log('price_lunch, price_dinner1:'+price_lunch+price_dinner);
   // 특정 역을 입력하므로 일단은 안 쓰임
   if(subway === '서울 어디든 좋아' || subway === null){
     subway = 'x';
@@ -1020,17 +1028,14 @@ function getRestaurant (req, res) {
     food_ingre = 'x';
   }
 
+  console.log('price_lunch, price_dinner3:'+price_lunch+price_dinner);
 
 
   models.sequelize.query(`SELECT * FROM restaurants WHERE
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
   (exit_quarter IN (${exit_quarter})) AND
-<<<<<<< HEAD
-  (match(mood) against('${mood}' in boolean mode)) AND
-=======
   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
->>>>>>> ab70ae1da11a30ad39fef4d8f1f261f6b1a1c6d1
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
   NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
    ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
@@ -1043,12 +1048,8 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         models.sequelize.query(`SELECT * FROM restaurants WHERE
          ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
         (exit_quarter IN (1,2,3,4)) AND
-<<<<<<< HEAD
-        (match(mood) against('${mood}' in boolean mode)) AND
-=======
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
->>>>>>> ab70ae1da11a30ad39fef4d8f1f261f6b1a1c6d1
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
         NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
@@ -1061,10 +1062,12 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
           return res.status(403).json({success: false, message: 'no result.'})
         }
       }).catch( err => {
+            console.log('price_lunch, price_dinner4:'+price_lunch+price_dinner);
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
       });
     }
   }).catch( err => {
+      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
 }
