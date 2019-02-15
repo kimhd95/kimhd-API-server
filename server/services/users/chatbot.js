@@ -3350,6 +3350,10 @@ module.exports = {
     updateCafeStart: updateCafeStart,
     updateCafe2: updateCafe2,
     getCafe: getCafe,
+    getCafe2: getCafe2,
+    getCafe3: getCafe3,
+    getCafe4: getCafe4,
+    getCafe5: getCafe5,
     getCafeInfo: getCafeInfo,
     createDecideHistory: createDecideHistory,
 }
