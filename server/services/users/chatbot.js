@@ -2168,6 +2168,7 @@ function getAllSubway(req, res) {
         group: 'subway'
     }).then(result => {
         let term = req.query.term;
+        console.log( `term : ${term}`);
         if(result){
             let subway_array = result.reduce((acc,cur) => {
               acc.push(cur.subway);
