@@ -182,6 +182,8 @@ const Restaurant = sequelize.define('restaurant', {
     res_phone: Sequelize.STRING,
     closedown: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
   },{
+    tableName: 'restaurants',
+    freezeTableName: true,
     indexes: [
       // add a FULLTEXT index
       { type: 'FULLTEXT', name: 'subway_idx', fields: ['subway'] },
