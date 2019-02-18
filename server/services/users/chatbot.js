@@ -715,6 +715,7 @@ function updateUser (req, res) {
     const cnt = req.body.cnt;
     const limit_cnt = req.body.limit_cnt;
     const mood2 = req.body.mood2;
+    const with_mood = req.body.with_mood;
     const taste = req.body.taste;
     const food_type = req.body.food_type;
     const chat_log = req.body.chat_log;
@@ -852,6 +853,9 @@ function updateUser (req, res) {
     } else if(mood1){
         param_name = 'mood1';
         param_value = mood1;
+    } else if(with_mood) {
+        param_name = 'with_mood';
+        param_value = with_mood;
     } else if(taste){
         param_name = 'taste';
         param_value = taste;
@@ -951,11 +955,9 @@ function updateUser (req, res) {
               'And one more parameter is required among name, initials, user_code, email, phone, sex, birthday'})
       }
     }
-
 }
 
 function getRestaurant (req, res) {
-
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let exit_quarter = req.body.exit_quarter;
