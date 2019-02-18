@@ -1061,7 +1061,7 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
           console.log('second result: ' + second_result.toString())
           return res.status(200).json({success: true, try: 2, message: second_result[0]})
         } else {
-          return res.status(403).json({success: false, message: 'no result.'})
+          return res.status(200).json({success: false, message: 'no result.'})
         }
       }).catch( err => {
             console.log('price_lunch, price_dinner4:'+price_lunch+price_dinner);
@@ -2217,7 +2217,7 @@ function getSimilarRestaurant (req, res) {
         if(result2[0].length >= 2){
           return res.status(200).json({success: true, message: result2[0]});
         } else {
-          return res.status(403).json({success: false, message: 'no result.'});
+          return res.status(200).json({success: false, message: 'no result.'});
         }
       }).catch(function (err) {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
