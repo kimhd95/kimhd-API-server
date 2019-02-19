@@ -715,6 +715,7 @@ function updateUser (req, res) {
     const cnt = req.body.cnt;
     const limit_cnt = req.body.limit_cnt;
     const mood2 = req.body.mood2;
+    const with_mood = req.body.with_mood;
     const taste = req.body.taste;
     const food_type = req.body.food_type;
     const chat_log = req.body.chat_log;
@@ -852,6 +853,9 @@ function updateUser (req, res) {
     } else if(mood1){
         param_name = 'mood1';
         param_value = mood1;
+    } else if(with_mood) {
+        param_name = 'with_mood';
+        param_value = with_mood;
     } else if(taste){
         param_name = 'taste';
         param_value = taste;
@@ -951,11 +955,9 @@ function updateUser (req, res) {
               'And one more parameter is required among name, initials, user_code, email, phone, sex, birthday'})
       }
     }
-
 }
 
 function getRestaurant (req, res) {
-
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let exit_quarter = req.body.exit_quarter;
@@ -1059,7 +1061,7 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
           console.log('second result: ' + second_result.toString())
           return res.status(200).json({success: true, try: 2, message: second_result[0]})
         } else {
-          return res.status(403).json({success: false, message: 'no result.'})
+          return res.status(200).json({success: false, message: 'no result.'})
         }
       }).catch( err => {
             console.log('price_lunch, price_dinner4:'+price_lunch+price_dinner);
@@ -2166,6 +2168,7 @@ function getAllSubway(req, res) {
         group: 'subway'
     }).then(result => {
         let term = req.query.term;
+        console.log( `term : ${term}`);
         if(result){
             let subway_array = result.reduce((acc,cur) => {
               acc.push(cur.subway);
@@ -2215,7 +2218,7 @@ function getSimilarRestaurant (req, res) {
         if(result2[0].length >= 2){
           return res.status(200).json({success: true, message: result2[0]});
         } else {
-          return res.status(403).json({success: false, message: 'no result.'});
+          return res.status(200).json({success: false, message: 'no result.'});
         }
       }).catch(function (err) {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
