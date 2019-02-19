@@ -3437,5 +3437,6 @@ module.exports = {
     getCafe5: getCafe5,
     getCafeInfo: getCafeInfo,
     createDecideHistory: createDecideHistory,
+    testSubwayExist: testSubwayExist,
     getCafeTest: getCafeTest,
 }
