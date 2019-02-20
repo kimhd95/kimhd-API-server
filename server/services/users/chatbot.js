@@ -1018,6 +1018,9 @@ function getRestaurant (req, res) {
     taste_flag = 'NOT';
   }
 
+  if(hate_food === null){
+      hate_food = 'x';
+  }
   hate_food = hate_food.replace(/,/g,' ');
 
   food_type = food_type.replace(/,/g,' ');
@@ -1045,7 +1048,8 @@ function getRestaurant (req, res) {
   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
   NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
-
+  NOT (match(taste) against('${hate_food}' in boolean mode)) AND
+  NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
    ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
 ORDER BY RAND() LIMIT 2;`).then(result => {
@@ -1060,7 +1064,8 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
         NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
-
+        NOT (match(taste) against('${hate_food}' in boolean mode)) AND
+        NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
          ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
       ORDER BY RAND() LIMIT 2;`).then(second_result => {
@@ -1427,6 +1432,7 @@ function updateUserStart (req, res) {
             cafe2: null,
             taste: null,
             food_type: null,
+            hate_food: null,
             mood2: null
         },     // What to update
         {where: {
@@ -1454,6 +1460,7 @@ function updatePlaceStart (req, res) {
         {
             price_lunch: null,
             price_dinner: null,
+            hate_food: null,
             lat: 0,
             lng: 0,
             mid_lat: 0,
