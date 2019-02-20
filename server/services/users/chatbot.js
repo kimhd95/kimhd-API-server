@@ -329,7 +329,6 @@ function login (req, res) {
                                 }
                             }
                             res.header('Access-Control-Allow-Credentials', 'true');
-                            res.header('Access-Control-Allow-Origin', '*');
                             return res.status(200).json({success: true, message: 'Ok', token: token, name: user.name, email: user.email, redirect: '/lobby'});
                         });
                 } else {
