@@ -2214,7 +2214,7 @@ function getSimilarRestaurant (req, res) {
   console.log(`getSimilarRestaurant에서 rest : ${rest}`);
   models.sequelize.query(`select * from restaurants where id = ${rest}`).then(result => {
     if (result[0].length !== 0) {
-      models.sequelize.query(`select * from restaurants where subway = '${result[0][0].subway}' and food_type = '${result[0][0].food_type}' and match(price_dinner) against('${result[0][0].price_dinner}') ORDER BY RAND() LIMIT 2;`).then(result2 => {
+      models.sequelize.query(`select * from restaurants where subway = '${result[0][0].subway}' and food_type = '${result[0][0].food_type}' and match(price_dinner) against('${result[0][0].price_dinner}') AND NOT MATCH(id) AGAINST('${rest}') ORDER BY RAND() LIMIT 2;`).then(result2 => {
         if(result2[0].length >= 2){
           return res.status(200).json({success: true, message: result2[0]});
         } else {
