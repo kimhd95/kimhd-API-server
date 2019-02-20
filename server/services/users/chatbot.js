@@ -2215,7 +2215,8 @@ function getSimilarRestaurant (req, res) {
   console.log(`getSimilarRestaurant에서 rest : ${rest}`);
   models.sequelize.query(`select * from restaurants where id = ${rest}`).then(result => {
     if (result[0].length !== 0) {
-      models.sequelize.query(`select * from restaurants where subway = '${result[0][0].subway}' and food_type = '${result[0][0].food_type}' and match(price_dinner) against('${result[0][0].price_dinner}') ORDER BY RAND() LIMIT 2;`).then(result2 => {
+      console.log(" ----------- Query Change ----------");
+      models.sequelize.query(`select * from restaurants where subway = '${result[0][0].subway}' and food_type = '${result[0][0].food_type}' and match(price_dinner) against('${result[0][0].price_dinner}') AND id != '${rest}' ORDER BY RAND() LIMIT 2;`).then(result2 => {
         if(result2[0].length >= 2){
           return res.status(200).json({success: true, message: result2[0]});
         } else {
@@ -2233,6 +2234,7 @@ function getSimilarRestaurant (req, res) {
 }
 
 function verifySubway (req, res) {
+    console.log("here is verifYSubway");
     let subway;
     if ((req.body.subway !== undefined)){
         subway = req.body.subway;
@@ -2255,6 +2257,30 @@ function verifySubway (req, res) {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
+/*
+function testSubwayExist (req, res) {
+  console.log("here is testSubwayExist.");
+  let subway;
+  if ((req.body.subway !== undefined)) {
+    subway = req.body.subway;
+  } else {
+    return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+        subway: req.body.subway});
+  }
+  models.Cafe.findOne({
+      where: {
+          subway: subway
+      }
+  }).then(result => {
+      if(result !== null) {
+          res.status(200).json({result: 'success'})
+      } else {
+          res.status(200).json({result: 'no subway'})
+      }
+  }).catch(err => {
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+}*/
 
 function verifySubwayDrinktype (req, res) {
     let subway;
@@ -3068,6 +3094,59 @@ function getCafe2(req, res) {
   })
 }
 
+function getCafeTest(req, res) {
+  console.log("getCafeTest arrived.");
+  let subway = req.body.subway_cafe;
+  let mainmenu_type = req.body.mainmenu_type;
+  let query1, query2, query3;
+
+  query1 = `SELECT * from cafes where subway = '${subway}' and not match(mainmenu_type) against ('${mainmenu_type}') order by RAND() LIMIT 2;`;
+  query2 = `SELECT * from cafes where subway = '${subway}' and not match(mainmenu_type) against ('${mainmenu_type}') order by RAND() LIMIT 2;`;
+  query3 = `SELECT * from cafes where subway = '${subway}' and not match(mainmenu_type) against ('${mainmenu_type}') order by RAND() LIMIT 2;`;
+
+  models.sequelize.query(query1).then(result => {
+      if (result[0].length !== 0){
+        // 2개 발견
+        if (result[0].length >= 2) {
+          return res.status(200).json({success: true, message: '2', result: result[0]})
+        }
+        // 1개만 발견
+        else {
+          models.sequelize.query(query2).then(result => {
+            if (result[0].length >= 2) {
+              return res.status(200).json({success: true, message: '1', result: result[0]})
+            } else {
+              models.sequelize.query(query3).then(result => {
+                if (result[0].length >= 2) {
+                  return res.status(200).json({success: true, message: '0', result: result[0]})
+                } else {
+                  return res.status(500).json({success: false})
+                }
+              }).catch(function (err){
+                return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+              })
+            }
+          }).catch(function (err){
+            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+          })
+        }
+      }
+      else {
+        models.sequelize.query(query3).then(result => {
+          if (result[0].length >= 2) {
+            return res.status(200).json({success: true, message: '0', result: result[0]})
+          } else {
+            return res.status(500).json({success: false})
+          }
+        }).catch(function (err){
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        })
+      }
+  }).catch(function (err){
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  })
+}
+
 function getCafe3(req, res) {
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway_cafe;
@@ -3360,4 +3439,5 @@ module.exports = {
     getCafe5: getCafe5,
     getCafeInfo: getCafeInfo,
     createDecideHistory: createDecideHistory,
+    getCafeTest: getCafeTest,
 }

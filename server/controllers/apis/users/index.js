@@ -84,6 +84,8 @@ router.post('/get_cafe5', chatbotService.getCafe5);
 router.post('/update_cafe2', chatbotService.updateCafe2);
 router.post('/get_cafe_info', chatbotService.getCafeInfo);
 
+router.post('/get_cafe_test', chatbotService.getCafeTest);
+
 router.get('/get_users', userService.getUsers); // 현재 미사용
 router.get('/:id', userService.getUserWithId); // 현재 미사용
 
