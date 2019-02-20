@@ -1431,6 +1431,7 @@ function updateUserStart (req, res) {
             cafe2: null,
             taste: null,
             food_type: null,
+            hate_food: null,
             mood2: null
         },     // What to update
         {where: {
@@ -1458,6 +1459,7 @@ function updatePlaceStart (req, res) {
         {
             price_lunch: null,
             price_dinner: null,
+            hate_food: null,
             lat: 0,
             lng: 0,
             mid_lat: 0,
