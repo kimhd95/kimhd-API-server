@@ -33,6 +33,7 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
 //var logger = require('../../config/winston');
 
 function verifyToken (req, res) {
+    console.log(req.body);
     console.log(req.headers);
     const cookie = req.cookies || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
