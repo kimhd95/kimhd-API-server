@@ -545,6 +545,7 @@ function memberWithdraw (req, res) {
 
     const email = req.body.email;
     const password = req.body.password;
+    console.log(req.headers);
 
     if (token) {
         jwt.verify(token, secret, (err, decoded) => {
