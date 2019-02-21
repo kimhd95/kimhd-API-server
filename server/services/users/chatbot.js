@@ -33,6 +33,8 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
 //var logger = require('../../config/winston');
 
 function verifyToken (req, res) {
+    console.log(req.body);
+    console.log(req.headers);
     const cookie = req.cookies || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
     let token = cookies.token;
@@ -329,7 +331,6 @@ function login (req, res) {
                                 }
                             }
                             res.header('Access-Control-Allow-Credentials', 'true');
-                            res.header('Access-Control-Allow-Origin', '*');
                             return res.status(200).json({success: true, message: 'Ok', token: token, name: user.name, email: user.email, redirect: '/lobby'});
                         });
                 } else {
@@ -1018,6 +1019,9 @@ function getRestaurant (req, res) {
     taste_flag = 'NOT';
   }
 
+  if(hate_food === null){
+      hate_food = 'x';
+  }
   hate_food = hate_food.replace(/,/g,' ');
 
   food_type = food_type.replace(/,/g,' ');
@@ -1034,9 +1038,10 @@ function getRestaurant (req, res) {
     food_ingre = 'x';
   }
 
-  console.log('price_lunch, price_dinner3:'+price_lunch+price_dinner);
+  console.log('hate_food:'+hate_food);
 
-
+    // NOT (match(taste) against('${hate_food}' in boolean mode)) AND
+    // NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
   models.sequelize.query(`SELECT * FROM restaurants WHERE
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
   (exit_quarter IN (${exit_quarter})) AND
@@ -1044,9 +1049,8 @@ function getRestaurant (req, res) {
   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
   NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
-  NOT (match(taste) against('${hate_food}' in boolean mode)) AND
   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-   ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
+   ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
 ORDER BY RAND() LIMIT 2;`).then(result => {
       if (result[0].length === 2){
@@ -1060,8 +1064,8 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
         NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
-        NOT (match(taste) against('${hate_food}' in boolean mode)) AND
         NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+         ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
          ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
       ORDER BY RAND() LIMIT 2;`).then(second_result => {
@@ -1428,6 +1432,7 @@ function updateUserStart (req, res) {
             cafe2: null,
             taste: null,
             food_type: null,
+            hate_food: null,
             mood2: null
         },     // What to update
         {where: {
@@ -1455,6 +1460,7 @@ function updatePlaceStart (req, res) {
         {
             price_lunch: null,
             price_dinner: null,
+            hate_food: null,
             lat: 0,
             lng: 0,
             mid_lat: 0,
