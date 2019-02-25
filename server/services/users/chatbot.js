@@ -910,6 +910,9 @@ function updateUser (req, res) {
         param_value = cafe_final;
     }
 
+    console.log(param_name);
+    // console.log(param_value);
+
     if (param_name === 'chat_log') {
       query = `UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`;
       console.log("Query : " + query);
@@ -923,7 +926,7 @@ function updateUser (req, res) {
               return res.status(403).json({success: false, message: 'user update query failed.'})
           }
       }).catch(function (err){
-        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error1. err: ' + err.message})
       })
     } else {
       if (param_value){
@@ -938,7 +941,7 @@ function updateUser (req, res) {
                   return res.status(403).json({success: false, message: 'user update query failed.'})
               }
           }).catch(function (err){
-            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+            return res.status(500).json({success: false, message: 'Internal Server or Database Error2. err: ' + err.message})
           })
         } else {
           models.sequelize.query(`UPDATE users SET ${param_name} = '${param_value}' WHERE kakao_id = '${kakao_id}';`).then(result => {
@@ -951,7 +954,7 @@ function updateUser (req, res) {
                   return res.status(403).json({success: false, message: 'user update query failed.'})
               }
           }).catch(function (err){
-            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+            return res.status(500).json({success: false, message: 'Internal Server or Database Error3. err: ' + err.message})
           })
         }
         //  models.sequelize.query('UPDATE users SET ' + param_name + " = '" + param_value + "' WHERE kakao_id = '" + kakao_id + "';").then(result => {
