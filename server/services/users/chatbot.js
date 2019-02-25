@@ -686,7 +686,6 @@ function updatePassword (req, res) {
 
 function updateUser (req, res) {
     console.log('updateUser called.');
-    console.log(req.body);
     let kakao_id;
     if (req.body){
         kakao_id = req.body.kakao_id;
@@ -912,7 +911,7 @@ function updateUser (req, res) {
     }
 
     console.log(param_name);
-    console.log(param_value);
+    // console.log(param_value);
 
     if (param_name === 'chat_log') {
       models.sequelize.query(`UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`).then(result => {
