@@ -911,6 +911,8 @@ function updateUser (req, res) {
     }
 
     if (param_name === 'chat_log') {
+      query = `UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`;
+      console.log("Query : " + query);
       models.sequelize.query(`UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`).then(result => {
           if (result){
             if (param_name !== 'chat_log') {
