@@ -2293,9 +2293,7 @@ function verifySearchFood (req, res) {
             search_food: req.body.search_food});
     }
     models.sequelize.query(`SELECT * FROM restaurants WHERE
-     (match(food_type) against('${search_food}' in boolean mode)) OR
-     (match(res_name) against('${search_food}' in boolean mode)) OR
-     (match(food_name) against('${search_food}' in boolean mode));`).then(result => {
+     (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode));`).then(result => {
         if(result !== null) {
             res.status(200).json({result: 'success'})
         } else {
