@@ -1055,7 +1055,7 @@ function getRestaurant (req, res) {
     console.log('food_name_flag:'+food_name_flag);
 
     console.log('hate_food:'+hate_food);
-   // ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
+   //
     // NOT (match(taste) against('${hate_food}' in boolean mode)) AND
     // NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
   models.sequelize.query(`SELECT * FROM restaurants WHERE
@@ -1064,6 +1064,7 @@ function getRestaurant (req, res) {
   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+    ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
    ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
@@ -1078,6 +1079,7 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND   
+          ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
         NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
          ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
@@ -2303,14 +2305,16 @@ function verifySearchFood (req, res) {
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
             subway: req.body.subway});
     }
-    // models.sequelize.query(`SELECT * FROM restaurants WHERE
-    //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode));`
-    models.Restaurant.findOne({
-        where: {
-            food_name: search_food,
-            subway: subway
-        }
-    }).then(result => {
+    models.sequelize.query(`SELECT * FROM restaurants WHERE
+     (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
+     (match(subway) against('${subway}' in boolean mode)) ;`
+    // models.Restaurant.findOne({
+    //     where: {
+    //         food_name: search_food,
+    //         subway: subway
+    //     }
+    //}
+    ).then(result => {
         if(result !== null) {
             res.status(200).json({result: 'success'})
         } else {
