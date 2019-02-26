@@ -2282,6 +2282,30 @@ function verifySubway (req, res) {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
+
+function verifySearchFood (req, res) {
+    console.log("here is verifySearchFood");
+    let search_food;
+    if ((req.body.search_food !== undefined)){
+        search_food = req.body.search_food;
+    } else {
+        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (search_food).',
+            search_food: req.body.search_food});
+    }
+    models.sequelize.query(`SELECT * FROM restaurants WHERE
+     (match(food_type) against('${search_food}' in boolean mode)) OR
+     (match(res_name) against('${search_food}' in boolean mode)) OR
+     (match(food_name) against('${search_food}' in boolean mode));`).then(result => {
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
+        } else {
+            res.status(200).json({result: 'no food'})
+        }
+    }).catch(err => {
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    });
+}
+
 /*
 function testSubwayExist (req, res) {
   console.log("here is testSubwayExist.");
@@ -3442,6 +3466,7 @@ module.exports = {
     getAllSubway: getAllSubway,
     getAllRestsaurant: getAllRestsaurant,
     getSimilarRestaurant: getSimilarRestaurant,
+    verifySearchFood: verifySearchFood,
     verifySubway: verifySubway,
     verifySubwayDrinktype: verifySubwayDrinktype,
     verifySubwayThema: verifySubwayThema,
