@@ -2292,6 +2292,7 @@ function verifySearchFood (req, res) {
     console.log("here is verifySearchFood");
     let search_food;
     console.log("req.body.search_food: "+req.body.search_food);
+    console.log("req.body.subway: "+req.body.subway);
     if ((req.body.search_food !== undefined)){
         search_food = req.body.search_food;
     } else {
@@ -2305,15 +2306,19 @@ function verifySearchFood (req, res) {
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
             subway: req.body.subway});
     }
-    models.sequelize.query(`SELECT * FROM restaurants WHERE
-     (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
-     (match(subway) against('${subway}' in boolean mode)) ;`
-    // models.Restaurant.findOne({
-    //     where: {
-    //         food_name: search_food,
-    //         subway: subway
-    //     }
-    //}
+
+    // models.sequelize.query(`SELECT * FROM restaurants WHERE
+    //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
+    //  (match(subway) against('${subway}' in boolean mode));`
+    models.Restaurant.findOne({
+        where: {
+            subway: subway,
+            search_food: {
+                [Op.like]: "%"+search_food+"%"
+            }
+        }
+    }
+
     ).then(result => {
         if(result !== null) {
             res.status(200).json({result: 'success'})
