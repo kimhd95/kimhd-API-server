@@ -2293,17 +2293,25 @@ function verifySearchFood (req, res) {
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (search_food).',
             search_food: req.body.search_food});
     }
+    let subway;
+    if ((req.body.subway !== undefined)){
+        subway = req.body.subway;
+    } else {
+        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+            subway: req.body.subway});
+    }
     // models.sequelize.query(`SELECT * FROM restaurants WHERE
     //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode));`
     models.Restaurant.findOne({
         where: {
-            food_name: search_food
+            food_name: search_food,
+            subway: subway
         }
     }).then(result => {
         if(result !== null) {
             res.status(200).json({result: 'success'})
         } else {
-            res.status(200).json({result: 'no food'})
+            res.status(200).json({result: 'no food in this subway'})
         }
     }).catch(err => {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
