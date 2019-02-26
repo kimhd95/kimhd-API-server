@@ -2286,14 +2286,20 @@ function verifySubway (req, res) {
 function verifySearchFood (req, res) {
     console.log("here is verifySearchFood");
     let search_food;
+    console.log("req.body.search_food: "+req.body.search_food);
     if ((req.body.search_food !== undefined)){
         search_food = req.body.search_food;
     } else {
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (search_food).',
             search_food: req.body.search_food});
     }
-    models.sequelize.query(`SELECT * FROM restaurants WHERE
-     (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode));`).then(result => {
+    // models.sequelize.query(`SELECT * FROM restaurants WHERE
+    //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode));`
+    models.Restaurant.findOne({
+        where: {
+            food_name: search_food
+        }
+    }).then(result => {
         if(result !== null) {
             res.status(200).json({result: 'success'})
         } else {
