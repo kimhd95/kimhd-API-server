@@ -1055,7 +1055,7 @@ function getRestaurant (req, res) {
     console.log('food_name_flag:'+food_name_flag);
 
     console.log('hate_food:'+hate_food);
-
+   // ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
     // NOT (match(taste) against('${hate_food}' in boolean mode)) AND
     // NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
   models.sequelize.query(`SELECT * FROM restaurants WHERE
@@ -1064,7 +1064,6 @@ function getRestaurant (req, res) {
   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
- ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
    ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
@@ -1078,8 +1077,7 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         (exit_quarter IN (1,2,3,4)) AND
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-        ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
+         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND   
         NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
          ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
@@ -1447,6 +1445,7 @@ function updateUserStart (req, res) {
             cafe2: null,
             taste: null,
             food_type: null,
+            food_name: null,
             hate_food: null,
             mood2: null
         },     // What to update
@@ -1476,6 +1475,7 @@ function updatePlaceStart (req, res) {
             price_lunch: null,
             price_dinner: null,
             hate_food: null,
+            food_name: null,
             lat: 0,
             lng: 0,
             mid_lat: 0,
