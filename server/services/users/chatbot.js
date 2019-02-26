@@ -910,12 +910,13 @@ function updateUser (req, res) {
         param_value = cafe_final;
     }
 
-    console.log(param_name);
-    // console.log(param_value);
+    if (param_value === null || param_value === '') {
+      console.log("###########################################################");
+    }
 
     if (param_name === 'chat_log') {
-      query = `UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`;
-      console.log("Query : " + query);
+      // query = `UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`;
+      // console.log("Query : " + query);
       models.User.update(
         {chat_log: param_value,
           chat_log_jellylab: param_value,
