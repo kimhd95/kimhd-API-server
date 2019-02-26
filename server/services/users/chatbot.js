@@ -981,13 +981,14 @@ function getRestaurant (req, res) {
   let food_type = req.body.food_type;
   let taste = req.body.taste;
   let hate_food = req.body.hate_food; //taste, food_name에 모두 반영
-  let food_ingre = req.body.food_ingre;
+  let food_name = req.body.food_name;
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
   console.log('price_lunch, price_dinner0:'+price_lunch+price_dinner);
   let subway_flag = '';
   let taste_flag = '';
   let food_type_flag = '';
+  let food_name_flag = '';
   let mood2_flag = '';
   let price_lunch_flag = '';
   let price_dinner_flag = '';
@@ -1046,8 +1047,9 @@ function getRestaurant (req, res) {
     food_type_flag = 'NOT';
   }
 
-  if(food_ingre === null){
-    food_ingre = 'x';
+  if(food_name === null || food_name ==='x'){
+    food_name = 'x';
+    food_name_flag = 'NOT';
   }
 
   console.log('hate_food:'+hate_food);
@@ -1060,7 +1062,7 @@ function getRestaurant (req, res) {
   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-  NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
+   ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
    ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
@@ -1075,10 +1077,9 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-        NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
+         ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
         NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-         ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
          ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
       ORDER BY RAND() LIMIT 2;`).then(second_result => {
         if (second_result[0].length === 2) {
