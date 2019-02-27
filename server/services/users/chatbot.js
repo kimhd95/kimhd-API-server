@@ -1001,9 +1001,15 @@ function getRestaurant (req, res) {
   }
 
   if(price_dinner === 'x'){ //점심식사
+      if(price_dinner === null) {
+        price_dinner = '0,1,2,3,4';
+      }
       price_lunch= price_lunch.replace(/,/g,' ');
       price_dinner_flag = 'NOT'
   } else if (price_lunch === 'x') { //저녁식사
+      if(price_lunch === null) {
+        price_lunch = '0,1,2,3,4';
+      }
       price_dinner = price_dinner.replace(/,/g, ' ');
       price_lunch_flag = 'NOT'
   }
@@ -1476,7 +1482,6 @@ function updatePlaceStart (req, res) {
 
             mood: null,
             mood2: null,
-            subway: null,
             taste: null,
             food_type: null,
             exit_quarter: null,
