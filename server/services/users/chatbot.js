@@ -910,10 +910,6 @@ function updateUser (req, res) {
         param_value = cafe_final;
     }
 
-    if (param_value === null || param_value === '') {
-      console.log("###########################################################");
-    }
-
     if (param_name === 'chat_log') {
 
       // query = `UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`;
@@ -2312,10 +2308,6 @@ function verifySearchFood (req, res) {
     //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
     //  (match(subway) against('${subway}' in boolean mode));`
     models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and match(food_name) against('${search_food}');`).then(result => {
-        console.log(result);
-        if(result) {
-          console.log("if문");
-        }
         if (result[0].length !== 0){
           return res.status(200).json({result: 'success'})
         } else {
