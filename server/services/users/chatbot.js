@@ -1473,8 +1473,15 @@ function updatePlaceStart (req, res) {
         {
             price_lunch: null,
             price_dinner: null,
-            hate_food: null,
+
+            mood: null,
+            mood2: null,
+            subway: null,
+            taste: null,
+            food_type: null,
+            exit_quarter: null,
             food_name: null,
+
             lat: 0,
             lng: 0,
             mid_lat: 0,
