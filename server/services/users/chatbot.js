@@ -915,11 +915,9 @@ function updateUser (req, res) {
     }
 
     if (param_name === 'chat_log') {
-<<<<<<< HEAD
-=======
+
       // query = `UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`;
       // console.log("Query : " + query);
->>>>>>> e0c2ed76094857fcf090ff70552b25d49ed2e0a2
       models.User.update(
         {chat_log: param_value,
           chat_log_jellylab: param_value,
@@ -1081,7 +1079,7 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         (exit_quarter IN (1,2,3,4)) AND
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND   
+         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
           ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
         NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
@@ -2313,24 +2311,38 @@ function verifySearchFood (req, res) {
     // models.sequelize.query(`SELECT * FROM restaurants WHERE
     //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
     //  (match(subway) against('${subway}' in boolean mode));`
-    models.Restaurant.findOne({
-        where: {
-            subway: subway,
-            search_food: {
-                [Op.like]: "%"+search_food+"%"
-            }
+    models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and match(food_name) against('${search_food}');`).then(result => {
+        console.log(result);
+        if(result) {
+          console.log("if문");
         }
-    }
-
-    ).then(result => {
-        if(result !== null) {
-            res.status(200).json({result: 'success'})
+        if (result[0].length !== 0){
+          return res.status(200).json({result: 'success'})
         } else {
-            res.status(200).json({result: 'no food in this subway'})
+          return  res.status(200).json({result: 'no food in this subway'})
         }
-    }).catch(err => {
-        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    });
+    }).catch(function (err){
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    })
+
+    // models.Restaurant.findOne({
+    //     where: {
+    //         subway: subway,
+    //         search_food: {
+    //             [Op.like]: "%"+search_food+"%"
+    //         }
+    //     }
+    // }
+    //
+    // ).then(result => {
+    //     if(result !== null) {
+    //         res.status(200).json({result: 'success'})
+    //     } else {
+    //         res.status(200).json({result: 'no food in this subway'})
+    //     }
+    // }).catch(err => {
+    //     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    // });
 }
 
 /*
