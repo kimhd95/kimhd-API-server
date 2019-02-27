@@ -910,10 +910,16 @@ function updateUser (req, res) {
         param_value = cafe_final;
     }
 
-    console.log(param_name);
-    // console.log(param_value);
+    if (param_value === null || param_value === '') {
+      console.log("###########################################################");
+    }
 
     if (param_name === 'chat_log') {
+<<<<<<< HEAD
+=======
+      // query = `UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`;
+      // console.log("Query : " + query);
+>>>>>>> e0c2ed76094857fcf090ff70552b25d49ed2e0a2
       models.User.update(
         {chat_log: param_value,
           chat_log_jellylab: param_value,
@@ -978,13 +984,14 @@ function getRestaurant (req, res) {
   let food_type = req.body.food_type;
   let taste = req.body.taste;
   let hate_food = req.body.hate_food; //taste, food_name에 모두 반영
-  let food_ingre = req.body.food_ingre;
+  let food_name = req.body.food_name;
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
   console.log('price_lunch, price_dinner0:'+price_lunch+price_dinner);
   let subway_flag = '';
   let taste_flag = '';
   let food_type_flag = '';
+  let food_name_flag = '';
   let mood2_flag = '';
   let price_lunch_flag = '';
   let price_dinner_flag = '';
@@ -1043,12 +1050,15 @@ function getRestaurant (req, res) {
     food_type_flag = 'NOT';
   }
 
-  if(food_ingre === null){
-    food_ingre = 'x';
+  if(food_name === null || food_name ==='x'){
+    food_name = 'x';
+    food_name_flag = 'NOT';
   }
+  console.log('food_name:'+food_name);
+    console.log('food_name_flag:'+food_name_flag);
 
-  console.log('hate_food:'+hate_food);
-
+    console.log('hate_food:'+hate_food);
+   //
     // NOT (match(taste) against('${hate_food}' in boolean mode)) AND
     // NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
   models.sequelize.query(`SELECT * FROM restaurants WHERE
@@ -1057,7 +1067,7 @@ function getRestaurant (req, res) {
   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
    ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-  NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
+    ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
    ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
@@ -1071,11 +1081,10 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         (exit_quarter IN (1,2,3,4)) AND
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-        NOT (match(food_ingre) against('${food_ingre}' in boolean mode)) AND
+         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND   
+          ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
         NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-         ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
          ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
       ORDER BY RAND() LIMIT 2;`).then(second_result => {
         if (second_result[0].length === 2) {
@@ -1441,6 +1450,7 @@ function updateUserStart (req, res) {
             cafe2: null,
             taste: null,
             food_type: null,
+            food_name: null,
             hate_food: null,
             mood2: null
         },     // What to update
@@ -1470,6 +1480,7 @@ function updatePlaceStart (req, res) {
             price_lunch: null,
             price_dinner: null,
             hate_food: null,
+            food_name: null,
             lat: 0,
             lng: 0,
             mid_lat: 0,
@@ -2279,6 +2290,49 @@ function verifySubway (req, res) {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
+
+function verifySearchFood (req, res) {
+    console.log("here is verifySearchFood");
+    let search_food;
+    console.log("req.body.search_food: "+req.body.search_food);
+    console.log("req.body.subway: "+req.body.subway);
+    if ((req.body.search_food !== undefined)){
+        search_food = req.body.search_food;
+    } else {
+        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (search_food).',
+            search_food: req.body.search_food});
+    }
+    let subway;
+    if ((req.body.subway !== undefined)){
+        subway = req.body.subway;
+    } else {
+        return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
+            subway: req.body.subway});
+    }
+
+    // models.sequelize.query(`SELECT * FROM restaurants WHERE
+    //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
+    //  (match(subway) against('${subway}' in boolean mode));`
+    models.Restaurant.findOne({
+        where: {
+            subway: subway,
+            search_food: {
+                [Op.like]: "%"+search_food+"%"
+            }
+        }
+    }
+
+    ).then(result => {
+        if(result !== null) {
+            res.status(200).json({result: 'success'})
+        } else {
+            res.status(200).json({result: 'no food in this subway'})
+        }
+    }).catch(err => {
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    });
+}
+
 /*
 function testSubwayExist (req, res) {
   console.log("here is testSubwayExist.");
@@ -3439,6 +3493,7 @@ module.exports = {
     getAllSubway: getAllSubway,
     getAllRestsaurant: getAllRestsaurant,
     getSimilarRestaurant: getSimilarRestaurant,
+    verifySearchFood: verifySearchFood,
     verifySubway: verifySubway,
     verifySubwayDrinktype: verifySubwayDrinktype,
     verifySubwayThema: verifySubwayThema,
