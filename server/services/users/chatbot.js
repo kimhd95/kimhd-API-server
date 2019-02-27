@@ -1046,7 +1046,12 @@ function getRestaurant (req, res) {
   }
   hate_food = hate_food.replace(/,/g,' ');
 
-  food_type = food_type.replace(/,/g,' ');
+  if(food_type === null) {
+    food_type = 'all';
+    food_type = food_type.replace(/,/g,' ');
+  } else {
+    food_type = food_type.replace(/,/g,' ');
+  }
 
   if(food_type === '이국적'){
     food_type = '한식 일식 중식 양식';
