@@ -2709,6 +2709,7 @@ function previousRegisterUser (req, res) {
  function deletePartLog (req, res) {
      const email = req.body.email;
      const targetcol = req.body.col;
+     const dflog = req.body.default_log;
      models.User.findOne({
          attributes: [targetcol],
          where: {
@@ -2718,7 +2719,7 @@ function previousRegisterUser (req, res) {
         if(user){
           models.User.update(
             {
-             [targetcol]: null,
+             [targetcol]: dflog,
              scenario: '100',
              state: 'init',
             },     // What to update
