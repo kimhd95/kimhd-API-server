@@ -33,8 +33,6 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
 //var logger = require('../../config/winston');
 
 function verifyToken (req, res) {
-    console.log(req.body);
-    console.log(req.headers);
     const cookie = req.cookies || req.headers.cookie || '';
     const cookies = qs.parse(cookie.replace(/\s/g, ''), { delimiter: ';' });
     let token = cookies.token;
@@ -979,6 +977,7 @@ function getRestaurant (req, res) {
   let taste = req.body.taste;
   let hate_food = req.body.hate_food; //taste, food_name에 모두 반영
   let food_name = req.body.food_name;
+
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
   console.log('price_lunch, price_dinner0:'+price_lunch+price_dinner);
@@ -1061,14 +1060,26 @@ function getRestaurant (req, res) {
     food_type_flag = 'NOT';
   }
 
+  let food_name_condition;
   if(food_name === null || food_name ==='x'){
     food_name = 'x';
     food_name_flag = 'NOT';
+  } else {
+    let food_name_leng = food_name.split(',').length;
+    if(food_name.includes(',')) {
+      food_name_condition = `(food_name LIKE ("%${food_name.split(',')[0]}%")`;
+      for (var i = 1; i<food_name_leng; i++) {
+        food_name_condition += ` or food_name LIKE ("%${food_name.split(',')[i]}%")`;
+      }
+      food_name_condition += ')';
+    } else {
+      food_name_condition = `food_name LIKE ("%${food_name}%")`;
+    }
   }
   console.log('food_name:'+food_name);
-    console.log('food_name_flag:'+food_name_flag);
+  console.log('food_name_flag:'+food_name_flag);
 
-    console.log('hate_food:'+hate_food);
+  console.log('hate_food:'+hate_food);
    //
     // NOT (match(taste) against('${hate_food}' in boolean mode)) AND
     // NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
@@ -1077,9 +1088,8 @@ function getRestaurant (req, res) {
   (exit_quarter IN (${exit_quarter})) AND
   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-   ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-    ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
-  NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+   ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND ` + food_name_condition + ` AND
+   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
    ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
 ORDER BY RAND() LIMIT 2;`).then(result => {
@@ -1092,8 +1102,7 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
         (exit_quarter IN (1,2,3,4)) AND
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-          ${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode)) AND
+         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND ` + food_name_condition + ` AND
         NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
          ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
          ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
