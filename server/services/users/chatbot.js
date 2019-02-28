@@ -1064,6 +1064,7 @@ function getRestaurant (req, res) {
   if(food_name === null || food_name ==='x'){
     food_name = 'x';
     food_name_flag = 'NOT';
+    food_name_condition = `${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode))`;
   } else {
     let food_name_leng = food_name.split(',').length;
     if(food_name.includes(',')) {
