@@ -2376,20 +2376,28 @@ function verifyMood2 (req, res) {
     let filter = ['가벼운', '인스타', '깔끔', '큰프', '뷔페'];
     let filtered_list = [];
 
-    for (i=0; i<5; i++) {
-      console.log(i);
-      console.log(filter[i]);
-      models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("${filter[i]}") limit 2;`).then(result => {
-          if (result[0].length == 2){
-            // return res.status(200).json({result: 'success'})
-            filtered_list.push(filter[i]);
-          }
-      }).catch(function (err){
-        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+
+    function getResult(callback) {
+      return new Promise(function (resolve, reject) {
+        for (i=0; i<5; i++) {
+          console.log(i);
+          console.log(filter[i]);
+          models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("${filter[i]}") limit 2;`).then(result => {
+              if (result[0].length == 2){
+                filtered_list.push(filter[i]);
+              }
+          }).catch(function (err){
+            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+          })
+        }
+        console.log(filtered_list);
+        resolve(filtered_list);
       })
     }
-    console.log(filtered_list);
-    return res.status(200).json({result : filtered_list})
+    getResult().then(function (filtered_list){
+      console.log(filtered_list);
+      return res.status(200).json({result : filtered_list})
+    });
 }
 
 /*
