@@ -1155,15 +1155,12 @@ function verifyResultExist (req, res) {
       }
       price_lunch_flag = 'NOT'
   }
-    console.log('price_lunch, price_dinner2:'+price_lunch+price_dinner);
-    console.log(`price_lunch_flag : ${price_lunch_flag}, price_dinner_flag : ${price_dinner_flag}`);
-    console.log(`mood2 : ${mood2}`);
 
   if(hate_food === null){
       hate_food = 'x';
   }
   hate_food = hate_food.replace(/,/g,' ');
-
+/*
   let food_name_condition;
   if(food_name === null || food_name ==='x'){
     food_name = 'x';
@@ -1180,13 +1177,13 @@ function verifyResultExist (req, res) {
     } else {
       food_name_condition = `food_name LIKE ("%${food_name}%")`;
     }
-  }
+  }*/
 
   let query = `SELECT * FROM restaurants WHERE `;
   query += `subway = ${subway} AND `;
   query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
   query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
-  query += food_name_condition + ` AND `;
+  //query += food_name_condition + ` AND `;
   query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
   /*
   let queries = [];
