@@ -1210,7 +1210,7 @@ console.log("33 # # # # # #");
     }).catch( err => {
       console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
+  });/*
   console.log("44 # # # # # #");
   models.sequelize.query(query1_2).then(result => {
       if (result[0].length === 2){
@@ -1260,7 +1260,8 @@ console.log("33 # # # # # #");
     }).catch( err => {
       console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
+  });*/
+  result1_2 = true; result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
   let valids = [];
   if (result1_1 && result1_2) { valids.append('q1'); }
   if (result2_1 && result2_2) { valids.append('q2'); }
