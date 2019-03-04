@@ -60,6 +60,7 @@ router.post('/get_similar_restaurant', chatbotService.getSimilarRestaurant);
 router.post('/verify_subway', chatbotService.verifySubway);
 router.post('/verify_subway_drinktype', chatbotService.verifySubwayDrinktype);
 router.post('/verify_search_food', chatbotService.verifySearchFood);
+router.post('/verify_mood2', chatbotService.verifyMood2);
 router.post('/crawl_image', chatbotService.crawlImage);
 router.post('/crawl_two_image', chatbotService.crawlTwoImage);
 router.post('/previous_register_user', chatbotService.previousRegisterUser);

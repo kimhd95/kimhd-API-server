@@ -2370,6 +2370,28 @@ function verifySearchFood (req, res) {
     // });
 }
 
+function verifyMood2 (req, res) {
+    console.log("verifyMood2 api called");
+    let subway = req.body.subway;
+    let filter = ['가벼운', '인스타', '깔끔', '큰프', '뷔페'];
+    let filtered_list = [];
+
+    for (i=0; i<5; i++) {
+      console.log(i);
+      console.log(filter[i]);
+      models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("${filter[i]}") limit 2;`).then(result => {
+          if (result[0].length == 2){
+            // return res.status(200).json({result: 'success'})
+            filtered_list.push(filter[i]);
+          }
+      }).catch(function (err){
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+      })
+    }
+    console.log(filtered_list);
+    return res.status(200).json({result : filtered_list})
+}
+
 /*
 function testSubwayExist (req, res) {
   console.log("here is testSubwayExist.");
@@ -3554,4 +3576,5 @@ module.exports = {
     getCafeInfo: getCafeInfo,
     createDecideHistory: createDecideHistory,
     getCafeTest: getCafeTest,
+    verifyMood2: verifyMood2,
 }
