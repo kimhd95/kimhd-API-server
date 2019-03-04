@@ -1137,7 +1137,7 @@ function verifyResultExist (req, res) {
   let price_dinner_flag = '';
 
   if (price_dinner === 'x') { //점심식사
-      if(price_lunch === null) {
+      if (price_lunch === null) {
         price_lunch = '0,1,2,3,4';
         price_lunch = price_lunch.replace(/,/g,' ');
       }
@@ -1146,7 +1146,7 @@ function verifyResultExist (req, res) {
       }
       price_dinner_flag = 'NOT'
   } else if (price_lunch === 'x') { //저녁식사
-      if(price_dinner === null) {
+      if (price_dinner === null) {
         price_dinner = '0,1,2,3,4';
         price_dinner = price_dinner.replace(/,/g, ' ');
       }
@@ -1155,7 +1155,7 @@ function verifyResultExist (req, res) {
       }
       price_lunch_flag = 'NOT'
   }
-
+  console.log("11 # # # # # #");
   if(hate_food === null){
       hate_food = 'x';
   }
@@ -1178,7 +1178,7 @@ function verifyResultExist (req, res) {
       food_name_condition = `food_name LIKE ("%${food_name}%")`;
     }
   }*/
-
+console.log("22 # # # # # #");
   let query = `SELECT * FROM restaurants WHERE `;
   query += `subway = ${subway} AND `;
   query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
@@ -1197,7 +1197,7 @@ function verifyResultExist (req, res) {
   query2_2 = query + `(match(taste) against('"${tastes.q2[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
   query3_1 = query + `(match(taste) against('"${tastes.q3[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
   query3_2 = query + `(match(taste) against('"${tastes.q3[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-
+console.log("33 # # # # # #");
   let result1_1, result1_2, result2_1, result2_2, result3_1, result3_2;
   models.sequelize.query(query1_1).then(result => {
       if (result[0].length === 2){
@@ -1211,6 +1211,7 @@ function verifyResultExist (req, res) {
       console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
+  console.log("44 # # # # # #");
   models.sequelize.query(query1_2).then(result => {
       if (result[0].length === 2){
         result1_2 = true;
