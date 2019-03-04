@@ -1267,7 +1267,7 @@ console.log("33 # # # # # #");
   if (result2_1 && result2_2) { valids.append('q2'); }
   if (result3_1 && result3_2) { valids.append('q3'); }
 
-  return res.status(500).json({success: true, valid: valids, message: 'suc'});
+  return res.status(200).json({success: true, valid: valids, message: 'suc'});
 }
 
 function getTwoRestaurant (req, res) {
