@@ -1124,6 +1124,152 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
 }
+function verifyResultExist (req, res) {
+  console.log(" # # # # # # API verifyResultExist Called. # # # # # #");
+  const kakao_id = req.body.kakao_id;
+  let subway = req.body.subway;
+  let hate_food = req.body.hate_food; //taste, food_name에 모두 반영
+  let price_lunch = req.body.price_lunch;
+  let price_dinner = req.body.price_dinner;
+  let tastes = req.body.tastes;
+
+  let price_lunch_flag = '';
+  let price_dinner_flag = '';
+
+  if (price_dinner === 'x') { //점심식사
+      if(price_lunch === null) {
+        price_lunch = '0,1,2,3,4';
+        price_lunch = price_lunch.replace(/,/g,' ');
+      }
+      else {
+        price_lunch= price_lunch.replace(/,/g,' ');
+      }
+      price_dinner_flag = 'NOT'
+  } else if (price_lunch === 'x') { //저녁식사
+      if(price_dinner === null) {
+        price_dinner = '0,1,2,3,4';
+        price_dinner = price_dinner.replace(/,/g, ' ');
+      }
+      else {
+        price_dinner = price_dinner.replace(/,/g, ' ');
+      }
+      price_lunch_flag = 'NOT'
+  }
+    console.log('price_lunch, price_dinner2:'+price_lunch+price_dinner);
+    console.log(`price_lunch_flag : ${price_lunch_flag}, price_dinner_flag : ${price_dinner_flag}`);
+    console.log(`mood2 : ${mood2}`);
+
+  if(hate_food === null){
+      hate_food = 'x';
+  }
+  hate_food = hate_food.replace(/,/g,' ');
+
+  let food_name_condition;
+  if(food_name === null || food_name ==='x'){
+    food_name = 'x';
+    food_name_flag = 'NOT';
+    food_name_condition = `${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode))`;
+  } else {
+    let food_name_leng = food_name.split(',').length;
+    if(food_name.includes(',')) {
+      food_name_condition = `(food_name LIKE ("%${food_name.split(',')[0]}%")`;
+      for (var i = 1; i<food_name_leng; i++) {
+        food_name_condition += ` or food_name LIKE ("%${food_name.split(',')[i]}%")`;
+      }
+      food_name_condition += ')';
+    } else {
+      food_name_condition = `food_name LIKE ("%${food_name}%")`;
+    }
+  }
+
+  let query = `SELECT * FROM restaurants WHERE `;
+  query += `subway = ${subway} AND `;
+  query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
+  query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
+  query += food_name_condition + ` AND `;
+  query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
+  /*
+  let queries = [];
+  for (let i = 0; i < tastes.length; i++) {
+    let qry = query + `(match(taste) against('"${tastes[i]}" -${hate_food}' in boolean mode));`
+    queries.append(qry);
+  }*/
+  query1_1 = query + `(match(taste) against('"${tastes.q1[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query1_2 = query + `(match(taste) against('"${tastes.q1[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query2_1 = query + `(match(taste) against('"${tastes.q2[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query2_2 = query + `(match(taste) against('"${tastes.q2[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query3_1 = query + `(match(taste) against('"${tastes.q3[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query3_2 = query + `(match(taste) against('"${tastes.q3[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+
+  let result1_1, result1_2, result2_1, result2_2, result3_1, result3_2;
+  models.sequelize.query(query1_1).then(result => {
+      if (result[0].length === 2){
+        result1_1 = true;
+        //return res.status(200).json({success: true, exist: true, message: 'result exists'});
+      } else {
+        result1_1 = false;
+        //return res.status(200).json({success: true, exist: false, message: 'no result'});
+      }
+    }).catch( err => {
+      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+  models.sequelize.query(query1_2).then(result => {
+      if (result[0].length === 2){
+        result1_2 = true;
+      } else {
+        result1_2 = false;
+      }
+    }).catch( err => {
+      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+  models.sequelize.query(query2_1).then(result => {
+      if (result[0].length === 2){
+        result2_1 = true;
+      } else {
+        result2_1 = false;
+      }
+    }).catch( err => {
+      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+  models.sequelize.query(query2_2).then(result => {
+      if (result[0].length === 2){
+        result2_2 = true;
+      } else {
+        result2_2 = false;
+      }
+    }).catch( err => {
+      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+  models.sequelize.query(query3_1).then(result => {
+      if (result[0].length === 2){
+        result3_1 = true;
+      } else {
+        result3_1 = false;
+      }
+    }).catch( err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+  models.sequelize.query(query3_2).then(result => {
+      if (result[0].length === 2){
+        result3_2 = true;
+      } else {
+        result3_2 = false;
+      }
+    }).catch( err => {
+      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+  let valids = [];
+  if (result1_1 && result1_2) { valids.append('q1'); }
+  if (result2_1 && result2_2) { valids.append('q2'); }
+  if (result3_1 && result3_2) { valids.append('q3'); }
+
+  return res.status(500).json({success: true, valid: valids, message: 'suc'});
+}
 
 function getTwoRestaurant (req, res) {
     const kakao_id = req.body.kakao_id;
@@ -3637,4 +3783,5 @@ module.exports = {
     createDecideHistory: createDecideHistory,
     getCafeTest: getCafeTest,
     verifyMood2: verifyMood2,
+    verifyResultExist: verifyResultExist,
 }
