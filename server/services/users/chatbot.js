@@ -235,7 +235,7 @@ function loginOnetime (req, res) {
                     }
                 }
                 res.header('Access-Control-Allow-Credentials', 'true');
-                return res.status(200).json({success: true, message: 'Ok', token: token, onetime: onetime, redirect: '/lobby'});
+                return res.status(200).json({success: true, message: 'Ok', token: token, onetime: onetime, redirect: '/lobby', email: user.email, name: user.name});
             });
                 // } else {
                 //     return res.status(403).json({
