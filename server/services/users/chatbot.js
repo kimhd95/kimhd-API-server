@@ -1131,8 +1131,8 @@ function verifyResultExist (req, res) {
   let hate_food = req.body.hate_food; //taste, food_name에 모두 반영
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
-  let tastes = req.body.tastes;
-  console.log(req.body);
+  let taste_list = req.body.taste_list;
+  console.log("req.body: ", req.body);
 
   let price_lunch_flag = '';
   let price_dinner_flag = '';
@@ -1191,12 +1191,12 @@ function verifyResultExist (req, res) {
     queries.append(qry);
   }*/
   console.log("query ------ ", query);
-  query1_1 = query + `(match(taste) against('"${tastes.q1[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query1_2 = query + `(match(taste) against('"${tastes.q1[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query2_1 = query + `(match(taste) against('"${tastes.q2[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query2_2 = query + `(match(taste) against('"${tastes.q2[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query3_1 = query + `(match(taste) against('"${tastes.q3[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query3_2 = query + `(match(taste) against('"${tastes.q3[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query1_1 = query + `(match(taste) against('"${taste_list[0].button1_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query1_2 = query + `(match(taste) against('"${taste_list[0].button2_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query2_1 = query + `(match(taste) against('"${taste_list[1].button1_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query2_2 = query + `(match(taste) against('"${taste_list[1].button2_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query3_1 = query + `(match(taste) against('"${taste_list[2].button1_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query3_2 = query + `(match(taste) against('"${taste_list[2].button2_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
   console.log("Query : ", query1_1);
   let result1_1, result1_2, result2_1, result2_2, result3_1, result3_2;
   models.sequelize.query(query1_1).then(result => {
@@ -1208,10 +1208,20 @@ function verifyResultExist (req, res) {
         //return res.status(200).json({success: true, exist: false, message: 'no result'});
       }
       console.log("Query 1");
+    }).then(result => {
+      models.sequelize.query(query1_2).then(result => {
+          if (result[0].length === 2){
+            result1_2 = true;
+          } else {
+            result1_2 = false;
+          }
+          console.log("Query 2");
+        }).catch( err => {
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+      });
     }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
+  });/*
   models.sequelize.query(query1_2).then(result => {
       if (result[0].length === 2){
         result1_2 = true;
@@ -1220,7 +1230,6 @@ function verifyResultExist (req, res) {
       }
       console.log("Query 2");
     }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
   models.sequelize.query(query2_1).then(result => {
@@ -1265,8 +1274,9 @@ function verifyResultExist (req, res) {
     }).catch( err => {
       console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-  //result1_2 = true; result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
+  });*/
+  //result1_2 = true;
+  result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
   let valids = [];
   if (result1_1 && result1_2) { valids.push('q1'); }
   if (result2_1 && result2_2) { valids.push('q2'); }
