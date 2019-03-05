@@ -1126,14 +1126,12 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
 }
 
 function verifyResultExist (req, res) {
-  console.log(" # # # # # # API verifyResultExist Called. # # # # # #");
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let hate_food = req.body.hate_food; //taste, food_name에 모두 반영
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
   let taste_list = req.body.taste_list;
-  console.log("req.body: ", req.body);
 
   let price_lunch_flag = '';
   let price_dinner_flag = '';
@@ -1141,23 +1139,18 @@ function verifyResultExist (req, res) {
   if (price_dinner === 'x') { //점심식사
       if (price_lunch === null) {
         price_lunch = '0,1,2,3,4';
-        price_lunch = price_lunch.replace(/,/g,' ');
       }
-      else {
-        price_lunch= price_lunch.replace(/,/g,' ');
-      }
+      price_lunch = price_lunch.replace(/,/g,' ');
       price_dinner_flag = 'NOT';
   } else if (price_lunch === 'x') { //저녁식사
       if (price_dinner === null) {
         price_dinner = '0,1,2,3,4';
-        price_dinner = price_dinner.replace(/,/g, ' ');
       }
-      else {
-        price_dinner = price_dinner.replace(/,/g, ' ');
-      }
+      price_dinner = price_dinner.replace(/,/g, ' ');
       price_lunch_flag = 'NOT';
   }
-  if(hate_food === null){
+
+  if(hate_food === null) {
       hate_food = 'x';
   }
   hate_food = hate_food.replace(/,/g,' ');
@@ -1185,19 +1178,11 @@ function verifyResultExist (req, res) {
   query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
   //query += food_name_condition + ` AND `;
   query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
-  /*
-  let queries = [];
-  for (let i = 0; i < tastes.length; i++) {
-    let qry = query + `(match(taste) against('"${tastes[i]}" -${hate_food}' in boolean mode));`
-    queries.append(qry);
-  }*/
-  console.log("query ------ ", query);
+
   let verifyResult = [];
   for (let i = 0; i < taste_list.length; i++) {
     const newQuery1 = query + `(match(taste) against('"${taste_list[i].option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
     const newQuery2 = query + `(match(taste) against('"${taste_list[i].option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-    //queryList.push(newQuery1);
-    //queryList.push(newQuery2);
 
     models.sequelize.query(newQuery1).then(result => {
         if (result[0].length === 2) {                           // 1-1 있
@@ -1223,78 +1208,7 @@ function verifyResultExist (req, res) {
     });
   }
 
-  /*
-  query1_1 = query + `(match(taste) against('"${taste_list[0].option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query1_2 = query + `(match(taste) against('"${taste_list[0].option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query2_1 = query + `(match(taste) against('"${taste_list[1][0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query2_2 = query + `(match(taste) against('"${taste_list[1][1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query3_1 = query + `(match(taste) against('"${taste_list[2][0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query3_2 = query + `(match(taste) against('"${taste_list[2][1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  console.log("Query : ", query1_1);
-  let result1_1, result1_2, result2_1, result2_2, result3_1, result3_2;
-  let isValid1, isValid2, isValid3;
-
-  let valid_Qs = [];
-
-
-  models.sequelize.query(query1_1).then(result => {
-      if (result[0].length === 2) {                           // 1-1 있
-        models.sequelize.query(query1_2).then(result => {
-            if (result[0].length === 2) { isValid1 = true; }  // 1-2 있
-            else { isValid1 = false; }                        // 1-2 없
-          }).catch( err => {
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-        });
-        console.log("Query 1-1");
-        //return res.status(200).json({success: true, exist: true, message: 'result exists'});
-      } else {                                                // 1-1 없
-        isValid1 = false;
-        console.log("Query 1-2");
-        //return res.status(200).json({success: true, exist: false, message: 'no result'});
-      }
-    }).catch( err => {
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-  });
-  models.sequelize.query(query2_1).then(result => {
-      if (result[0].length === 2) {
-        models.sequelize.query(query2_2).then(result => {
-            if (result[0].length === 2) { isValid2 = true; }
-            else { isValid2 = false; }
-          }).catch( err => {
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-        });
-        console.log("Query 2-1");
-      } else {
-        isValid2 = false;
-        console.log("Query 2-2");
-      }
-    }).catch( err => {
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-  });
-  models.sequelize.query(query3_1).then(result => {
-      if (result[0].length === 2) {
-        models.sequelize.query(query3_2).then(result => {
-            if (result[0].length === 2) { isValid3 = true; }
-            else { isValid3 = false; }
-          }).catch( err => {
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-        });
-        console.log("Query 3-1");
-      } else {
-        isValid3 = false;
-        console.log("Query 3-2");
-      }
-    }).catch( err => {
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-  }); */
-
   setTimeout(function() {
-    //let valids = [];
-    //if (isValid1) { valids.push('q1'); }
-    //if (isValid2) { valids.push('q2'); }
-    //if (isValid3) { valids.push('q3'); }
-    //console.log("Valids: ", valids);
-
     return res.status(200).json({success: true, valid: verifyResult});
   }, 300);
 }
