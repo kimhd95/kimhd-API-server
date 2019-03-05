@@ -1179,7 +1179,7 @@ function verifyResultExist (req, res) {
     }
   }*/
   let query = `SELECT * FROM restaurants WHERE `;
-  query += `subway = ${subway} AND `;
+  query += `subway = '${subway}' AND `;
   query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
   query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
   //query += food_name_condition + ` AND `;
@@ -1288,7 +1288,7 @@ function verifyResultExist (req, res) {
   });*/
   //result1_2 = true;
 
-  
+
   /*
   result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
   let valids = [];
