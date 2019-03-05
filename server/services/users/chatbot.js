@@ -1145,7 +1145,7 @@ function verifyResultExist (req, res) {
       else {
         price_lunch= price_lunch.replace(/,/g,' ');
       }
-      price_dinner_flag = 'NOT'
+      price_dinner_flag = 'NOT';
   } else if (price_lunch === 'x') { //저녁식사
       if (price_dinner === null) {
         price_dinner = '0,1,2,3,4';
@@ -1154,7 +1154,7 @@ function verifyResultExist (req, res) {
       else {
         price_dinner = price_dinner.replace(/,/g, ' ');
       }
-      price_lunch_flag = 'NOT'
+      price_lunch_flag = 'NOT';
   }
   if(hate_food === null){
       hate_food = 'x';
@@ -1211,14 +1211,14 @@ function verifyResultExist (req, res) {
     }).catch( err => {
       console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });/*
-  console.log("44 # # # # # #");
+  });
   models.sequelize.query(query1_2).then(result => {
       if (result[0].length === 2){
         result1_2 = true;
       } else {
         result1_2 = false;
       }
+      console.log("Query 2");
     }).catch( err => {
       console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
@@ -1229,6 +1229,7 @@ function verifyResultExist (req, res) {
       } else {
         result2_1 = false;
       }
+      console.log("Query 3");
     }).catch( err => {
       console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
@@ -1239,16 +1240,18 @@ function verifyResultExist (req, res) {
       } else {
         result2_2 = false;
       }
+      console.log("Query 4");
     }).catch( err => {
       console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
   models.sequelize.query(query3_1).then(result => {
-      if (result[0].length === 2){
+      if (result[0].length === 2) {
         result3_1 = true;
       } else {
         result3_1 = false;
       }
+      console.log("Query 5");
     }).catch( err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
@@ -1258,11 +1261,12 @@ function verifyResultExist (req, res) {
       } else {
         result3_2 = false;
       }
+      console.log("Query 6");
     }).catch( err => {
       console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });*/
-  result1_2 = true; result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
+  });
+  //result1_2 = true; result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
   let valids = [];
   if (result1_1 && result1_2) { valids.push('q1'); }
   if (result2_1 && result2_2) { valids.push('q2'); }
