@@ -1191,8 +1191,40 @@ function verifyResultExist (req, res) {
     queries.append(qry);
   }*/
   console.log("query ------ ", query);
-  query1_1 = query + `(match(taste) against('"${taste_list[0][0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query1_2 = query + `(match(taste) against('"${taste_list[0][1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  let verifyResult = [];
+  for (let i = 0; i < taste_list.length; i++) {
+    const newQuery1 = query + `(match(taste) against('"${taste_list[i].option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+    const newQuery2 = query + `(match(taste) against('"${taste_list[i].option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+    //queryList.push(newQuery1);
+    //queryList.push(newQuery2);
+
+    models.sequelize.query(newQuery1).then(result => {
+        if (result[0].length === 2) {                           // 1-1 있
+          console.log(`Query${i}-1 Exist`);
+          models.sequelize.query(newQuery2).then(result => {
+              if (result[0].length === 2) {
+                verifyResult.push({'index': i, 'valid': true});
+                console.log(`Query${i}-2 Exist`);
+              }  // 1-2 있
+              else {
+                verifyResult.push({'index': i, 'valid': false});
+                console.log(`Query${i}-2 not Exist`);
+              }                        // 1-2 없
+            }).catch( err => {
+            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+          });
+        } else {                                                // 1-1 없
+          verifyResult.push({'index': i, 'valid': false});
+          console.log(`Query${i}-1 not Exist`);
+        }
+      }).catch( err => {
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+    });
+  }
+
+  /*
+  query1_1 = query + `(match(taste) against('"${taste_list[0].option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query1_2 = query + `(match(taste) against('"${taste_list[0].option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
   query2_1 = query + `(match(taste) against('"${taste_list[1][0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
   query2_2 = query + `(match(taste) against('"${taste_list[1][1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
   query3_1 = query + `(match(taste) against('"${taste_list[2][0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
@@ -1202,6 +1234,8 @@ function verifyResultExist (req, res) {
   let isValid1, isValid2, isValid3;
 
   let valid_Qs = [];
+
+
   models.sequelize.query(query1_1).then(result => {
       if (result[0].length === 2) {                           // 1-1 있
         models.sequelize.query(query1_2).then(result => {
@@ -1251,7 +1285,7 @@ function verifyResultExist (req, res) {
       }
     }).catch( err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-  });
+  }); */
 
   setTimeout(function() {
     let valids = [];
@@ -1260,8 +1294,8 @@ function verifyResultExist (req, res) {
     if (isValid3) { valids.push('q3'); }
     console.log("Valids: ", valids);
 
-    return res.status(200).json({success: true, valid: valids});
-  }, 200);
+    return res.status(200).json({success: true, valid: verifyResult});
+  }, 300);
 }
 
 function getTwoRestaurant (req, res) {
