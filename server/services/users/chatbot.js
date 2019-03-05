@@ -1203,16 +1203,16 @@ function verifyResultExist (req, res) {
 
   let valid_Qs = [];
   models.sequelize.query(query1_1).then(result => {
-      if (result[0].length === 2) {
+      if (result[0].length === 2) {                           // 1-1 있
         models.sequelize.query(query1_2).then(result => {
-            if (result[0].length === 2) { isValid1 = true; }
-            else { result1_2 = false; }
+            if (result[0].length === 2) { isValid1 = true; }  // 1-2 있
+            else { isValid1 = false; }                        // 1-2 없
           }).catch( err => {
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
         });
         console.log("Query 1-1");
         //return res.status(200).json({success: true, exist: true, message: 'result exists'});
-      } else {
+      } else {                                                // 1-1 없
         isValid1 = false;
         console.log("Query 1-2");
         //return res.status(200).json({success: true, exist: false, message: 'no result'});
@@ -1249,84 +1249,19 @@ function verifyResultExist (req, res) {
         isValid3 = false;
         console.log("Query 3-2");
       }
+    }).catch( err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
-setTimeout(function() {
-  let valids = [];
-  if (isValid1) { valids.push('q1'); }
-  if (isValid2) { valids.push('q2'); }
-  if (isValid3) { valids.push('q3'); }
-  console.log("Valids: ", valids);
 
-  return res.status(200).json({success: true, valid: valids});
-}, 200);
+  setTimeout(function() {
+    let valids = [];
+    if (isValid1) { valids.push('q1'); }
+    if (isValid2) { valids.push('q2'); }
+    if (isValid3) { valids.push('q3'); }
+    console.log("Valids: ", valids);
 
-  /*
-  models.sequelize.query(query1_2).then(result => {
-      if (result[0].length === 2){
-        result1_2 = true;
-      } else {
-        result1_2 = false;
-      }
-      console.log("Query 2");
-    }).catch( err => {
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-  models.sequelize.query(query2_1).then(result => {
-      if (result[0].length === 2){
-        result2_1 = true;
-      } else {
-        result2_1 = false;
-      }
-      console.log("Query 3");
-    }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-  models.sequelize.query(query2_2).then(result => {
-      if (result[0].length === 2){
-        result2_2 = true;
-      } else {
-        result2_2 = false;
-      }
-      console.log("Query 4");
-    }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-  models.sequelize.query(query3_1).then(result => {
-      if (result[0].length === 2) {
-        result3_1 = true;
-      } else {
-        result3_1 = false;
-      }
-      console.log("Query 5");
-    }).catch( err => {
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-  models.sequelize.query(query3_2).then(result => {
-      if (result[0].length === 2){
-        result3_2 = true;
-      } else {
-        result3_2 = false;
-      }
-      console.log("Query 6");
-    }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });*/
-  //result1_2 = true;
-
-
-  /*
-  result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
-  let valids = [];
-  if (result1_1 && result1_2) { valids.push('q1'); }
-  if (result2_1 && result2_2) { valids.push('q2'); }
-  if (result3_1 && result3_2) { valids.push('q3'); }
-  console.log("Valids: ", valids);
-
-  return res.status(200).json({success: true, valid: valids});*/
+    return res.status(200).json({success: true, valid: valids});
+  }, 200);
 }
 
 function getTwoRestaurant (req, res) {
