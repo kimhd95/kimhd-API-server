@@ -1249,18 +1249,17 @@ function verifyResultExist (req, res) {
         isValid3 = false;
         console.log("Query 3-2");
       }
-      let valids = [];
-      if (isValid1) { valids.push('q1'); }
-      if (isValid2) { valids.push('q2'); }
-      if (isValid3) { valids.push('q3'); }
-      console.log("Valids: ", valids);
-
-      return res.status(200).json({success: true, valid: valids});
-
-    }).catch( err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
+setTimeout(function() {
+  let valids = [];
+  if (isValid1) { valids.push('q1'); }
+  if (isValid2) { valids.push('q2'); }
+  if (isValid3) { valids.push('q3'); }
+  console.log("Valids: ", valids);
 
+  return res.status(200).json({success: true, valid: valids});
+}, 200);
 
   /*
   models.sequelize.query(query1_2).then(result => {
