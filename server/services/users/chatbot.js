@@ -1124,6 +1124,7 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
 }
+
 function verifyResultExist (req, res) {
   console.log(" # # # # # # API verifyResultExist Called. # # # # # #");
   const kakao_id = req.body.kakao_id;
@@ -1288,11 +1289,11 @@ function verifyResultExist (req, res) {
   }); */
 
   setTimeout(function() {
-    let valids = [];
-    if (isValid1) { valids.push('q1'); }
-    if (isValid2) { valids.push('q2'); }
-    if (isValid3) { valids.push('q3'); }
-    console.log("Valids: ", valids);
+    //let valids = [];
+    //if (isValid1) { valids.push('q1'); }
+    //if (isValid2) { valids.push('q2'); }
+    //if (isValid3) { valids.push('q3'); }
+    //console.log("Valids: ", valids);
 
     return res.status(200).json({success: true, valid: verifyResult});
   }, 300);
