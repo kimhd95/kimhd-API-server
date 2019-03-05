@@ -1191,12 +1191,12 @@ function verifyResultExist (req, res) {
     queries.append(qry);
   }*/
   console.log("query ------ ", query);
-  query1_1 = query + `(match(taste) against('"${taste_list[0].button1_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query1_2 = query + `(match(taste) against('"${taste_list[0].button2_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query2_1 = query + `(match(taste) against('"${taste_list[1].button1_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query2_2 = query + `(match(taste) against('"${taste_list[1].button2_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query3_1 = query + `(match(taste) against('"${taste_list[2].button1_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query3_2 = query + `(match(taste) against('"${taste_list[2].button2_value}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query1_1 = query + `(match(taste) against('"${taste_list[0][0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query1_2 = query + `(match(taste) against('"${taste_list[0][1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query2_1 = query + `(match(taste) against('"${taste_list[1][0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query2_2 = query + `(match(taste) against('"${taste_list[1][1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query3_1 = query + `(match(taste) against('"${taste_list[2][0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+  query3_2 = query + `(match(taste) against('"${taste_list[2][1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
   console.log("Query : ", query1_1);
   let result1_1, result1_2, result2_1, result2_2, result3_1, result3_2;
   models.sequelize.query(query1_1).then(result => {
