@@ -1219,6 +1219,14 @@ function verifyResultExist (req, res) {
             result1_2 = false;
             console.log("Query 2-2");
           }
+          result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
+          let valids = [];
+          if (result1_1 && result1_2) { valids.push('q1'); }
+          if (result2_1 && result2_2) { valids.push('q2'); }
+          if (result3_1 && result3_2) { valids.push('q3'); }
+          console.log("Valids: ", valids);
+
+          return res.status(200).json({success: true, valid: valids});
         }).catch( err => {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
       });
@@ -1279,6 +1287,9 @@ function verifyResultExist (req, res) {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });*/
   //result1_2 = true;
+
+  
+  /*
   result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
   let valids = [];
   if (result1_1 && result1_2) { valids.push('q1'); }
@@ -1286,7 +1297,7 @@ function verifyResultExist (req, res) {
   if (result3_1 && result3_2) { valids.push('q3'); }
   console.log("Valids: ", valids);
 
-  return res.status(200).json({success: true, valid: valids});
+  return res.status(200).json({success: true, valid: valids});*/
 }
 
 function getTwoRestaurant (req, res) {
@@ -2548,7 +2559,7 @@ function verifyMood2 (req, res) {
         }).catch(function (err){
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         })
-        return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
+        return new Promise(resolve => setTimeout(() => resolve('ok'), 100));
     }
 
     var actions = filter.map(fn);
