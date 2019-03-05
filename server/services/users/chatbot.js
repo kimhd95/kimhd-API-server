@@ -2376,80 +2376,131 @@ function verifyMood2 (req, res) {
     let filter = ['가벼운', '인스타', '깔끔', '큰프', '뷔페'];
     let filtered_list = [];
 
-    function getResult1(callback) {
-      return new Promise(function (resolve, reject) {
-        models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[0]}%") limit 2;`).then(result => {
+    var fn = function asyncAddList(item) {
+      models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${item}%") limit 2;`).then(result => {
             if (result[0].length === 2){
-              filtered_list.push(filter[0]);
-              resolve(filtered_list);
-            } else {
-              resolve(filtered_list);
+              filtered_list.push(item);
             }
         }).catch(function (err){
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         })
-      })
-    }
-    function getResult2(callback) {
-      return new Promise(function (resolve, reject) {
-        models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[1]}%") limit 2;`).then(result => {
-            if (result[0].length === 2){
-              filtered_list.push(filter[1]);
-              resolve(filtered_list);
-            } else {
-              resolve(filtered_list);
-            }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-        })
-      })
-    }
-    function getResult3(callback) {
-      return new Promise(function (resolve, reject) {
-        models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[2]}%") limit 2;`).then(result => {
-            if (result[0].length === 2){
-              filtered_list.push(filter[2]);
-              resolve(filtered_list);
-            } else {
-              resolve(filtered_list);
-            }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-        })
-      })
-    }
-    function getResult4(callback) {
-      return new Promise(function (resolve, reject) {
-        models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[3]}%") limit 2;`).then(result => {
-            if (result[0].length === 2){
-              filtered_list.push(filter[3]);
-              resolve(filtered_list);
-            } else {
-              resolve(filtered_list);
-            }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-        })
-      })
-    }
-    function getResult5(callback) {
-      return new Promise(function (resolve, reject) {
-        models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[4]}%") limit 2;`).then(result => {
-            if (result[0].length === 2){
-              filtered_list.push(filter[4]);
-              resolve(filtered_list);
-            } else {
-              resolve(filtered_list);
-            }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-        })
-      })
+        return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
     }
 
-    getResult1().then(getResult2().then(getResult3().then(getResult4().then(getResult5().then(function (filtered_list){
-      return res.status(200).json({result : filtered_list})
-    })))));
+    var actions = filter.map(fn);
+
+    var results = Promise.all(actions);
+
+    results.then(data => {
+      console.log(data);
+      console.log(filtered_list);
+      return res.status(200).json({result : filtered_list});
+    });
+
+    // filter.forEach(function(item) {
+    //   console.log(item);
+    //   models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${item}%") limit 2;`).then(result => {
+    //       if (result[0].length === 2){
+    //         filtered_list.push(item);
+    //       } else {
+    //       }
+    //   }).catch(function (err){
+    //     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    //   })
+    // });
+    // console.log(filtered_list);
+    //
+    // function getResult1(callback) {
+    //   return new Promise(function (resolve, reject) {
+    //     models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[0]}%") limit 2;`).then(result => {
+    //         if (result[0].length === 2){
+    //           // filtered_list.push(filter[0]).then(function (filtered_list){
+    //           //   resolve(filtered_list)
+    //           // })
+    //           filtered_list.push(filter[0]);
+    //           resolve(filtered_list);
+    //         } else {
+    //           resolve(filtered_list);
+    //         }
+    //     }).catch(function (err){
+    //       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    //     })
+    //   })
+    // }
+    // function getResult2(callback) {
+    //   return new Promise(function (resolve, reject) {
+    //     models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[1]}%") limit 2;`).then(result => {
+    //         if (result[0].length === 2){
+    //           // filtered_list.push(filter[1]).then(function (filtered_list){
+    //             // resolve(filtered_list)
+    //           // })
+    //           filtered_list.push(filter[1]);
+    //           resolve(filtered_list);
+    //           // resolve(filtered_list.push(filter[1]).this);
+    //         } else {
+    //           resolve(filtered_list);
+    //         }
+    //     }).catch(function (err){
+    //       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    //     })
+    //   })
+    // }
+    // function getResult3(callback) {
+    //   return new Promise(function (resolve, reject) {
+    //     models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[2]}%") limit 2;`).then(result => {
+    //         if (result[0].length === 2){
+    //           // filtered_list.push(filter[2]).then(function (filtered_list){
+    //             // resolve(filtered_list)
+    //           // })
+    //           filtered_list.push(filter[2]);
+    //           resolve(filtered_list);
+    //         } else {
+    //           resolve(filtered_list);
+    //         }
+    //     }).catch(function (err){
+    //       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    //     })
+    //   })
+    // }
+    // function getResult4(callback) {
+    //   return new Promise(function (resolve, reject) {
+    //     models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[3]}%") limit 2;`).then(result => {
+    //         if (result[0].length === 2){
+    //           // filtered_list.push(filter[3]).then(function (filtered_list){
+    //             // resolve(filtered_list)
+    //           // })
+    //           filtered_list.push(filter[3]);
+    //           resolve(filtered_list);
+    //         } else {
+    //           resolve(filtered_list);
+    //         }
+    //     }).catch(function (err){
+    //       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    //     })
+    //   })
+    // }
+    // function getResult5(callback) {
+    //   return new Promise(function (resolve, reject) {
+    //     models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${filter[4]}%") limit 2;`).then(result => {
+    //         if (result[0].length === 2){
+    //           // filtered_list.push(filter[4]).then(function (filtered_list){
+    //             // resolve(filtered_list)
+    //           // })
+    //           filtered_list.push(filter[4]);
+    //           resolve(filtered_list);
+    //         } else {
+    //           resolve(filtered_list);
+    //         }
+    //     }).catch(function (err){
+    //       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    //     })
+    //   })
+    // }
+    //
+    // getResult1().then(getResult2().then(getResult3().then(getResult4().then(getResult5().then(function (filtered_list){
+    //   console.log(filtered_list);
+    //   return res.status(200).json({result : filtered_list})
+    // })))));
 }
 
 /*
