@@ -971,6 +971,7 @@ function getRestaurantSubway (req, res) {
   // req.body : {subway: }
   // res.body : {id: , res_name: };
   const subway = req.body.subway;
+  console.log("SUBWAY: ", subway);
 
   let query = `SELECT id, res_name, subway FROM restaurants WHERE subway = '${subway}';`;
   models.sequelize.query(query).then(result => {
