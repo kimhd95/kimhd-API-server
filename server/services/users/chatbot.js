@@ -1032,18 +1032,28 @@ function getNearRestaurant (req, res) {
 
       const exceptFar = function() {
         return new Promise(function(resolve, reject) {
+          console.log("exceptFar");
           for (let i = 0; i < result[0].length; i++) {
-            const distance = distance(lat, lng, list[i].lat, list[i].lng);
-            if (distance > 5000) { list.splice(i, 1); }
-            console.log("exceptFar");
+            //const distance = distance(lat, lng, list[i].lat, list[i].lng);
+            if (distance(lat, lng, list[i].lat, list[i].lng) > 5000) {
+              list.splice(i, 1);
+            }
+
           }
+          resolve(list.length);
         });
       }
 
-      exceptFar().then(() => {
+      exceptFar().then((length) => {
         console.log("then 1");
-        if (list.length > 1) { console.log("then 1-1", list);resolve('가까운 식당 존재'); }
-        else { console.log("then 1-2", list);reject('가까운 레스토랑 없음'); }
+        if (length > 1) {
+          console.log("then 1-1", list);
+          resolve('가까운 식당 존재');
+        }
+        else {
+          console.log("then 1-2", list);
+          reject('가까운 레스토랑 없음');
+        }
       }).then((result) => {
         console.log("RESULT: ", result);
         const rand_pick = [];
