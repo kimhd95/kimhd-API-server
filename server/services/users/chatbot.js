@@ -235,7 +235,7 @@ function loginOnetime (req, res) {
                     }
                 }
                 res.header('Access-Control-Allow-Credentials', 'true');
-                return res.status(200).json({success: true, message: 'Ok', token: token, onetime: onetime, redirect: '/lobby'});
+                return res.status(200).json({success: true, message: 'Ok', token: token, onetime: onetime, redirect: '/lobby', email: user.email, name: user.name});
             });
                 // } else {
                 //     return res.status(403).json({
@@ -968,6 +968,67 @@ function updateUser (req, res) {
       }
     }
 }
+function getNearRestaurant (req, res) {
+  const kakao_id = req.body.kakao_id;
+  let subway = req.body.subway;
+  let hate_food = req.body.hate_food;
+  let price_lunch = req.body.price_lunch;
+  let price_dinner = req.body.price_dinner;
+  let x = req.body.x;
+  let y = req.body.y;
+
+  let price_lunch_flag = '';
+  let price_dinner_flag = '';
+
+  if (price_dinner === 'x') { //점심식사
+    if (price_lunch === null) {
+      price_lunch = '0,1,2,3,4';
+      price_lunch = price_lunch.replace(/,/g,' ');
+    }
+    else {
+      price_lunch = price_lunch.replace(/,/g,' ');
+    }
+    price_dinner_flag = 'NOT';
+  } else if (price_lunch === 'x') { //저녁식사
+    if (price_dinner === null) {
+      price_dinner = '0,1,2,3,4';
+      price_dinner = price_dinner.replace(/,/g, ' ');
+    }
+    else {
+      price_dinner = price_dinner.replace(/,/g, ' ');
+    }
+    price_lunch_flag = 'NOT';
+  }
+
+  query = `SELECT lat, lng FROM restaurants WHERE `;
+  query += `(match(subway) against('${subway}' in boolean mode)) AND `;
+  query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
+  query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
+  query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
+  query += `NOT (match(taste) against('${hate_food}' in boolean mode));`;
+
+  models.sequelize.query(query).then(result => {
+    if (result[0].length > 1) {
+
+      return res.status(200).json({success: true, try: 1, message: result[0]});
+    } else {
+      return res.status(200).json({success: false, message: 'no result.'});
+    }
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+
+  function distance(lat1, lng1, lat2, lng2) {
+    const p = 0.017453292519943295; // Math.PI / 180
+    const c = Math.cos;
+    const a = 0.5 - c((lat2 - lat1) * p) / 2
+            + c(lat1 * p) * c(lat2 * p)
+            * (1 - c((lng2 - lng1) * p)) / 2;
+    const result = 12742 * Math.asin(Math.sqrt(a));
+    // map.set(result, value);
+    return result;// 2 * R; R = 6371 km
+  }
+}
 
 function getRestaurant (req, res) {
   const kakao_id = req.body.kakao_id;
@@ -1097,7 +1158,7 @@ function getRestaurant (req, res) {
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
 ORDER BY RAND() LIMIT 2;`).then(result => {
       if (result[0].length === 2){
-          console.log('result: ' + result.toString())
+          console.log('Result: ' + result[0]);
           return res.status(200).json({success: true, try: 1, message: result[0]})
       } else {
         models.sequelize.query(`SELECT * FROM restaurants WHERE
@@ -1126,14 +1187,14 @@ ORDER BY RAND() LIMIT 2;`).then(result => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
 }
+
 function verifyResultExist (req, res) {
-  console.log(" # # # # # # API verifyResultExist Called. # # # # # #");
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
   let hate_food = req.body.hate_food; //taste, food_name에 모두 반영
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
-  let tastes = req.body.tastes;
+  let taste_list = req.body.taste_list;
 
   let price_lunch_flag = '';
   let price_dinner_flag = '';
@@ -1141,24 +1202,18 @@ function verifyResultExist (req, res) {
   if (price_dinner === 'x') { //점심식사
       if (price_lunch === null) {
         price_lunch = '0,1,2,3,4';
-        price_lunch = price_lunch.replace(/,/g,' ');
       }
-      else {
-        price_lunch= price_lunch.replace(/,/g,' ');
-      }
-      price_dinner_flag = 'NOT'
+      price_lunch = price_lunch.replace(/,/g,' ');
+      price_dinner_flag = 'NOT';
   } else if (price_lunch === 'x') { //저녁식사
       if (price_dinner === null) {
         price_dinner = '0,1,2,3,4';
-        price_dinner = price_dinner.replace(/,/g, ' ');
       }
-      else {
-        price_dinner = price_dinner.replace(/,/g, ' ');
-      }
-      price_lunch_flag = 'NOT'
+      price_dinner = price_dinner.replace(/,/g, ' ');
+      price_lunch_flag = 'NOT';
   }
-  console.log("11 # # # # # #");
-  if(hate_food === null){
+
+  if(hate_food === null) {
       hate_food = 'x';
   }
   hate_food = hate_food.replace(/,/g,' ');
@@ -1180,96 +1235,46 @@ function verifyResultExist (req, res) {
       food_name_condition = `food_name LIKE ("%${food_name}%")`;
     }
   }*/
-console.log("22 # # # # # #");
   let query = `SELECT * FROM restaurants WHERE `;
-  query += `subway = ${subway} AND `;
+  query += `subway = '${subway}' AND `;
   query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
   query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
   //query += food_name_condition + ` AND `;
   query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
-  /*
-  let queries = [];
-  for (let i = 0; i < tastes.length; i++) {
-    let qry = query + `(match(taste) against('"${tastes[i]}" -${hate_food}' in boolean mode));`
-    queries.append(qry);
-  }*/
-  query1_1 = query + `(match(taste) against('"${tastes.q1[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query1_2 = query + `(match(taste) against('"${tastes.q1[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query2_1 = query + `(match(taste) against('"${tastes.q2[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query2_2 = query + `(match(taste) against('"${tastes.q2[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query3_1 = query + `(match(taste) against('"${tastes.q3[0]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-  query3_2 = query + `(match(taste) against('"${tastes.q3[1]}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-console.log("33 # # # # # #");
-  let result1_1, result1_2, result2_1, result2_2, result3_1, result3_2;
-  models.sequelize.query(query1_1).then(result => {
-      if (result[0].length === 2){
-        result1_1 = true;
-        //return res.status(200).json({success: true, exist: true, message: 'result exists'});
-      } else {
-        result1_1 = false;
-        //return res.status(200).json({success: true, exist: false, message: 'no result'});
-      }
-    }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });/*
-  console.log("44 # # # # # #");
-  models.sequelize.query(query1_2).then(result => {
-      if (result[0].length === 2){
-        result1_2 = true;
-      } else {
-        result1_2 = false;
-      }
-    }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-  models.sequelize.query(query2_1).then(result => {
-      if (result[0].length === 2){
-        result2_1 = true;
-      } else {
-        result2_1 = false;
-      }
-    }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-  models.sequelize.query(query2_2).then(result => {
-      if (result[0].length === 2){
-        result2_2 = true;
-      } else {
-        result2_2 = false;
-      }
-    }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-  models.sequelize.query(query3_1).then(result => {
-      if (result[0].length === 2){
-        result3_1 = true;
-      } else {
-        result3_1 = false;
-      }
-    }).catch( err => {
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-  models.sequelize.query(query3_2).then(result => {
-      if (result[0].length === 2){
-        result3_2 = true;
-      } else {
-        result3_2 = false;
-      }
-    }).catch( err => {
-      console.log('price_lunch, price_dinner5:'+price_lunch+price_dinner);
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });*/
-  result1_2 = true; result2_1 = true; result2_2 = true; result3_1 = true; result3_2 = true;
-  let valids = [];
-  if (result1_1 && result1_2) { valids.append('q1'); }
-  if (result2_1 && result2_2) { valids.append('q2'); }
-  if (result3_1 && result3_2) { valids.append('q3'); }
 
-  return res.status(200).json({success: true, valid: valids, message: 'suc'});
+  let verifyResult = [];
+  for (let i = 0; i < taste_list.length; i++) {
+    const newQuery1 = query + `(match(taste) against('"${taste_list[i].option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+    const newQuery2 = query + `(match(taste) against('"${taste_list[i].option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+    console.log("Q : ", newQuery1);
+    models.sequelize.query(newQuery1).then(result => {
+      if (result[0].length === 2) {                           // 1-1 있
+        console.log(`Query${i}-1 Exist`);
+        models.sequelize.query(newQuery2).then(result => {
+          if (result[0].length === 2) {
+            verifyResult.push({'index': i, 'valid': true});
+            console.log(`Query${i}-2 Exist`);
+          }  // 1-2 있
+          else {
+            verifyResult.push({'index': i, 'valid': false});
+            console.log(`Query${i}-2 not Exist`);
+          }                        // 1-2 없
+        }).catch( err => {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+        });
+      } else {                                                // 1-1 없
+        verifyResult.push({'index': i, 'valid': false});
+        console.log(`Query${i}-1 not Exist`);
+      }
+    }).catch( err => {
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+    });
+  }
+
+  setTimeout(function() {
+    console.log("in set timeout: ", verifyResult);
+    return res.status(200).json({success: true, valid: verifyResult});
+  }, 100);
 }
 
 function getTwoRestaurant (req, res) {
@@ -2531,7 +2536,7 @@ function verifyMood2 (req, res) {
         }).catch(function (err){
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         })
-        return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
+        return new Promise(resolve => setTimeout(() => resolve('ok'), 100));
     }
 
     var actions = filter.map(fn);
