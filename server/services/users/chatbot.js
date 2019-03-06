@@ -1660,8 +1660,8 @@ function updatePlaceStart (req, res) {
             exit_quarter: null,
             food_name: null,
 
-            lat: 0,
-            lng: 0,
+            lat: null,
+            lng: null,
             mid_lat: 0,
             mid_lng: 0,
             cnt: 0
