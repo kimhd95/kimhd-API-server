@@ -966,6 +966,31 @@ function updateUser (req, res) {
       }
     }
 }
+
+function getRestaurantSubway (req, res) {
+  // req.body : {subway: }
+  // res.body : {id: , res_name: };
+  const subway = req.body.subway;
+
+  let query = `SELECT id, res_name, subway FROM restaurants WHERE subway = '${subway}';`;
+  models.sequelize.query(query).then(result => {
+    return res.status(200).json({success: true, message: result[0]});
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  })
+}/*
+function setRestaurantLatLng (req, res) {
+  // req.body : data: {id: , lat: , lng}
+  const data = req.body.message;
+
+  for (;;) {
+    let query = `UPDATE restaurants SET lat=${data[i].lat}, lng=${data[i].lng} WHERE id=${data[i].id}`;
+    models.sequelize.query(query).then(result => {
+
+    })
+  }
+}*/
+
 function getNearRestaurant (req, res) {
   const kakao_id = req.body.kakao_id;
   let subway = req.body.subway;
@@ -3990,4 +4015,5 @@ module.exports = {
     verifyMood2: verifyMood2,
     verifyResultExist: verifyResultExist,
     getNearRestaurant: getNearRestaurant,
+    getRestaurantSubway: getRestaurantSubway,
 }
