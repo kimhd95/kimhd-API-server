@@ -1022,6 +1022,7 @@ function getNearRestaurant (req, res) {
   models.sequelize.query(query).then(result => {
     let list = result[0];
     console.log(list.length);
+
     if (list.length > 1) {
       /*
       for (let i = 0; i < result[0].length; i++) {
@@ -1115,10 +1116,12 @@ function getNearRestaurant (req, res) {
       } else {
         return res.status(200).json({success: false, message: 'no result.'});
       }*/
-    // } else {
+     } 
+     // else {
     //   console.log("ELSE 1");
     //   return res.status(200).json({success: false, message: 'no result.'});
     // }
+
   }).catch(err => {
     console.log("CATCH 2");
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
