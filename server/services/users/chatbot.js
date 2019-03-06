@@ -1033,9 +1033,17 @@ function getNearRestaurant (req, res) {
       const exceptFar = function() {
         return new Promise(function(resolve, reject) {
           console.log("exceptFar");
+          const p = 0.017453292519943295; // Math.PI / 180
+          const c = Math.cos;
+
+          console.log("distance :: ", p,c,a,result);
           for (let i = 0; i < result[0].length; i++) {
             //const distance = distance(lat, lng, list[i].lat, list[i].lng);
-            if (distance(lat, lng, list[i].lat, list[i].lng) > 5000) {
+            const a = 0.5 - c((list[i].lat - lat1) * p) / 2
+                    + c(lat1 * p) * c(list[i].lat * p)
+                    * (1 - c((list[i].lng - lng1) * p)) / 2;
+            const d = 12742 * Math.asin(Math.sqrt(a));
+            if (d > 5000) {
               list.splice(i, 1);
             }
 
