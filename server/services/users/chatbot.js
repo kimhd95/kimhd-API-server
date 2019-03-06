@@ -1007,6 +1007,7 @@ function getNearRestaurant (req, res) {
 
   models.sequelize.query(query).then(result => {
     if (result[0].length > 1) {
+
       return res.status(200).json({success: true, try: 1, message: result[0]});
     } else {
       return res.status(200).json({success: false, message: 'no result.'});
@@ -1155,7 +1156,7 @@ function getRestaurant (req, res) {
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
 ORDER BY RAND() LIMIT 2;`).then(result => {
       if (result[0].length === 2){
-          console.log('result: ' + result);
+          console.log('Result: ' + result[0]);
           return res.status(200).json({success: true, try: 1, message: result[0]})
       } else {
         models.sequelize.query(`SELECT * FROM restaurants WHERE
