@@ -1183,34 +1183,35 @@ function verifyResultExist (req, res) {
   for (let i = 0; i < taste_list.length; i++) {
     const newQuery1 = query + `(match(taste) against('"${taste_list[i].option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
     const newQuery2 = query + `(match(taste) against('"${taste_list[i].option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
-
+    console.log("Q : ", newQuery1);
     models.sequelize.query(newQuery1).then(result => {
-        if (result[0].length === 2) {                           // 1-1 있
-          console.log(`Query${i}-1 Exist`);
-          models.sequelize.query(newQuery2).then(result => {
-              if (result[0].length === 2) {
-                verifyResult.push({'index': i, 'valid': true});
-                console.log(`Query${i}-2 Exist`);
-              }  // 1-2 있
-              else {
-                verifyResult.push({'index': i, 'valid': false});
-                console.log(`Query${i}-2 not Exist`);
-              }                        // 1-2 없
-            }).catch( err => {
-            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-          });
-        } else {                                                // 1-1 없
-          verifyResult.push({'index': i, 'valid': false});
-          console.log(`Query${i}-1 not Exist`);
-        }
-      }).catch( err => {
+      if (result[0].length === 2) {                           // 1-1 있
+        console.log(`Query${i}-1 Exist`);
+        models.sequelize.query(newQuery2).then(result => {
+          if (result[0].length === 2) {
+            verifyResult.push({'index': i, 'valid': true});
+            console.log(`Query${i}-2 Exist`);
+          }  // 1-2 있
+          else {
+            verifyResult.push({'index': i, 'valid': false});
+            console.log(`Query${i}-2 not Exist`);
+          }                        // 1-2 없
+        }).catch( err => {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+        });
+      } else {                                                // 1-1 없
+        verifyResult.push({'index': i, 'valid': false});
+        console.log(`Query${i}-1 not Exist`);
+      }
+    }).catch( err => {
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
     });
   }
 
   setTimeout(function() {
+    console.log("in set timeout: ", verifyResult);
     return res.status(200).json({success: true, valid: verifyResult});
-  }, 300);
+  }, 100);
 }
 
 function getTwoRestaurant (req, res) {
