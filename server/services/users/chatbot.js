@@ -966,6 +966,66 @@ function updateUser (req, res) {
       }
     }
 }
+function getNearRestaurant (req, res) {
+  const kakao_id = req.body.kakao_id;
+  let subway = req.body.subway;
+  let hate_food = req.body.hate_food;
+  let price_lunch = req.body.price_lunch;
+  let price_dinner = req.body.price_dinner;
+  let x = req.body.x;
+  let y = req.body.y;
+
+  let price_lunch_flag = '';
+  let price_dinner_flag = '';
+
+  if (price_dinner === 'x') { //점심식사
+    if (price_lunch === null) {
+      price_lunch = '0,1,2,3,4';
+      price_lunch = price_lunch.replace(/,/g,' ');
+    }
+    else {
+      price_lunch = price_lunch.replace(/,/g,' ');
+    }
+    price_dinner_flag = 'NOT';
+  } else if (price_lunch === 'x') { //저녁식사
+    if (price_dinner === null) {
+      price_dinner = '0,1,2,3,4';
+      price_dinner = price_dinner.replace(/,/g, ' ');
+    }
+    else {
+      price_dinner = price_dinner.replace(/,/g, ' ');
+    }
+    price_lunch_flag = 'NOT';
+  }
+
+  query = `SELECT lat, lng FROM restaurants WHERE `;
+  query += `(match(subway) against('${subway}' in boolean mode)) AND `;
+  query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
+  query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
+  query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
+  query += `NOT (match(taste) against('${hate_food}' in boolean mode));`;
+
+  models.sequelize.query(query).then(result => {
+    if (result[0].length > 1) {
+      return res.status(200).json({success: true, try: 1, message: result[0]});
+    } else {
+      return res.status(200).json({success: false, message: 'no result.'});
+    }
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+
+  function distance(lat1, lng1, lat2, lng2) {
+    const p = 0.017453292519943295; // Math.PI / 180
+    const c = Math.cos;
+    const a = 0.5 - c((lat2 - lat1) * p) / 2
+            + c(lat1 * p) * c(lat2 * p)
+            * (1 - c((lng2 - lng1) * p)) / 2;
+    const result = 12742 * Math.asin(Math.sqrt(a));
+    // map.set(result, value);
+    return result;// 2 * R; R = 6371 km
+  }
+}
 
 function getRestaurant (req, res) {
   const kakao_id = req.body.kakao_id;
@@ -1095,7 +1155,7 @@ function getRestaurant (req, res) {
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
 ORDER BY RAND() LIMIT 2;`).then(result => {
       if (result[0].length === 2){
-          console.log('result: ' + result.toString())
+          console.log('result: ' + result);
           return res.status(200).json({success: true, try: 1, message: result[0]})
       } else {
         models.sequelize.query(`SELECT * FROM restaurants WHERE
