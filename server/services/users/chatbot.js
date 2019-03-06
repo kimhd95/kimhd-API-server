@@ -1036,7 +1036,7 @@ function getNearRestaurant (req, res) {
         rand_pick.push(list.splice(rand_index1, 1));
         rand_pick.push(list.splice(rand_index2, 1));
         console.log(result);
-        return res.status(200).json({success: true,, message: rand_pick});
+        return res.status(200).json({success: true, message: rand_pick});
       }, (err) => {
         console.log(err);
         return res.status(200).json({success: false, message: 'no result.'});
