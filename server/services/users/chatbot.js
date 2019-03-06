@@ -694,6 +694,8 @@ function updateUser (req, res) {
         return res.status(401).json({success: false, message: 'No input parameters received in body.'})
     }
 
+    console.log(req.body);
+
     const name = req.body.name;
     const birthday = req.body.birthday;
     const sex = req.body.sex;
@@ -1703,8 +1705,8 @@ function updatePlaceStart (req, res) {
             exit_quarter: null,
             food_name: null,
 
-            lat: 0,
-            lng: 0,
+            lat: null,
+            lng: null,
             mid_lat: 0,
             mid_lng: 0,
             cnt: 0
