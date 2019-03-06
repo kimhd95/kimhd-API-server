@@ -972,8 +972,8 @@ function getNearRestaurant (req, res) {
   let hate_food = req.body.hate_food;
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
-  let x = req.body.x;
-  let y = req.body.y;
+  let lat = req.body.lat;
+  let lng = req.body.lng;
 
   let price_lunch_flag = '';
   let price_dinner_flag = '';
@@ -1006,9 +1006,54 @@ function getNearRestaurant (req, res) {
   query += `NOT (match(taste) against('${hate_food}' in boolean mode));`;
 
   models.sequelize.query(query).then(result => {
+    let list = result[0];
     if (result[0].length > 1) {
+      /*
+      for (let i = 0; i < result[0].length; i++) {
+        const distance = distance(lat, lng, list[i].lat, list[i].lng);
+        if (distance > 5000) {
+          list.splice(i, 1);
+        }
+      }*/
+      const exceptFar = function() {
+        return new Promise(function(resolve, reject) {
+          for (let i = 0; i < result[0].length; i++) {
+            const distance = distance(lat, lng, list[i].lat, list[i].lng);
+            if (distance > 5000) { list.splice(i, 1); }
+          }
+        });
+      }
 
-      return res.status(200).json({success: true, try: 1, message: result[0]});
+      exceptFar().then(() => {
+        if (list.length > 1) { resolve('가까운 식당 존재'); }
+        else { reject('가까운 레스토랑 없음'); }
+      }).then((result) => {
+        const rand_pick = [];
+        let rand_index1 = Math.floor(Math.random() * list.length);
+        let rand_index2 = Math.floor(Math.random() * (list.length-1));
+        rand_pick.push(list.splice(rand_index1, 1));
+        rand_pick.push(list.splice(rand_index2, 1));
+        console.log(result);
+        return res.status(200).json({success: true,, message: rand_pick});
+      }, (err) => {
+        console.log(err);
+        return res.status(200).json({success: false, message: 'no result.'});
+      }).catch(err => {
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+      });
+
+/*
+      if (list.length > 1) {
+        const rand_pick = [];
+        let rand_index = Math.floor(Math.random() * list.length);
+        rand_pick.push(list.splice(rand_index, 1));
+        rand_index = Math.floor(Math.random() * list.length);
+        rand_pick.push(list.splice(rand_index, 1));
+
+        return res.status(200).json({success: true,, message: rand_pick});
+      } else {
+        return res.status(200).json({success: false, message: 'no result.'});
+      }*/
     } else {
       return res.status(200).json({success: false, message: 'no result.'});
     }
@@ -3839,4 +3884,5 @@ module.exports = {
     getCafeTest: getCafeTest,
     verifyMood2: verifyMood2,
     verifyResultExist: verifyResultExist,
+    getNearRestaurant: getNearRestaurant,
 }

@@ -26,6 +26,7 @@ router.post('/update_password', chatbotService.updatePassword);
 router.post('/update_user', chatbotService.updateUser);
 router.post('/get_restaurant', chatbotService.getRestaurant);
 router.post('/get_two_restaurant', chatbotService.getTwoRestaurant);
+router.post('/get_near_restaurant', chatbotService.getNearRestaurant);
 router.post('/get_all_history', chatbotService.getAllHistory);
 router.post('/get_subway_history', chatbotService.getSubwayHistory);
 router.post('/get_count_history', chatbotService.getCountHistory);
