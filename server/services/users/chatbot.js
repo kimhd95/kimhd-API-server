@@ -979,18 +979,33 @@ function getRestaurantSubway (req, res) {
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   })
-}/*
+}
 function setRestaurantLatLng (req, res) {
   // req.body : data: {id: , lat: , lng}
   const data = req.body.message;
+  console.log("Data: ", data);
 
-  for (;;) {
-    let query = `UPDATE restaurants SET lat=${data[i].lat}, lng=${data[i].lng} WHERE id=${data[i].id}`;
+  var fn = function distance(item) {
+    console.log("in fn");
+    let query = `UPDATE restaurants SET lat=${item.lat}, lng=${item.lng} WHERE id=${item.id}`;
     models.sequelize.query(query).then(result => {
-
+      console.log("Update Success.");
+    }).catch(err => {
+      console.log("Update Fail.");
     })
+    return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
   }
-}*/
+
+  var actions = data.map(fn);
+  var results = Promise.all(actions);
+
+  results.then(data => {
+    console.log("Update Finish.");
+    res.status(200).json({success: true, message: 'update complete.'});
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+}
 
 function getNearRestaurant (req, res) {
   const kakao_id = req.body.kakao_id;
@@ -4017,4 +4032,5 @@ module.exports = {
     verifyResultExist: verifyResultExist,
     getNearRestaurant: getNearRestaurant,
     getRestaurantSubway: getRestaurantSubway,
+    setRestaurantLatLng: setRestaurantLatLng,
 }
