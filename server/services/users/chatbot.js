@@ -1000,7 +1000,7 @@ function getNearRestaurant (req, res) {
     price_lunch_flag = 'NOT';
   }
 
-  query = `SELECT lat, lng FROM restaurants WHERE `;
+  query = `SELECT * FROM restaurants WHERE `;
   query += `(match(subway) against('${subway}' in boolean mode)) AND `;
   query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
   query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
@@ -1017,19 +1017,34 @@ function getNearRestaurant (req, res) {
           list.splice(i, 1);
         }
       }*/
+      function distance(lat1, lng1, lat2, lng2) {
+        const p = 0.017453292519943295; // Math.PI / 180
+        const c = Math.cos;
+        const a = 0.5 - c((lat2 - lat1) * p) / 2
+                + c(lat1 * p) * c(lat2 * p)
+                * (1 - c((lng2 - lng1) * p)) / 2;
+        const result = 12742 * Math.asin(Math.sqrt(a));
+        // map.set(result, value);
+        console.log("distance");
+        return result;// 2 * R; R = 6371 km
+      }
+
       const exceptFar = function() {
         return new Promise(function(resolve, reject) {
           for (let i = 0; i < result[0].length; i++) {
             const distance = distance(lat, lng, list[i].lat, list[i].lng);
             if (distance > 5000) { list.splice(i, 1); }
+            console.log("");
           }
         });
       }
 
       exceptFar().then(() => {
-        if (list.length > 1) { resolve('가까운 식당 존재'); }
-        else { reject('가까운 레스토랑 없음'); }
+        console.log("then 1");
+        if (list.length > 1) { console.log("then 1-1", list);resolve('가까운 식당 존재'); }
+        else { console.log("then 1-2", list);reject('가까운 레스토랑 없음'); }
       }).then((result) => {
+        console.log("RESULT: ", result);
         const rand_pick = [];
         let rand_index1 = Math.floor(Math.random() * list.length);
         let rand_index2 = Math.floor(Math.random() * (list.length-1));
@@ -1039,8 +1054,10 @@ function getNearRestaurant (req, res) {
         return res.status(200).json({success: true, message: rand_pick});
       }, (err) => {
         console.log(err);
+        console.log("REJECT");
         return res.status(200).json({success: false, message: 'no result.'});
       }).catch(err => {
+        console.log("CATCH");
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
       });
 
@@ -1057,22 +1074,15 @@ function getNearRestaurant (req, res) {
         return res.status(200).json({success: false, message: 'no result.'});
       }*/
     } else {
+      console.log("ELSE 1");
       return res.status(200).json({success: false, message: 'no result.'});
     }
   }).catch(err => {
+    console.log("CATCH 2");
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
 
-  function distance(lat1, lng1, lat2, lng2) {
-    const p = 0.017453292519943295; // Math.PI / 180
-    const c = Math.cos;
-    const a = 0.5 - c((lat2 - lat1) * p) / 2
-            + c(lat1 * p) * c(lat2 * p)
-            * (1 - c((lng2 - lng1) * p)) / 2;
-    const result = 12742 * Math.asin(Math.sqrt(a));
-    // map.set(result, value);
-    return result;// 2 * R; R = 6371 km
-  }
+
 }
 
 function getRestaurant (req, res) {
