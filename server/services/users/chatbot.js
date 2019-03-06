@@ -1021,6 +1021,7 @@ function getNearRestaurant (req, res) {
 
   models.sequelize.query(query).then(result => {
     let list = result[0];
+    console.log(list.length);
     if (result[0].length > 1) {
       /*
       for (let i = 0; i < result[0].length; i++) {
@@ -1052,17 +1053,16 @@ function getNearRestaurant (req, res) {
       }
 
       exceptFar().then((length) => {
+        console.log(length);
         console.log("then 1");
         if (length > 1) {
-          console.log("then 1-1", list);
-          resolve('가까운 식당 존재');
+          console.log("then 1-1");
         }
         else {
-          console.log("then 1-2", list);
-          reject('가까운 레스토랑 없음');
+          console.log("then 1-2");
         }
-      }).then((result) => {
-        console.log("RESULT: ", result);
+      }).then(() => {
+        console.log("RESULT: ");
         const rand_pick = [];
         let rand_index1 = Math.floor(Math.random() * list.length);
         let rand_index2 = Math.floor(Math.random() * (list.length-1));
