@@ -694,6 +694,8 @@ function updateUser (req, res) {
         return res.status(401).json({success: false, message: 'No input parameters received in body.'})
     }
 
+    console.log(req.body);
+
     const name = req.body.name;
     const birthday = req.body.birthday;
     const sex = req.body.sex;
