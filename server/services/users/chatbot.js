@@ -1043,7 +1043,7 @@ function getNearRestaurant (req, res) {
                     + c(lat * p) * c(list[i].lat * p)
                     * (1 - c((list[i].lng - lng) * p)) / 2;
             const d = 12742 * Math.asin(Math.sqrt(a));
-            if (d > 5000) {
+            if (d > 0) {
               list.splice(i, 1);
             }
 
