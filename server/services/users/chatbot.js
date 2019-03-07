@@ -694,8 +694,6 @@ function updateUser (req, res) {
         return res.status(401).json({success: false, message: 'No input parameters received in body.'})
     }
 
-    console.log(req.body);
-
     const name = req.body.name;
     const birthday = req.body.birthday;
     const sex = req.body.sex;
@@ -1000,49 +998,165 @@ function getNearRestaurant (req, res) {
     price_lunch_flag = 'NOT';
   }
 
-  query = `SELECT lat, lng FROM restaurants WHERE `;
+  query = `SELECT * FROM restaurants WHERE `;
   query += `(match(subway) against('${subway}' in boolean mode)) AND `;
   query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
   query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
   query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
   query += `NOT (match(taste) against('${hate_food}' in boolean mode));`;
 
+  function distance(lat1, lng1, lat2, lng2) {
+    const p = 0.017453292519943295; // Math.PI / 180
+    const c = Math.cos;
+    const a = 0.5 - c((lat2 - lat1) * p) / 2
+            + c(lat1 * p) * c(lat2 * p)
+            * (1 - c((lng2 - lng1) * p)) / 2;
+    const result = 12742 * Math.asin(Math.sqrt(a));
+    // map.set(result, value);
+    console.log("distance");
+    return result;// 2 * R; R = 6371 km
+  }
+
   models.sequelize.query(query).then(result => {
     let list = result[0];
-    if (result[0].length > 1) {
-      /*
-      for (let i = 0; i < result[0].length; i++) {
-        const distance = distance(lat, lng, list[i].lat, list[i].lng);
-        if (distance > 5000) {
-          list.splice(i, 1);
+    let resultList = [];
+    console.log(list.length);
+
+    if (list.length > 1) {
+
+      var fn = function distance(item) {
+        console.log("in fn");
+        const p = 0.017453292519943295; // Math.PI / 180
+        const c = Math.cos;
+        const a = 0.5 - c((item.lat - lat) * p) / 2
+                + c(lat * p) * c(item.lat * p)
+                * (1 - c((item.lng - lng) * p)) / 2;
+        const result = 12742 * Math.asin(Math.sqrt(a));
+        // map.set(result, value);
+        console.log(result);
+        if(result < 0.3) {
+          resultList.push(item);
         }
-      }*/
-      const exceptFar = function() {
-        return new Promise(function(resolve, reject) {
-          for (let i = 0; i < result[0].length; i++) {
-            const distance = distance(lat, lng, list[i].lat, list[i].lng);
-            if (distance > 5000) { list.splice(i, 1); }
-          }
-        });
+        return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
       }
 
-      exceptFar().then(() => {
-        if (list.length > 1) { resolve('가까운 식당 존재'); }
-        else { reject('가까운 레스토랑 없음'); }
-      }).then((result) => {
-        const rand_pick = [];
-        let rand_index1 = Math.floor(Math.random() * list.length);
-        let rand_index2 = Math.floor(Math.random() * (list.length-1));
-        rand_pick.push(list.splice(rand_index1, 1));
-        rand_pick.push(list.splice(rand_index2, 1));
-        console.log(result);
-        return res.status(200).json({success: true, message: rand_pick});
-      }, (err) => {
-        console.log(err);
-        return res.status(200).json({success: false, message: 'no result.'});
+      var actions = list.map(fn);
+
+      var results = Promise.all(actions);
+
+      results.then(data => {
+        console.log("results.then");
+        console.log(resultList.length);
+        if(resultList.length >= 2) {
+          const shuffled = resultList.sort(() => 0.5 - Math.random());
+          const rand_pick = shuffled.slice(0, 2);
+          return res.status(200).json({success: true, message: rand_pick});
+        } else {
+          res.status(200).json({success: false, message: 'no result.'});
+        }
       }).catch(err => {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
       });
+    }
+
+  }).catch(err => {
+    console.log("CATCH 2");
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+      // const exceptFar = function() {
+      //   return new Promise(function(resolve, reject) {
+      //     console.log("exceptFar");
+      //     const p = 0.017453292519943295; // Math.PI / 180
+      //     const c = Math.cos;
+      //
+      //     for (let i = 0; i < list.length; i++) {
+      //       //const distance = distance(lat, lng, list[i].lat, list[i].lng);
+      //       const a = 0.5 - c((list[i].lat - lat) * p) / 2
+      //               + c(lat * p) * c(list[i].lat * p)
+      //               * (1 - c((list[i].lng - lng) * p)) / 2;
+      //       const d = 12742 * Math.asin(Math.sqrt(a));
+      //       if (d > 0) {
+      //         list.splice(i, 1);
+      //       }
+      //
+      //     }
+      //     resolve(list.length);
+      //   });
+      // }
+      //
+      // exceptFar().then((length) => {
+      //   console.log(length);
+      //   console.log("then 1");
+      //   if (length > 1) {
+      //     console.log("then 1-1");
+      //   }
+      //   else {
+      //     console.log("then 1-2");
+      //   }
+      // }).then(() => {
+      //   console.log("RESULT: ");
+      //   const rand_pick = [];
+      //   let rand_index1 = Math.floor(Math.random() * list.length);
+      //   let rand_index2 = Math.floor(Math.random() * (list.length-1));
+      //   rand_pick.push(list.splice(rand_index1, 1));
+      //   rand_pick.push(list.splice(rand_index2, 1));
+      //   return res.status(200).json({success: true, message: rand_pick});
+      // }, (err) => {
+      //   console.log(err);
+      //   console.log("REJECT");
+      //   return res.status(200).json({success: false, message: 'no result.'});
+      // }).catch(err => {
+      //   console.log("CATCH");
+      //   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+      // });
+
+
+      // const exceptFar = function() {
+      //   return new Promise(function(resolve, reject) {
+      //     console.log("exceptFar");
+      //     const p = 0.017453292519943295; // Math.PI / 180
+      //     const c = Math.cos;
+      //
+      //     for (let i = 0; i < list.length; i++) {
+      //       //const distance = distance(lat, lng, list[i].lat, list[i].lng);
+      //       const a = 0.5 - c((list[i].lat - lat) * p) / 2
+      //               + c(lat * p) * c(list[i].lat * p)
+      //               * (1 - c((list[i].lng - lng) * p)) / 2;
+      //       const d = 12742 * Math.asin(Math.sqrt(a));
+      //       if (d > 0) {
+      //         list.splice(i, 1);
+      //       }
+      //
+      //     }
+      //     resolve(list.length);
+      //   });
+      // }
+      //
+      // exceptFar().then((length) => {
+      //   console.log(length);
+      //   console.log("then 1");
+      //   if (length > 1) {
+      //     console.log("then 1-1");
+      //   }
+      //   else {
+      //     console.log("then 1-2");
+      //   }
+      // }).then(() => {
+      //   console.log("RESULT: ");
+      //   const rand_pick = [];
+      //   let rand_index1 = Math.floor(Math.random() * list.length);
+      //   let rand_index2 = Math.floor(Math.random() * (list.length-1));
+      //   rand_pick.push(list.splice(rand_index1, 1));
+      //   rand_pick.push(list.splice(rand_index2, 1));
+      //   return res.status(200).json({success: true, message: rand_pick});
+      // }, (err) => {
+      //   console.log(err);
+      //   console.log("REJECT");
+      //   return res.status(200).json({success: false, message: 'no result.'});
+      // }).catch(err => {
+      //   console.log("CATCH");
+      //   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+      // });
 
 /*
       if (list.length > 1) {
@@ -1056,23 +1170,12 @@ function getNearRestaurant (req, res) {
       } else {
         return res.status(200).json({success: false, message: 'no result.'});
       }*/
-    } else {
-      return res.status(200).json({success: false, message: 'no result.'});
-    }
-  }).catch(err => {
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-  });
 
-  function distance(lat1, lng1, lat2, lng2) {
-    const p = 0.017453292519943295; // Math.PI / 180
-    const c = Math.cos;
-    const a = 0.5 - c((lat2 - lat1) * p) / 2
-            + c(lat1 * p) * c(lat2 * p)
-            * (1 - c((lng2 - lng1) * p)) / 2;
-    const result = 12742 * Math.asin(Math.sqrt(a));
-    // map.set(result, value);
-    return result;// 2 * R; R = 6371 km
-  }
+     // else {
+    //   console.log("ELSE 1");
+    //   return res.status(200).json({success: false, message: 'no result.'});
+    // }
+
 }
 
 function getRestaurant (req, res) {
