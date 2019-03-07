@@ -1459,7 +1459,7 @@ function verifyResultExist (req, res) {
       return new Promise(reject => setTimeout(() => reject(err), 100));
     });
 
-    return new Promise(resolve => setTimeout(() => resolve("ok"), 200));
+    return new Promise(resolve => setTimeout(() => resolve("ok"), 1000));
   }
 
   var applyAll = taste_list.map(exeQuery);
