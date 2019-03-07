@@ -986,7 +986,6 @@ function setRestaurantLatLng (req, res) {
   console.log("Data: ", data);
 
   var fn = function distance(item) {
-    console.log("in fn");
     let query = `UPDATE restaurants SET lat=${item.lat}, lng=${item.lng} WHERE id=${item.id}`;
     models.sequelize.query(query).then(result => {
       console.log("Update Success.");
@@ -1433,7 +1432,6 @@ function verifyResultExist (req, res) {
 
   let verifyResult = [];
   var exeQuery = function(taste) {
-    console.log("exeQuery")
     const newQuery1 = query + `(match(taste) against('"${taste.option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
     const newQuery2 = query + `(match(taste) against('"${taste.option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
 
@@ -1451,16 +1449,13 @@ function verifyResultExist (req, res) {
             console.log(`Query${i}-2 not Exist`);
           }                        // 1-2 없
         }).catch( err => {
-          console.log("catch");
           return new Promise(reject => setTimeout(() => reject(err), 100));
         });
       } else {                                                // 1-1 없
-        console.log('else');
         verifyResult.push({'index': i, 'valid': false});
         console.log(`Query${i}-1 not Exist`);
       }
     }).catch( err => {
-      console.log("catch 2");
       return new Promise(reject => setTimeout(() => reject(err), 100));
     });
 
