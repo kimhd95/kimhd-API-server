@@ -1432,6 +1432,47 @@ function verifyResultExist (req, res) {
   query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
 
   let verifyResult = [];
+  var exeQuery = function(taste) {
+    const newQuery1 = query + `(match(taste) against('"${taste.option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+    const newQuery2 = query + `(match(taste) against('"${taste.option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
+
+    models.sequelize.query(newQuery1).then(result => {
+      if (result[0].length === 2) {                           // 1-1 있
+        console.log(`Query${i}-1 Exist`);
+        models.sequelize.query(newQuery2).then(result => {
+          if (result[0].length === 2) {
+            verifyResult.push({'index': i, 'valid': true});
+            console.log(`Query${i}-2 Exist`);
+          }  // 1-2 있
+          else {
+            verifyResult.push({'index': i, 'valid': false});
+            console.log(`Query${i}-2 not Exist`);
+          }                        // 1-2 없
+        }).catch( err => {
+          return new Promise(reject => setTimeout(() => reject(err), 100));
+        });
+      } else {                                                // 1-1 없
+        verifyResult.push({'index': i, 'valid': false});
+        console.log(`Query${i}-1 not Exist`);
+      }
+    }).catch( err => {
+      return new Promise(reject => setTimeout(() => reject(err), 100));
+    });
+
+    return new Promise(resolve => setTimeout(() => resolve("ok"), 200));
+  }
+
+  var applyAll = taste_list.map(exeQuery);
+  var results = Promise.all(applyAll);
+
+  results.then(() => {
+    console.log("Consequence : ", verifyResult);
+    return res.status(200).json({success: true, valid: verifyResult});
+  })
+
+
+/*
+  let verifyResult = [];
   for (let i = 0; i < taste_list.length; i++) {
     const newQuery1 = query + `(match(taste) against('"${taste_list[i].option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
     const newQuery2 = query + `(match(taste) against('"${taste_list[i].option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
@@ -1463,7 +1504,7 @@ function verifyResultExist (req, res) {
   setTimeout(function() {
     console.log("in set timeout: ", verifyResult);
     return res.status(200).json({success: true, valid: verifyResult});
-  }, 100);
+  }, 100);*/
 }
 
 function getTwoRestaurant (req, res) {
