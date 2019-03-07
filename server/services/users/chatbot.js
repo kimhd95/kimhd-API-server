@@ -1438,6 +1438,7 @@ function verifyResultExist (req, res) {
     const newQuery2 = query + `(match(taste) against('"${taste.option2}" -${hate_food}' in boolean mode)) LIMIT 2;`;
 
     models.sequelize.query(newQuery1).then(result => {
+      let i = taste_list.indexOf(taste);
       if (result[0].length === 2) {                           // 1-1 있
         console.log(`Query${i}-1 Exist`);
         models.sequelize.query(newQuery2).then(result => {
@@ -1463,7 +1464,7 @@ function verifyResultExist (req, res) {
       return new Promise(reject => setTimeout(() => reject(err), 100));
     });
 
-    return new Promise(resolve => setTimeout(() => resolve("ok"), 1000));
+    return new Promise(resolve => setTimeout(() => resolve("ok"), 200));
   }
 
   var applyAll = taste_list.map(exeQuery);
