@@ -35,7 +35,9 @@ module.exports = function() {
                 'http://devpsy.jellylab.io',
                 'http://devatopy.jellylab.io',
                 'https://psy.jellylab.io',
-                'https://atopy.jellylab.io'
+                'https://atopy.jellylab.io',
+								'http://ec2-13-124-160-236.ap-northeast-2.compute.amazonaws.com',
+								'http://fooddev.jellylab.io',
 			];
 
 			if (req.headers !== undefined){
