@@ -28,6 +28,7 @@ module.exports = function() {
 			// Make sure web app client program use :4000 for its port to make use of the token related APIs.
             let allowedOrigins = [
 				'http://ec2-13-124-160-236.ap-northeast-2.compute.amazonaws.com:8001',
+				'http://ec2-13-124-160-236.ap-northeast-2.compute.amazonaws.com',
                 'http://localhost:8000',
                 'http://localhost:8001',
                 'http://localhost:8010',
@@ -36,8 +37,12 @@ module.exports = function() {
                 'http://devatopy.jellylab.io',
                 'https://psy.jellylab.io',
                 'https://atopy.jellylab.io',
-								'http://ec2-13-124-160-236.ap-northeast-2.compute.amazonaws.com',
+								'http://devbotfood.jellylab.io',
+								'http://devbotfood.jellylab.io:8001',
+								'http://devapifood.jellylab.io',
+								'http://devapifood.jellylab.io:8001',
 								'http://fooddev.jellylab.io',
+								'http://fooddev.jellylab.io:8001',
 			];
 
 			if (req.headers !== undefined){
