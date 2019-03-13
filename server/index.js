@@ -38,7 +38,7 @@ module.exports = function() {
                 'https://psy.jellylab.io',
                 'https://atopy.jellylab.io',
 								'https://devapifood.jellylab.io',
-								'https://fooddev.jellylab.io',
+								'https://corgi.jellylab.io',
 			];
 
 			if (req.headers !== undefined){
