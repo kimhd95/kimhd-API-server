@@ -1008,7 +1008,7 @@ function setRestaurantLatLng (req, res) {
 
 /* Django서버에서 restaurants id, closedown값 받아서 Update */
 function updateClosedown (req, res) {
-  const data = req.body.data;
+  const data = req.body;
   console.log("Data: ", data);
   console.log(req.body);
 
