@@ -95,6 +95,7 @@ router.get('/:id', userService.getUserWithId); // 현재 미사용
 
 router.post('/get_restaurant_subway', chatbotService.getRestaurantSubway);
 router.post('/set_restaurant_latlng', chatbotService.setRestaurantLatLng);
+router.post('/update_closedown', chatbotService.updateClosedown);
 
 router.use('/*', models.verifyAPIKEY); //현재 미사용
 // ^Middleware. Make sure to put all the routes which needs authentication below this middleware.

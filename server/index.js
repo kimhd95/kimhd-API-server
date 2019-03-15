@@ -29,22 +29,16 @@ module.exports = function() {
             let allowedOrigins = [
 				'http://ec2-13-124-160-236.ap-northeast-2.compute.amazonaws.com:8001',
 				'http://ec2-13-124-160-236.ap-northeast-2.compute.amazonaws.com',
-                // 'http://localhost:8000',
+                'http://localhost:8000',
                 'http://localhost:8001',
-                // 'http://localhost:8010',
-                // 'http://localhost:8011',
-                // 'http://devpsy.jellylab.io',
-                // 'http://devatopy.jellylab.io',
-                // 'https://psy.jellylab.io',
-                // 'https://atopy.jellylab.io',
-								// 'http://devbotfood.jellylab.io',
-								// 'http://devbotfood.jellylab.io:8001',
-								// 'http://devapifood.jellylab.io',
-								// 'http://devapifood.jellylab.io:8001',
-								'https://fooddev.jellylab.io',
-								'http://fooddev.jellylab.io',
-								// 'http://fooddev.jellylab.io:8001',
-
+                'http://localhost:8010',
+                'http://localhost:8011',
+                'http://devpsy.jellylab.io',
+                'http://devatopy.jellylab.io',
+                'https://psy.jellylab.io',
+                'https://atopy.jellylab.io',
+								'https://devapifood.jellylab.io',
+								'https://corgi.jellylab.io',
 			];
 
 			if (req.headers !== undefined){

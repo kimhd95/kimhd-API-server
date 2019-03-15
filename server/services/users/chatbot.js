@@ -21,7 +21,7 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
 });
 
 
-let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
+let closedown_scheduler = schedule.scheduleJob('00 20 4 1 * *', function(){
   request('http://jellynlp-dev.ap-northeast-2.elasticbeanstalk.com/verify_close/', function (error, response, body) {
     if(error){
       console.log('Error at closedown_scheduler : ' + error);
@@ -973,7 +973,7 @@ function getRestaurantSubway (req, res) {
   const subway = req.body.subway;
   console.log("SUBWAY: ", subway);
 
-  let query = `SELECT id, res_name, subway FROM restaurants WHERE subway = '${subway}';`;
+  let query = `SELECT id, address, res_name, subway FROM restaurants WHERE subway = '${subway}';`;
   models.sequelize.query(query).then(result => {
     return res.status(200).json({success: true, message: result[0]});
   }).catch(err => {
@@ -1004,6 +1004,33 @@ function setRestaurantLatLng (req, res) {
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
+}
+
+/* Django서버에서 restaurants id, closedown값 받아서 Update */
+function updateClosedown (req, res) {
+  const data = req.body;
+  console.log("Data: ", data);
+  console.log(req.body);
+/*
+  var updateFunc = function(record) {
+    let query = `UPDATE restaurants SET closedown=1 WHERE res_name=${record.res_name} and subway=${record.subway}`;
+    models.sequelize.query(query).then(() => {
+      console.log(`Update Success. [id : ${record.id}]`);
+    }).catch(err => {
+      console.log("Update Fail : ", err);
+    })
+    return new Promise(resolve => setTimeout(() => resolve("ok"), 200));
+  }*/
+  //var actions = data.map(updateFunc);
+  //var results = Promise.all(actions);
+  let query = `UPDATE restaurants SET closedown=1 WHERE res_name=${data.res_name} and subway=${data.subway}`;
+
+  models.sequelize.query(query).then(() => {
+    console.log(`Update Success. [${data.subway} ${data.res_name}]`);
+    return res.status(200).json({success: true, message: 'update complete'});
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  })
 }
 
 function getNearRestaurant (req, res) {
@@ -2639,7 +2666,9 @@ function getAllRestsaurant(req, res) {
     }).then(result => {
         if(result){
             let result_array = result.reduce((acc,cur) => {
-              acc.push(cur.subway + ' ' + cur.res_name);
+              if(cur.subway == '강남역') {
+                acc.push(cur.subway + ' ' + cur.res_name);
+              }
               return acc;
             },[]);
             return res.status(200).json(result_array);
@@ -4074,4 +4103,5 @@ module.exports = {
     getNearRestaurant: getNearRestaurant,
     getRestaurantSubway: getRestaurantSubway,
     setRestaurantLatLng: setRestaurantLatLng,
+    updateClosedown: updateClosedown,
 }
