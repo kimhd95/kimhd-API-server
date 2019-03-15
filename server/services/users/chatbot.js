@@ -21,24 +21,25 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
 });
 
 
-let closedown_scheduler = schedule.scheduleJob('*/2 * * * *', function() {
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
-  console.log("node-schedule EXECUTED.");
+let closedown_scheduler = schedule.scheduleJob('*/3 * * * *', function() {
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED.");
 
   request('http://jellynlp-dev.ap-northeast-2.elasticbeanstalk.com/verify_close/', function (error, response, body) {
     if(error){
       console.log('Error at closedown_scheduler : ' + error);
     }else{
-      console.log(response);
+      console.log(response.body);
     }
   });
 });
