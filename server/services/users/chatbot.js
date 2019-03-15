@@ -1011,7 +1011,7 @@ function updateClosedown (req, res) {
   const data = req.body;
   console.log("Data: ", data);
   console.log(req.body);
-
+/*
   var updateFunc = function(record) {
     let query = `UPDATE restaurants SET closedown=1 WHERE res_name=${record.res_name} and subway=${record.subway}`;
     models.sequelize.query(query).then(() => {
@@ -1020,13 +1020,14 @@ function updateClosedown (req, res) {
       console.log("Update Fail : ", err);
     })
     return new Promise(resolve => setTimeout(() => resolve("ok"), 200));
-  }
-  var actions = data.map(updateFunc);
-  var results = Promise.all(actions);
+  }*/
+  //var actions = data.map(updateFunc);
+  //var results = Promise.all(actions);
+  let query = `UPDATE restaurants SET closedown=1 WHERE res_name=${data.res_name} and subway=${data.subway}`;
 
-  new Promise(resolve => updateFunc(data)).then(() => {
-    console.log("Update Finish.");
-    res.status(200).json({success: true, message: 'update complete'});
+  models.sequelize.query(query).then(() => {
+    console.log(`Update Success. [${data.subway} ${data.res_name}]`);
+    return res.status(200).json({success: true, message: 'update complete'});
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   })
