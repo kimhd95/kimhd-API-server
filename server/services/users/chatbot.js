@@ -21,7 +21,7 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
 });
 
 
-let closedown_scheduler = schedule.scheduleJob('20 04 1 * *', function() {
+let closedown_scheduler = schedule.scheduleJob('*/1 * * * *', function() {
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
