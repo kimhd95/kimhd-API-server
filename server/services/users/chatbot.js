@@ -1023,7 +1023,7 @@ function updateClosedown (req, res) {
   }*/
   //var actions = data.map(updateFunc);
   //var results = Promise.all(actions);
-  let query = `UPDATE restaurants SET closedown=1 WHERE res_name=${data.res_name} and subway=${data.subway};`;
+  let query = `UPDATE restaurants SET closedown=1 WHERE res_name='${data.res_name}' and subway='${data.subway}';`;
 
   models.sequelize.query(query).then(() => {
     console.log(`Update Success. [${data.subway} ${data.res_name}]`);
