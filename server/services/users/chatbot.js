@@ -1019,12 +1019,12 @@ function updateClosedown (req, res) {
     }).catch(err => {
       console.log("Update Fail : ", err);
     })
-    return new Promise(resolve => setTimeout(() => resolve("ok"), 1000));
+    return new Promise(resolve => setTimeout(() => resolve("ok"), 200));
   }
   var actions = data.map(updateFunc);
   var results = Promise.all(actions);
 
-  results.then(() => {
+  new Promise(resolve => updateFunc(data)).then(() => {
     console.log("Update Finish.");
     res.status(200).json({success: true, message: 'update complete'});
   }).catch(err => {
