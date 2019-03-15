@@ -1010,9 +1010,10 @@ function setRestaurantLatLng (req, res) {
 function updateClosedown (req, res) {
   const data = req.body.data;
   console.log("Data: ", data);
+  console.log(req.body);
 
   var updateFunc = function(record) {
-    let query = `UPDATE restaurants SET closedown=${record.closedown} WHERE id=${record.id}`;
+    let query = `UPDATE restaurants SET closedown=${record.closedown} WHERE res_name=${record.res_name} and subway=${record.subway}`;
     models.sequelize.query(query).then(() => {
       console.log(`Update Success. [id : ${record.id}]`);
     }).catch(err => {
