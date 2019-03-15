@@ -21,7 +21,7 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
 });
 
 
-let closedown_scheduler = schedule.scheduleJob('00 20 4 1 * *', function(){
+let closedown_scheduler = schedule.scheduleJob('00 48 16 15 * *', function(){
   request('http://jellynlp-dev.ap-northeast-2.elasticbeanstalk.com/verify_close/', function (error, response, body) {
     if(error){
       console.log('Error at closedown_scheduler : ' + error);
