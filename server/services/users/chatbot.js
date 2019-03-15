@@ -21,7 +21,7 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
 });
 
 
-let closedown_scheduler = schedule.scheduleJob('*/3 * * * *', function() {
+let closedown_scheduler = schedule.scheduleJob('20 04 1 * *', function() {
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
@@ -1022,8 +1022,8 @@ function setRestaurantLatLng (req, res) {
 /* Django서버에서 restaurants id, closedown값 받아서 Update */
 function updateClosedown (req, res) {
   const data = req.body;
+  console.log("* * * updateClosedown EXECUTED.");
   console.log("Data: ", data);
-  console.log(req.body);
 /*
   var updateFunc = function(record) {
     let query = `UPDATE restaurants SET closedown=1 WHERE res_name=${record.res_name} and subway=${record.subway}`;
