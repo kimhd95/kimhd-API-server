@@ -21,7 +21,7 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
 });
 
 
-let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function(){
+let closedown_scheduler = schedule.scheduleJob('00 20 4 1 * *', function(){
   request('http://jellynlp-dev.ap-northeast-2.elasticbeanstalk.com/verify_close/', function (error, response, body) {
     if(error){
       console.log('Error at closedown_scheduler : ' + error);
@@ -1004,6 +1004,31 @@ function setRestaurantLatLng (req, res) {
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
+}
+
+/* Django서버에서 restaurants id, closedown값 받아서 Update */
+function updateClosedown (req, res) {
+  const data = req.body.data;
+  console.log("Data: ", data);
+
+  var updateFunc = function(record) {
+    let query = `UPDATE restaurants SET closedown=${record.closedown} WHERE id=${record.id}`;
+    models.sequelize.query(query).then(() => {
+      console.log(`Update Success. [id : ${record.id}]`);
+    }).catch(err => {
+      console.log("Update Fail : ", err);
+    })
+    return new Promise(resolve => setTimeout(() => resolve("ok"), 1000));
+  }
+  var actions = data.map(updateFunc);
+  var results = Promise.all(actions);
+
+  results.then(() => {
+    console.log("Update Finish.");
+    res.status(200).json({success: true, message: 'update complete'});
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  })
 }
 
 function getNearRestaurant (req, res) {
@@ -4074,4 +4099,5 @@ module.exports = {
     getNearRestaurant: getNearRestaurant,
     getRestaurantSubway: getRestaurantSubway,
     setRestaurantLatLng: setRestaurantLatLng,
+    updateClosedown: updateClosedown,
 }
