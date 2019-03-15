@@ -2664,7 +2664,9 @@ function getAllRestsaurant(req, res) {
     }).then(result => {
         if(result){
             let result_array = result.reduce((acc,cur) => {
-              acc.push(cur.subway + ' ' + cur.res_name);
+              if(cur.subway == '강남역') {
+                acc.push(cur.subway + ' ' + cur.res_name);
+              }
               return acc;
             },[]);
             return res.status(200).json(result_array);
