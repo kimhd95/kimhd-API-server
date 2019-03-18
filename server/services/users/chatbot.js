@@ -1086,18 +1086,19 @@ function getNearRestaurant (req, res) {
   query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
   query += `NOT (match(taste) against('${hate_food}' in boolean mode));`;
 
-  function distance(lat1, lng1, lat2, lng2) {
-    const p = 0.017453292519943295; // Math.PI / 180
-    const c = Math.cos;
-    const a = 0.5 - c((lat2 - lat1) * p) / 2
-            + c(lat1 * p) * c(lat2 * p)
-            * (1 - c((lng2 - lng1) * p)) / 2;
-    const result = 12742 * Math.asin(Math.sqrt(a));
-    // map.set(result, value);
-    console.log("distance");
-    return result;// 2 * R; R = 6371 km
-  }
+  // function distance(lat1, lng1, lat2, lng2) {
+  //   const p = 0.017453292519943295; // Math.PI / 180
+  //   const c = Math.cos;
+  //   const a = 0.5 - c((lat2 - lat1) * p) / 2
+  //           + c(lat1 * p) * c(lat2 * p)
+  //           * (1 - c((lng2 - lng1) * p)) / 2;
+  //   const result = 12742 * Math.asin(Math.sqrt(a));
+  //   // map.set(result, value);
+  //   console.log("distance");
+  //   return result;// 2 * R; R = 6371 km
+  // }
 
+  console.log("query 실행 전");
   models.sequelize.query(query).then(result => {
     let list = result[0];
     let resultList = [];
@@ -1138,6 +1139,8 @@ function getNearRestaurant (req, res) {
       }).catch(err => {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
       });
+    } else {
+      res.status(200).json({success: false, message: 'no result.'});
     }
 
   }).catch(err => {
