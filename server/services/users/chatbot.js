@@ -2766,7 +2766,7 @@ function verifySearchFood (req, res) {
     //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
     //  (match(subway) against('${subway}' in boolean mode));`
     models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and match(food_name) against('${search_food}');`).then(result => {
-        if (result[0].length !== 0){
+        if (result[0].length > 1){
           return res.status(200).json({result: 'success', message: result[0]});
         } else {
           return  res.status(200).json({result: 'no food in this subway'})
