@@ -36,9 +36,9 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
   console.log("**** closedown-scheduler EXECUTED.");
 
   request('http://jellynlp-dev.ap-northeast-2.elasticbeanstalk.com/verify_close/', function (error, response, body) {
-    if(error){
+    if (error) {
       console.log('Error at closedown_scheduler : ' + error);
-    }else{
+    } else {
       console.log(response.body);
     }
   });
