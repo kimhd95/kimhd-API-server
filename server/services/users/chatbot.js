@@ -20,14 +20,8 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
   'Accept-Charset': 'utf-8'
 });
 
-//let closedown_scheduler = schedule.scheduleJob('*/1 * * * *', function() {
-let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
+let closedown_scheduler = schedule.scheduleJob('10 12 * * *', function() {
+// let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
@@ -35,7 +29,7 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
 
-  request('http://jellynlp-dev.ap-northeast-2.elasticbeanstalk.com/verify_close/', function (error, response, body) {
+  request('http://ec2-13-124-91-124.ap-northeast-2.compute.amazonaws.com:8000/verify_close', function (error, response, body) {
     if (error) {
       console.log('Error at closedown_scheduler : ' + error);
     } else {
