@@ -26,7 +26,7 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
 
-  request('http://ec2-13-124-91-124.ap-northeast-2.compute.amazonaws.com:8000/verify_close', function (error, response, body) {
+  request('http://13.125.185.63:8000/verify_close', function (error, response, body) {
     if (error) {
       console.log('Error at closedown_scheduler : ' + error);
     } else {
@@ -2758,7 +2758,7 @@ function verifySearchFood (req, res) {
     //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
     //  (match(subway) against('${subway}' in boolean mode));`
 
-    models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and match(food_name) against('${search_food}') order by rand() limit 2;`).then(result => {
+    models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and food_name like '%${search_food}%' order by rand() limit 2;`).then(result => {
         if (result[0].length == 2){
           return res.status(200).json({result: 'success', message: result[0]});
         } else {
