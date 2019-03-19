@@ -20,7 +20,7 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
   'Accept-Charset': 'utf-8'
 });
 
-let closedown_scheduler = schedule.scheduleJob('10 12 * * *', function() {
+let closedown_scheduler = schedule.scheduleJob('12 12 * * *', function() {
 // let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
