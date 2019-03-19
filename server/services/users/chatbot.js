@@ -20,11 +20,8 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
   'Accept-Charset': 'utf-8'
 });
 
-let closedown_scheduler = schedule.scheduleJob('12 12 * * *', function() {
+let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
 // let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
   console.log("**** closedown-scheduler EXECUTED.");
@@ -2677,9 +2674,7 @@ function getAllRestsaurant(req, res) {
     }).then(result => {
         if(result){
             let result_array = result.reduce((acc,cur) => {
-              if(cur.subway == '강남역') {
-                acc.push(cur.subway + ' ' + cur.res_name);
-              }
+              acc.push(cur.subway + ' ' + cur.res_name);
               return acc;
             },[]);
             return res.status(200).json(result_array);
