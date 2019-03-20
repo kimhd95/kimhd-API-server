@@ -2565,7 +2565,7 @@ function verifySearchFood (req, res) {
 
     console.log(typeof search_food);
     let query;
-    if (!req.body.search_food.includes(',')) {
+    if (typeof search_food == 'string') {
       query = `SELECT * FROM restaurants WHERE closedown=0 AND
         subway = '${subway}' AND
         (food_name LIKE '%${search_food}%' OR food_type LIKE '%${search_food}%' OR taste LIKE '%${search_food}%')
