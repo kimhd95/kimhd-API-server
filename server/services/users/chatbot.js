@@ -2565,7 +2565,10 @@ function verifySearchFood (req, res) {
     //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
     //  (match(subway) against('${subway}' in boolean mode));`
 
-    models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND subway = '${subway}' AND food_name LIKE '%${search_food}%' ORDER BY rand() limit 2;`).then(result => {
+    models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND
+      subway = '${subway}' AND
+      (food_name LIKE '%${search_food}%' OR food_type LIKE '%${search_food}%' OR taste LIKE '%${search_food}%')
+      ORDER BY rand() limit 2;`).then(result => {
         if (result[0].length == 2){
           return res.status(200).json({result: 'success', message: result[0]});
         } else {
