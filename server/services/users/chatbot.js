@@ -1476,7 +1476,6 @@ function getCountHistory (req, res) {
 function updateSocket (req, res) {
     const email = req.body.email
     const socket_id = req.body.socket_id;
-
     models.User.update(
         {
             kakao_id: socket_id,
@@ -1494,7 +1493,6 @@ function updateSocket (req, res) {
         }).catch(function (err){
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     })
-    //}
 }
 
 function updatePartLog (req, res) {
@@ -1505,7 +1503,6 @@ function updatePartLog (req, res) {
     if (String(chat_log).length > 1000000) {
       chat_log = null;
     }
-
     models.User.update(
         {
             [targetcol]: chat_log,
@@ -1523,7 +1520,6 @@ function updatePartLog (req, res) {
         }).catch(function (err){
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     })
-    //}
 }
 
 
@@ -1553,7 +1549,6 @@ function updateChatLog (req, res) {
         }).catch(function (err){
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     })
-    //}
 }
 
 
@@ -1672,7 +1667,6 @@ function getRestaurantInfo (req, res) {
     }).catch(function (err){
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     })
-    //}
 }
 
 function getCafeInfo (req, res) {
@@ -2514,10 +2508,13 @@ function getAllRestsaurant(req, res) {
 function getSimilarRestaurant (req, res) {
   const rest = req.body.rest;
   console.log(`getSimilarRestaurant에서 rest : ${rest}`);
-  models.sequelize.query(`select * from restaurants where id = ${rest}`).then(result => {
+  models.sequelize.query(`SELECT * FROM restaurants WHERE id = ${rest}`).then(result => {
     if (result[0].length !== 0) {
-      console.log(" ----------- Query Change ----------");
-      models.sequelize.query(`select * from restaurants where subway = '${result[0][0].subway}' and food_type = '${result[0][0].food_type}' and match(price_dinner) against('${result[0][0].price_dinner}') AND id != '${rest}' ORDER BY RAND() LIMIT 2;`).then(result2 => {
+      models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND
+       subway = '${result[0][0].subway}' AND
+       food_type = '${result[0][0].food_type}' AND
+       match(price_dinner) against('${result[0][0].price_dinner}') AND
+       id != '${rest}' ORDER BY RAND() LIMIT 2;`).then(result2 => {
         if(result2[0].length >= 2){
           return res.status(200).json({success: true, message: result2[0]});
         } else {
