@@ -2627,7 +2627,6 @@ function verifyMood2 (req, res) {
     }
 
     var actions = filter.map(fn);
-
     var results = Promise.all(actions);
 
     results.then(data => {
@@ -3252,7 +3251,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
 
    if (drink_type === '소주' || drink_type === '맥주' || drink_type === '소주 맥주' || drink_type === '맥주 소주') {
      drink_type = drink_type.replace('맥주','생맥주 병맥주 중식맥주');
-     models.sequelize.query(`(SELECT * FROM restaurants WHERE
+     models.sequelize.query(`(SELECT * FROM restaurants WHERE closedown=0 AND
         ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
          (exit_quarter IN (${exit_quarter})) AND
           ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
@@ -3272,7 +3271,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
              console.log('result: ' + result.toString())
              return res.status(200).json({success: true, try: 1, message: result[0]})
          } else {
-           models.sequelize.query(`(SELECT * FROM restaurants WHERE
+           models.sequelize.query(`(SELECT * FROM restaurants WHERE closedown=0 AND
             ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
              (exit_quarter IN (1,2,3,4)) AND
               ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
@@ -3310,7 +3309,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
        acc.push(cur);
        return acc;
      },[]);
-     models.sequelize.query(`(SELECT * FROM restaurants WHERE
+     models.sequelize.query(`(SELECT * FROM restaurants WHERE closedown=0 AND
         ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND (exit_quarter IN (${exit_quarter})) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
           ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
@@ -3327,7 +3326,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
              console.log('result: ' + result.toString())
              return res.status(200).json({success: true, try: 1, message: result[0]})
          } else {
-           models.sequelize.query(`(SELECT * FROM restaurants WHERE
+           models.sequelize.query(`(SELECT * FROM restaurants WHERE closedown=0 AND
               ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND (exit_quarter IN (1,2,3,4)) AND
                ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
                 ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
@@ -3354,7 +3353,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
      });
    } else if (drink_type_array.length === 1) {
-     models.sequelize.query(`SELECT * FROM restaurants WHERE
+     models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND
         ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND (exit_quarter IN (${exit_quarter})) AND
          ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
           ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
@@ -3364,7 +3363,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
              console.log('result: ' + result.toString())
              return res.status(200).json({success: true, try: 1, message: result[0]})
          } else {
-           models.sequelize.query(`SELECT * FROM restaurants WHERE
+           models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND
               ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND (exit_quarter IN (1,2,3,4)) AND
                ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
                 ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
