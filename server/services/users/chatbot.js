@@ -2616,7 +2616,7 @@ function verifyMood2 (req, res) {
     let filtered_list = [];
 
     var fn = function asyncAddList(item) {
-      models.sequelize.query(`SELECT * FROM restaurants where subway = '${subway}' and mood2 LIKE("%${item}%") limit 2;`).then(result => {
+      models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND subway = '${subway}' AND mood2 LIKE("%${item}%") limit 2;`).then(result => {
             if (result[0].length === 2){
               filtered_list.push(item);
             }
