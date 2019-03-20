@@ -1077,6 +1077,7 @@ function getNearRestaurant (req, res) {
                 * (1 - c((item.lng - lng) * p)) / 2;
         const result = 12742 * Math.asin(Math.sqrt(a));
         if (result < 0.3) {
+          console.log(item.res_name + ": " + result);
           resultList.push(item);
         }
         return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
@@ -1086,7 +1087,6 @@ function getNearRestaurant (req, res) {
       var results = Promise.all(actions);
 
       results.then(data => {
-        console.log("results.then");
         if(resultList.length >= 2) {
           const shuffled = resultList.sort(() => 0.5 - Math.random());
           const rand_pick = shuffled.slice(0, 2);
