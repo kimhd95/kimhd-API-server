@@ -2547,7 +2547,7 @@ function verifySearchFood (req, res) {
     let search_food;
     console.log("req.body.search_food: "+req.body.search_food);
     console.log("req.body.subway: "+req.body.subway);
-    if ((req.body.search_food !== undefined)){
+    if ((req.body.search_food !== undefined && req.body.search_food !== '')) {
         search_food = req.body.search_food;
     } else {
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (search_food).',
