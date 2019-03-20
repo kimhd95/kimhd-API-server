@@ -2543,11 +2543,10 @@ function verifySubway (req, res) {
 }
 
 function verifySearchFood (req, res) {
-    console.log("here is verifySearchFood");
+    console.log("Here is verifySearchFood");
     console.log("req.body.search_food: "+req.body.search_food);
-    console.log("req.body.subway: "+req.body.subway);
 
-    let search_food;
+    let search_food, subway, query;
 
     if ((req.body.search_food !== undefined && req.body.search_food!=='' && req.body.search_food!==',' && req.body.search_food!==' ' && req.body.search_food!==', ')) {
         search_food = req.body.search_food;
@@ -2555,7 +2554,7 @@ function verifySearchFood (req, res) {
         return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (search_food).',
             search_food: req.body.search_food});
     }
-    let subway;
+
     if ((req.body.subway !== undefined)){
         subway = req.body.subway;
     } else {
@@ -2563,8 +2562,6 @@ function verifySearchFood (req, res) {
             subway: req.body.subway});
     }
 
-    console.log(typeof search_food);
-    let query;
     if (typeof search_food == 'string') {
       query = `SELECT * FROM restaurants WHERE closedown=0 AND
         subway = '${subway}' AND
@@ -2580,7 +2577,7 @@ function verifySearchFood (req, res) {
       query += ` false) ORDER BY rand() LIMIT 2;`;
     }
 
-    console.log("@@@ Query : ", query);
+    console.log("Query : ", query);
     models.sequelize.query(query).then(result => {
         if (result[0].length == 2){
           return res.status(200).json({result: 'success', message: result[0]});
