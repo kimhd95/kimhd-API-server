@@ -1229,7 +1229,6 @@ function getRestaurant (req, res) {
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
    ORDER BY RAND() LIMIT 2;`;
 
-  console.log("@@@ Query: ", query);
   models.sequelize.query(query).then(result => {
     if (result[0].length === 2) {
       return res.status(200).json({success: true, try: 1, message: result[0]})
@@ -1245,7 +1244,6 @@ function getRestaurant (req, res) {
        ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
        ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
        ORDER BY RAND() LIMIT 2;`
-      console.log("@@@ Query_next: ", query_next);
       models.sequelize.query(query_next).then(second_result => {
         if (second_result[0].length === 2) {
           return res.status(200).json({success: true, try: 2, message: second_result[0]})
