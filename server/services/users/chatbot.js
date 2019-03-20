@@ -1058,12 +1058,12 @@ function getNearRestaurant (req, res) {
     price_lunch_flag = 'NOT';
   }
 
-  query = `SELECT * FROM restaurants WHERE closedown=0 AND`;
-  query += `(match(subway) against('${subway}' in boolean mode)) AND `;
-  query += `${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND `;
-  query += `${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND `;
-  query += `NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
-  query += `NOT (match(taste) against('${hate_food}' in boolean mode));`;
+  query = `SELECT * FROM restaurants WHERE closedown=0 AND
+   (match(subway) against('${subway}' in boolean mode)) AND
+   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+   NOT (match(taste) against('${hate_food}' in boolean mode));`;
 
   models.sequelize.query(query).then(result => {
     let list = result[0];
@@ -1309,7 +1309,7 @@ function verifyResultExist (req, res) {
     }
   }*/
   let query = `SELECT * FROM restaurants WHERE
-   closedown=1 AND
+   closedown=0 AND
    subway = '${subway}' AND
    ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
    ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
