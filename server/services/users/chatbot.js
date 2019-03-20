@@ -2544,9 +2544,11 @@ function verifySubway (req, res) {
 
 function verifySearchFood (req, res) {
     console.log("here is verifySearchFood");
-    let search_food;
     console.log("req.body.search_food: "+req.body.search_food);
     console.log("req.body.subway: "+req.body.subway);
+
+    let search_food;
+
     if ((req.body.search_food !== undefined && req.body.search_food!=='' && req.body.search_food!==',' && req.body.search_food!==' ' && req.body.search_food!==', ')) {
         search_food = req.body.search_food;
     } else {
@@ -2561,14 +2563,25 @@ function verifySearchFood (req, res) {
             subway: req.body.subway});
     }
 
-    // models.sequelize.query(`SELECT * FROM restaurants WHERE
-    //  (match(food_type, food_name, res_name, taste) against('${search_food}*' in boolean mode)) AND
-    //  (match(subway) against('${subway}' in boolean mode));`
+    let query;
+    if (!search_food.includes(',')) {
+      query = `SELECT * FROM restaurants WHERE closedown=0 AND
+        subway = '${subway}' AND
+        (food_name LIKE '%${search_food}%' OR food_type LIKE '%${search_food}%' OR taste LIKE '%${search_food}%')
+        ORDER BY rand() limit 2;`;
+    } else {
+      const sfSplit = search_food.split(',');
+      query = `SELECT * FROM restuarants WHERE closedown=0 AND
+       subway='${subway}' AND
+       (`;
+      for (let i in sfSplit) {
+        query += `(food_name LIKE '%${i}%' OR food_type LIKE '%${i}%' OR taste LIKE '%${i}%') OR`;
+      }
+      query += ` false) ORDER BY rand() LIMIT 2;`;
+    }
 
-    models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND
-      subway = '${subway}' AND
-      (food_name LIKE '%${search_food}%' OR food_type LIKE '%${search_food}%' OR taste LIKE '%${search_food}%')
-      ORDER BY rand() limit 2;`).then(result => {
+    console.log("@@@ Query : ", query);
+    models.sequelize.query(query).then(result => {
         if (result[0].length == 2){
           return res.status(200).json({result: 'success', message: result[0]});
         } else {
@@ -2577,25 +2590,6 @@ function verifySearchFood (req, res) {
     }).catch(function (err){
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     })
-
-    // models.Restaurant.findOne({
-    //     where: {
-    //         subway: subway,
-    //         search_food: {
-    //             [Op.like]: "%"+search_food+"%"
-    //         }
-    //     }
-    // }
-    //
-    // ).then(result => {
-    //     if(result !== null) {
-    //         res.status(200).json({result: 'success'})
-    //     } else {
-    //         res.status(200).json({result: 'no food in this subway'})
-    //     }
-    // }).catch(err => {
-    //     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    // });
 }
 
 function verifyMood2 (req, res) {
