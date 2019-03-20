@@ -2571,12 +2571,11 @@ function verifySearchFood (req, res) {
         (food_name LIKE '%${search_food}%' OR food_type LIKE '%${search_food}%' OR taste LIKE '%${search_food}%')
         ORDER BY rand() limit 2;`;
     } else {
-      const sfSplit = search_food.split(',');
       query = `SELECT * FROM restuarants WHERE closedown=0 AND
        subway='${subway}' AND
        (`;
-      for (let i in sfSplit) {
-        query += `(food_name LIKE '%${i}%' OR food_type LIKE '%${i}%' OR taste LIKE '%${i}%') OR`;
+      for (let i in search_food) {
+        query += `(food_name LIKE '%${search_food[i]}%' OR food_type LIKE '%${search_food[i]}%' OR taste LIKE '%${search_food[i]}%') OR`;
       }
       query += ` false) ORDER BY rand() LIMIT 2;`;
     }
