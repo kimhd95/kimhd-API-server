@@ -1015,18 +1015,6 @@ function updateClosedown (req, res) {
   const data = req.body;
   console.log("* * * updateClosedown EXECUTED.");
   console.log("Data: ", data);
-/*
-  var updateFunc = function(record) {
-    let query = `UPDATE restaurants SET closedown=1 WHERE res_name=${record.res_name} and subway=${record.subway}`;
-    models.sequelize.query(query).then(() => {
-      console.log(`Update Success. [id : ${record.id}]`);
-    }).catch(err => {
-      console.log("Update Fail : ", err);
-    })
-    return new Promise(resolve => setTimeout(() => resolve("ok"), 200));
-  }*/
-  //var actions = data.map(updateFunc);
-  //var results = Promise.all(actions);
   let query = `UPDATE restaurants SET closedown=1 WHERE res_name='${data.res_name}' and subway='${data.subway}';`;
 
   models.sequelize.query(query).then(() => {
@@ -3259,7 +3247,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
             ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
              ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
               (match(drink_type) against('${drink_type}' in boolean mode))
-               ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE
+               ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE closedown=0 AND
                   ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
                    (exit_quarter IN (${exit_quarter})) AND
                     ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
@@ -3279,7 +3267,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                 ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
                  ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
                   (match(drink_type) against('${drink_type}' in boolean mode))
-                   ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE
+                   ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE closedown=0 AND
                       ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
                        (exit_quarter IN (1,2,3,4)) AND
                         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
@@ -3315,7 +3303,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
           ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
            ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
             (match(drink_type) against('${drink_type_array[0]}' in boolean mode))
-             ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE
+             ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE closedown=0 AND
                 ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
                  (exit_quarter IN (${exit_quarter})) AND
                   ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
@@ -3332,7 +3320,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                 ${taste_flag} (match(taste) against('${taste}' in boolean mode)) AND
                  ${drink_round_flag} (match(drink_round) against('${drink_round}' in boolean mode)) AND
                   (match(drink_type) against('${drink_type_array[0]}' in boolean mode))
-                   ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE
+                   ORDER BY RAND() LIMIT 1) UNION ALL (SELECT * FROM restaurants WHERE closedown=0 AND
                       ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
                        (exit_quarter IN (1,2,3,4)) AND
                         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
