@@ -2564,7 +2564,7 @@ function verifySearchFood (req, res) {
     }
 
     for (let j in search_food) {
-      console.log(j);
+      console.log(search_food.includes(','));
     }
     let query;
     if (!req.body.search_food.includes(',')) {
