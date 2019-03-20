@@ -1372,18 +1372,17 @@ function getTwoRestaurant (req, res) {
     const rest1 = req.body.rest1;
     const rest2 = req.body.rest2;
 
-    models.sequelize.query('SELECT * FROM restaurants WHERE id= '+rest1+' UNION ALL SELECT * FROM restaurants WHERE id= '+rest2+';').then(result => {
-        if (result){
-            console.log('result: ' + result.toString())
-            return res.status(200).json({success: true, message: result[0]})
-        } else {
-            console.log('result없음');
-            return res.status(403).json({success: false, message: 'user update query failed.'})
-        }
-    }).catch(function (err){
+    models.sequelize.query(`SELECT * FROM restaurants WHERE id='${rest1}' UNION ALL SELECT * FROM restaurants WHERE id='${rest2}';`).then(result => {
+      if (result) {
+        console.log('result: ' + result.toString())
+        return res.status(200).json({success: true, message: result[0]})
+      } else {
+        console.log('result없음');
+        return res.status(403).json({success: false, message: 'user update query failed.'})
+      }
+    }).catch(function (err) {
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
-    //}
 }
 
 function getAllHistory (req, res) {
