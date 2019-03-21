@@ -111,6 +111,7 @@ const User = sequelize.define('user', {
     food_name: Sequelize.STRING,
     price_lunch: Sequelize.STRING,
     price_dinner: Sequelize.STRING,
+    stack: Sequelize.STRING,
 },
 {
   tableName: 'users',

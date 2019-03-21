@@ -917,6 +917,7 @@ function updateUser (req, res) {
         param_value = stack;
     }
 
+    console.log(`param_value : ${param_value}, param_name : ${param_name}`);
     if (param_name === 'chat_log') {
 
       // query = `UPDATE users SET chat_log = '${param_value}', chat_log_jellylab = '${param_value}' WHERE kakao_id = '${kakao_id}';`;
