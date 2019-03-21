@@ -741,6 +741,8 @@ function updateUser (req, res) {
     const price_dinner = req.body.price_dinner;
     const cafe_final = req.body.cafe_final;
 
+    const stack = req.body.stack;
+
     if(name){
         // models.Medicine_time.create({
         //     kakao_id: kakao_id,
@@ -910,6 +912,9 @@ function updateUser (req, res) {
     else if (cafe_final){
         param_name = 'cafe_final';
         param_value = cafe_final;
+    } else if (stack) {
+        param_name = 'stack';
+        param_value = stack;
     }
 
     if (param_name === 'chat_log') {
@@ -1721,7 +1726,7 @@ function updatePlaceStart (req, res) {
         {
             price_lunch: null,
             price_dinner: null,
-
+            stack: null,
             mood: null,
             mood2: null,
             taste: null,
