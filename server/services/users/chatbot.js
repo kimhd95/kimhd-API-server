@@ -2537,6 +2537,7 @@ function getOtherRestaurant (req, res) {
   let food_name;
   let price_lunch;
   let price_dinner;
+  let subway_flag = '';
   let taste_flag = '';
   let food_type_flag = '';
   let food_name_flag = '';
