@@ -2528,37 +2528,28 @@ function getSimilarRestaurant (req, res) {
 }
 
 function getOtherRestaurant (req, res) {
-  let subway;
-  let exit_quarter;
-  let mood2;
-  let food_type;
-  let taste;
-  let hate_food;
-  let food_name;
-  let price_lunch;
-  let price_dinner;
-  let subway_flag = '';
-  let taste_flag = '';
-  let food_type_flag = '';
-  let food_name_flag = '';
-  let mood2_flag = '';
-  let price_lunch_flag = '';
-  let price_dinner_flag = '';
-
   let userid = req.body.userid;
   let rest1 = req.body.rest1;
   let rest2 = req.body.rest2;
   models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`).then(result => {
     if (result[0].length === 1) {
-      subway = result[0][0].subway;
-      exit_quarter = result[0][0].exit_quarter;
-      mood2 = result[0][0].mood2;
-      food_type = result[0][0].food_type;
-      taste = result[0][0].taste;
-      hate_food = result[0][0].hate_food; //taste, food_name에 모두 반영
-      food_name = result[0][0].food_name;
-      price_lunch = result[0][0].price_lunch;
-      price_dinner = result[0][0].price_dinner;
+      let subway = result[0][0].subway;
+      let exit_quarter = result[0][0].exit_quarter;
+      let mood2 = result[0][0].mood2;
+      let food_type = result[0][0].food_type;
+      let taste = result[0][0].taste;
+      let hate_food = result[0][0].hate_food; //taste, food_name에 모두 반영
+      let food_name = result[0][0].food_name;
+      let price_lunch = result[0][0].price_lunch;
+      let price_dinner = result[0][0].price_dinner;
+
+      let subway_flag = '';
+      let taste_flag = '';
+      let food_type_flag = '';
+      let food_name_flag = '';
+      let mood2_flag = '';
+      let price_lunch_flag = '';
+      let price_dinner_flag = '';
 
       if (exit_quarter.includes('999')) {
         exit_quarter = '1,2,3,4';
@@ -2648,7 +2639,7 @@ function getOtherRestaurant (req, res) {
        id != ${rest1} AND
        id != ${rest2}
        ORDER BY RAND() LIMIT 2;`;
-       console.log("쿼리1: ", query);
+       console.log("쿼리1");
       models.sequelize.query(query).then(result => {
         if (result[0].length === 2) {
           return res.status(200).json({success: true, try: 1, message: result[0]})
@@ -2666,7 +2657,7 @@ function getOtherRestaurant (req, res) {
            id != ${rest1} AND
            id != ${rest2}
            ORDER BY RAND() LIMIT 2;`;
-           console.log("쿼리2: ", query_next);
+           console.log("쿼리2");
           models.sequelize.query(query_next).then(second_result => {
             if (second_result[0].length === 2) {
               return res.status(200).json({success: true, try: 2, message: second_result[0]})
@@ -2680,9 +2671,6 @@ function getOtherRestaurant (req, res) {
       }).catch( err => {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
       });
-
-
-
 
 
     } else {
