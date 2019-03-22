@@ -2543,9 +2543,7 @@ function getOtherRestaurant (req, res) {
   let rest1 = req.body.rest1;
   let rest2 = req.body.rest2;
   models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`).then(result => {
-    console.log('USER : ', result[0][0]);
     if (result[0].length === 1) {
-      console.log('USER : ', result[0][0]);
       subway = result[0][0].subway;
       exit_quarter = result[0][0].exit_quarter;
       mood2 = result[0][0].mood2;
@@ -2656,7 +2654,7 @@ function getOtherRestaurant (req, res) {
    id != ${rest1} AND
    id != ${rest2}
    ORDER BY RAND() LIMIT 2;`;
-
+   console.log(query);
   models.sequelize.query(query).then(result => {
     if (result[0].length === 2) {
       return res.status(200).json({success: true, try: 1, message: result[0]})
@@ -2673,7 +2671,8 @@ function getOtherRestaurant (req, res) {
        ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
        id != ${rest1} AND
        id != ${rest2}
-       ORDER BY RAND() LIMIT 2;`
+       ORDER BY RAND() LIMIT 2;`;
+       console.log(query_next);
       models.sequelize.query(query_next).then(second_result => {
         if (second_result[0].length === 2) {
           return res.status(200).json({success: true, try: 2, message: second_result[0]})
