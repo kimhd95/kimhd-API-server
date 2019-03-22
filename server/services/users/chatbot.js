@@ -2537,7 +2537,12 @@ function getOtherRestaurant (req, res) {
   let food_name;
   let price_lunch;
   let price_dinner;
-
+  let taste_flag = '';
+  let food_type_flag = '';
+  let food_name_flag = '';
+  let mood2_flag = '';
+  let price_lunch_flag = '';
+  let price_dinner_flag = '';
 
   let userid = req.body.userid;
   let rest1 = req.body.rest1;
@@ -2553,6 +2558,81 @@ function getOtherRestaurant (req, res) {
       food_name = result[0][0].food_name;
       price_lunch = result[0][0].price_lunch;
       price_dinner = result[0][0].price_dinner;
+
+      if (exit_quarter.includes('999')) {
+        exit_quarter = '1,2,3,4';
+      }
+      if (price_dinner === 'x') { //점심식사
+          if (price_lunch === null) {
+            price_lunch = '0,1,2,3,4';
+            price_lunch = price_lunch.replace(/,/g,' ');
+          }
+          else {
+            price_lunch = price_lunch.replace(/,/g,' ');
+          }
+          price_dinner_flag = 'NOT'
+      } else if (price_lunch === 'x') { //저녁식사
+          if (price_dinner === null) {
+            price_dinner = '0,1,2,3,4';
+            price_dinner = price_dinner.replace(/,/g, ' ');
+          }
+          else {
+            price_dinner = price_dinner.replace(/,/g, ' ');
+          }
+          price_lunch_flag = 'NOT'
+      }
+      if (mood2 === '999' || mood2 === '998') {
+        mood2_flag = 'NOT';
+        mood2 = 'x';
+      } else {
+        mood2 = mood2.replace(/,/g,' ');
+      }
+      if (taste.includes('!-')) {
+        taste = taste.replace('!-','');
+        taste_flag = 'NOT';
+      } else if(taste === 'all'){
+        taste = 'x';
+        taste_flag = 'NOT';
+      }
+      if(hate_food === null){
+          hate_food = 'x';
+      }
+      hate_food = hate_food.replace(/,/g,' ');
+
+      if(food_type === null) {
+        food_type = 'all';
+        food_type = food_type.replace(/,/g,' ');
+      } else {
+        food_type = food_type.replace(/,/g,' ');
+      }
+
+      if(food_type === '이국적'){
+        food_type = '한식 일식 중식 양식';
+        food_type_flag = 'NOT';
+      } else if(food_type === 'all'){
+        food_type = 'x';
+        food_type_flag = 'NOT';
+      }
+
+      let food_name_condition;
+      if (food_name === null || food_name ==='x'){
+        food_name = 'x';
+        food_name_flag = 'NOT';
+        food_name_condition = `${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode))`;
+      } else {
+        let food_name_leng = food_name.split(',').length;
+        if (food_name.includes(',')) {
+          food_name_condition = `(food_name LIKE ("%${food_name.split(',')[0]}%")`;
+          for (var i = 1; i<food_name_leng; i++) {
+            food_name_condition += ` or food_name LIKE ("%${food_name.split(',')[i]}%")`;
+          }
+          food_name_condition += ')';
+        } else {
+          food_name_condition = `food_name LIKE ("%${food_name}%")`;
+        }
+      }
+
+
     } else {
       return res.status(400).json({success: false, message: 'No such user who has the requested id.'});
     }
@@ -2561,85 +2641,9 @@ function getOtherRestaurant (req, res) {
   });
 
 
-  let taste_flag = '';
-  let food_type_flag = '';
-  let food_name_flag = '';
-  let mood2_flag = '';
-  let price_lunch_flag = '';
-  let price_dinner_flag = '';
 
-  if (exit_quarter.includes('999')) {
-    exit_quarter = '1,2,3,4';
-  }
-  if (price_dinner === 'x') { //점심식사
-      if (price_lunch === null) {
-        price_lunch = '0,1,2,3,4';
-        price_lunch = price_lunch.replace(/,/g,' ');
-      }
-      else {
-        price_lunch = price_lunch.replace(/,/g,' ');
-      }
-      price_dinner_flag = 'NOT'
-  } else if (price_lunch === 'x') { //저녁식사
-      if (price_dinner === null) {
-        price_dinner = '0,1,2,3,4';
-        price_dinner = price_dinner.replace(/,/g, ' ');
-      }
-      else {
-        price_dinner = price_dinner.replace(/,/g, ' ');
-      }
-      price_lunch_flag = 'NOT'
-  }
-  if (mood2 === '999' || mood2 === '998') {
-    mood2_flag = 'NOT';
-    mood2 = 'x';
-  } else {
-    mood2 = mood2.replace(/,/g,' ');
-  }
-  if (taste.includes('!-')) {
-    taste = taste.replace('!-','');
-    taste_flag = 'NOT';
-  } else if(taste === 'all'){
-    taste = 'x';
-    taste_flag = 'NOT';
-  }
-  if(hate_food === null){
-      hate_food = 'x';
-  }
-  hate_food = hate_food.replace(/,/g,' ');
 
-  if(food_type === null) {
-    food_type = 'all';
-    food_type = food_type.replace(/,/g,' ');
-  } else {
-    food_type = food_type.replace(/,/g,' ');
-  }
 
-  if(food_type === '이국적'){
-    food_type = '한식 일식 중식 양식';
-    food_type_flag = 'NOT';
-  } else if(food_type === 'all'){
-    food_type = 'x';
-    food_type_flag = 'NOT';
-  }
-
-  let food_name_condition;
-  if (food_name === null || food_name ==='x'){
-    food_name = 'x';
-    food_name_flag = 'NOT';
-    food_name_condition = `${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode))`;
-  } else {
-    let food_name_leng = food_name.split(',').length;
-    if (food_name.includes(',')) {
-      food_name_condition = `(food_name LIKE ("%${food_name.split(',')[0]}%")`;
-      for (var i = 1; i<food_name_leng; i++) {
-        food_name_condition += ` or food_name LIKE ("%${food_name.split(',')[i]}%")`;
-      }
-      food_name_condition += ')';
-    } else {
-      food_name_condition = `food_name LIKE ("%${food_name}%")`;
-    }
-  }
 
   let query = `SELECT * FROM restaurants WHERE closedown=0 AND
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
@@ -2654,7 +2658,7 @@ function getOtherRestaurant (req, res) {
    id != ${rest1} AND
    id != ${rest2}
    ORDER BY RAND() LIMIT 2;`;
-   console.log(query);
+   console.log("쿼리1: ", query);
   models.sequelize.query(query).then(result => {
     if (result[0].length === 2) {
       return res.status(200).json({success: true, try: 1, message: result[0]})
@@ -2672,7 +2676,7 @@ function getOtherRestaurant (req, res) {
        id != ${rest1} AND
        id != ${rest2}
        ORDER BY RAND() LIMIT 2;`;
-       console.log(query_next);
+       console.log("쿼리2: ", query_next);
       models.sequelize.query(query_next).then(second_result => {
         if (second_result[0].length === 2) {
           return res.status(200).json({success: true, try: 2, message: second_result[0]})
