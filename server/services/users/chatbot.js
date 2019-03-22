@@ -2527,6 +2527,168 @@ function getSimilarRestaurant (req, res) {
   });
 }
 
+function getOtherRestaurant (req, res) {
+  let subway;
+  let exit_quarter;
+  let mood2;
+  let food_type;
+  let taste;
+  let hate_food;
+  let food_name;
+  let price_lunch;
+  let price_dinner;
+
+
+  let userid = req.body.userid;
+  let rest1 = req.body.rest1;
+  let rest2 = req.body.rest2;
+  models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`).then(result => {
+    console.log('USER : ', result[0][0]);
+    if (result[0].length === 1) {
+      console.log('USER : ', result[0][0]);
+      subway = result[0][0].subway;
+      exit_quarter = result[0][0].exit_quarter;
+      mood2 = result[0][0].mood2;
+      food_type = result[0][0].food_type;
+      taste = result[0][0].taste;
+      hate_food = result[0][0].hate_food; //taste, food_name에 모두 반영
+      food_name = result[0][0].food_name;
+      price_lunch = result[0][0].price_lunch;
+      price_dinner = result[0][0].price_dinner;
+    } else {
+      return res.status(400).json({success: false, message: 'No such user who has the requested id.'});
+    }
+  }).catch( err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+
+
+  let taste_flag = '';
+  let food_type_flag = '';
+  let food_name_flag = '';
+  let mood2_flag = '';
+  let price_lunch_flag = '';
+  let price_dinner_flag = '';
+
+  if (exit_quarter.includes('999')) {
+    exit_quarter = '1,2,3,4';
+  }
+  if (price_dinner === 'x') { //점심식사
+      if (price_lunch === null) {
+        price_lunch = '0,1,2,3,4';
+        price_lunch = price_lunch.replace(/,/g,' ');
+      }
+      else {
+        price_lunch = price_lunch.replace(/,/g,' ');
+      }
+      price_dinner_flag = 'NOT'
+  } else if (price_lunch === 'x') { //저녁식사
+      if (price_dinner === null) {
+        price_dinner = '0,1,2,3,4';
+        price_dinner = price_dinner.replace(/,/g, ' ');
+      }
+      else {
+        price_dinner = price_dinner.replace(/,/g, ' ');
+      }
+      price_lunch_flag = 'NOT'
+  }
+  if (mood2 === '999' || mood2 === '998') {
+    mood2_flag = 'NOT';
+    mood2 = 'x';
+  } else {
+    mood2 = mood2.replace(/,/g,' ');
+  }
+  if (taste.includes('!-')) {
+    taste = taste.replace('!-','');
+    taste_flag = 'NOT';
+  } else if(taste === 'all'){
+    taste = 'x';
+    taste_flag = 'NOT';
+  }
+  if(hate_food === null){
+      hate_food = 'x';
+  }
+  hate_food = hate_food.replace(/,/g,' ');
+
+  if(food_type === null) {
+    food_type = 'all';
+    food_type = food_type.replace(/,/g,' ');
+  } else {
+    food_type = food_type.replace(/,/g,' ');
+  }
+
+  if(food_type === '이국적'){
+    food_type = '한식 일식 중식 양식';
+    food_type_flag = 'NOT';
+  } else if(food_type === 'all'){
+    food_type = 'x';
+    food_type_flag = 'NOT';
+  }
+
+  let food_name_condition;
+  if (food_name === null || food_name ==='x'){
+    food_name = 'x';
+    food_name_flag = 'NOT';
+    food_name_condition = `${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode))`;
+  } else {
+    let food_name_leng = food_name.split(',').length;
+    if (food_name.includes(',')) {
+      food_name_condition = `(food_name LIKE ("%${food_name.split(',')[0]}%")`;
+      for (var i = 1; i<food_name_leng; i++) {
+        food_name_condition += ` or food_name LIKE ("%${food_name.split(',')[i]}%")`;
+      }
+      food_name_condition += ')';
+    } else {
+      food_name_condition = `food_name LIKE ("%${food_name}%")`;
+    }
+  }
+
+  let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+   ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+   (exit_quarter IN (${exit_quarter})) AND
+   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+   ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+   ${food_name_condition} AND
+   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+   ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
+   ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
+   id != ${rest1} AND
+   id != ${rest2}
+   ORDER BY RAND() LIMIT 2;`;
+
+  models.sequelize.query(query).then(result => {
+    if (result[0].length === 2) {
+      return res.status(200).json({success: true, try: 1, message: result[0]})
+    } else {
+      const query_next = `SELECT * FROM restaurants WHERE closedown=0 AND
+       ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+       (exit_quarter IN (1,2,3,4)) AND
+       ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+       ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+       ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+       ${food_name_condition} AND
+       NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+       ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
+       ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
+       id != ${rest1} AND
+       id != ${rest2}
+       ORDER BY RAND() LIMIT 2;`
+      models.sequelize.query(query_next).then(second_result => {
+        if (second_result[0].length === 2) {
+          return res.status(200).json({success: true, try: 2, message: second_result[0]})
+        } else {
+          return res.status(200).json({success: false, message: 'no result.'})
+        }
+      }).catch( err => {
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+      });
+    }
+  }).catch( err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+}
+
 function verifySubway (req, res) {
     console.log("here is verifYSubway");
     let subway;
@@ -3891,6 +4053,7 @@ module.exports = {
     getAllSubway: getAllSubway,
     getAllRestsaurant: getAllRestsaurant,
     getSimilarRestaurant: getSimilarRestaurant,
+    getOtherRestaurant: getOtherRestaurant,
     verifySearchFood: verifySearchFood,
     verifySubway: verifySubway,
     verifySubwayDrinktype: verifySubwayDrinktype,
