@@ -742,6 +742,7 @@ function updateUser (req, res) {
     const cafe_final = req.body.cafe_final;
 
     const stack = req.body.stack;
+    const state = req.body.state;
 
     if(name){
         // models.Medicine_time.create({
@@ -915,6 +916,9 @@ function updateUser (req, res) {
     } else if (stack) {
         param_name = 'stack';
         param_value = stack;
+    } else if (state) {
+        param_name = 'state';
+        param_value = state;
     }
 
     console.log(`param_value : ${param_value}, param_name : ${param_name}`);
