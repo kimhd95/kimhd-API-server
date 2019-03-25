@@ -1732,7 +1732,7 @@ function updatePlaceStart (req, res) {
             price_lunch: null,
             price_dinner: null,
             stack: null,
-            rest_stack: '0',
+            rest_stack: '00',
             mood: null,
             mood2: null,
             taste: null,
@@ -2640,9 +2640,9 @@ function getOtherRestaurant (req, res) {
            NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
            ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
            ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
-           id NOT IN (${'0'+rest_stack[0][0].rest_stack})
+           id NOT IN (${rest_stack[0][0].rest_stack})
            ORDER BY RAND() LIMIT 2;`;
-           console.log("쿼리1 : ", query);
+           console.log("쿼리1");
 
           models.sequelize.query(query)
           .then(result => {
@@ -2660,7 +2660,7 @@ function getOtherRestaurant (req, res) {
                NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
                ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
                ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
-               id NOT IN (${rest_stack[0]})
+               id NOT IN (${rest_stack[0][0].rest_stack})
                ORDER BY RAND() LIMIT 2;`;
                console.log("쿼리2");
               models.sequelize.query(query_next)
