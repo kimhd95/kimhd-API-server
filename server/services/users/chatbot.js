@@ -1732,7 +1732,7 @@ function updatePlaceStart (req, res) {
             price_lunch: null,
             price_dinner: null,
             stack: null,
-            rest_stack: '',
+            rest_stack: '0',
             mood: null,
             mood2: null,
             taste: null,
