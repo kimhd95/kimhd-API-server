@@ -1083,6 +1083,7 @@ function getNearRestaurant (req, res) {
       var fn = function distance(item) {
         const p = 0.017453292519943295; // Math.PI / 180
         const c = Math.cos;
+        console.log(`${item.res_name} lat, lng >> ${item.lat}, ${item.lng}`);
         let a = 0.5 - c((item.lat - lat) * p) / 2
                 + c(lat * p) * c(item.lat * p)
                 * (1 - c((item.lng - lng) * p)) / 2;
@@ -1099,7 +1100,7 @@ function getNearRestaurant (req, res) {
       var actions = list.map(fn);
       var results = Promise.all(actions);
 
-      results.then(data => {
+      Promise.all(actions).then(data => {
         if(resultList.length >= 2) {
           const shuffled = resultList.sort(() => 0.5 - Math.random());
           const rand_pick = shuffled.slice(0, 2);
