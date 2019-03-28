@@ -1076,6 +1076,7 @@ function getNearRestaurant (req, res) {
    NOT (match(taste) against('${hate_food}' in boolean mode));`;
 
   models.sequelize.query(query).then(result => {
+    console.log('-------getNearRestaurant----------');
     let list = result[0];
     let resultList = [];
     if (list.length > 1) {
@@ -1086,6 +1087,7 @@ function getNearRestaurant (req, res) {
                 + c(lat * p) * c(item.lat * p)
                 * (1 - c((item.lng - lng) * p)) / 2;
         const result = 12742 * Math.asin(Math.sqrt(a));
+        console.log(item.res_name + ' >> ' + result*1000+'m');
         if (result < 0.5) {
           console.log(item.res_name + ": " + result);
           resultList.push(item);
