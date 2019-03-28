@@ -1068,8 +1068,10 @@ function getNearRestaurant (req, res) {
     price_lunch_flag = 'NOT';
   }
 
+  // (match(subway) against('${subway}' in boolean mode)) AND
   query = `SELECT * FROM restaurants WHERE closedown=0 AND
-   (match(subway) against('${subway}' in boolean mode)) AND
+   (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
+   (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
    ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
    ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
    NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
@@ -1090,10 +1092,9 @@ function getNearRestaurant (req, res) {
         let result = 12742 * Math.asin(Math.sqrt(a));
 
         if (result < 0.5) {
-          console.log(item.res_name + ": " + result);
+          console.log(item.subway + item.res_name + ' >> ' + result*1000+'m');
           resultList.push(item);
         }
-        console.log(item.res_name + ' >> ' + result*1000+'m');
         return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
       }
 
