@@ -1083,15 +1083,16 @@ function getNearRestaurant (req, res) {
       var fn = function distance(item) {
         const p = 0.017453292519943295; // Math.PI / 180
         const c = Math.cos;
-        const a = 0.5 - c((item.lat - lat) * p) / 2
+        let a = 0.5 - c((item.lat - lat) * p) / 2
                 + c(lat * p) * c(item.lat * p)
                 * (1 - c((item.lng - lng) * p)) / 2;
-        const result = 12742 * Math.asin(Math.sqrt(a));
-        console.log(item.res_name + ' >> ' + result*1000+'m');
+        let result = 12742 * Math.asin(Math.sqrt(a));
+
         if (result < 0.5) {
           console.log(item.res_name + ": " + result);
           resultList.push(item);
         }
+        console.log(item.res_name + ' >> ' + result*1000+'m');
         return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
       }
 
