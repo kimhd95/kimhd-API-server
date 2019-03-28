@@ -1043,7 +1043,7 @@ function getNearRestaurant (req, res) {
   let price_dinner = req.body.price_dinner;
   let lat = req.body.lat;
   let lng = req.body.lng;
-
+  console.log(price_lunch, price_dinner);
   let price_lunch_flag = '';
   let price_dinner_flag = '';
 
