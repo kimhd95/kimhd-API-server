@@ -1038,7 +1038,6 @@ function updateClosedown (req, res) {
 
 function getNearRestaurant (req, res) {
   const kakao_id = req.body.kakao_id;
-  let subway = req.body.subway;
   let hate_food = req.body.hate_food;
   let price_lunch = req.body.price_lunch;
   let price_dinner = req.body.price_dinner;
