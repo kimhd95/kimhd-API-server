@@ -1078,7 +1078,6 @@ function getNearRestaurant (req, res) {
    NOT (match(taste) against('${hate_food}' in boolean mode));`;
 
   models.sequelize.query(query).then(result => {
-    console.log('-------getNearRestaurant----------');
     let list = result[0];
     let resultList = [];
     if (list.length > 1) {
@@ -1090,16 +1089,14 @@ function getNearRestaurant (req, res) {
                 * (1 - c((item.lng - lng) * p)) / 2;
         let result = 12742 * Math.asin(Math.sqrt(a));
 
-        if (result < 100) {
-          console.log(item.subway + item.res_name + ' >> ' + result*1000+'m');
+        if (result < 0.5) {
+          console.log(item.subway + item.res_name + ' >> ' + Math.floor(result*1000)+'m');
           resultList.push(item);
         }
         return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
       }
 
       var actions = list.map(fn);
-      var results = Promise.all(actions);
-
       Promise.all(actions).then(data => {
         if(resultList.length >= 2) {
           const shuffled = resultList.sort(() => 0.5 - Math.random());
