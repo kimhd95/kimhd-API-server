@@ -1075,6 +1075,7 @@ function getNearRestaurant (req, res) {
    ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
    NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
    NOT (match(taste) against('${hate_food}' in boolean mode));`;
+   console.log(query);
 
   models.sequelize.query(query).then(result => {
     let list = result[0];
