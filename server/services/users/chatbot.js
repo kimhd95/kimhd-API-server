@@ -1085,7 +1085,6 @@ function getNearRestaurant (req, res) {
       var fn = function distance(item) {
         const p = 0.017453292519943295; // Math.PI / 180
         const c = Math.cos;
-        console.log(`${item.res_name} lat, lng >> ${item.lat}, ${item.lng}`);
         let a = 0.5 - c((item.lat - lat) * p) / 2
                 + c(lat * p) * c(item.lat * p)
                 * (1 - c((item.lng - lng) * p)) / 2;
