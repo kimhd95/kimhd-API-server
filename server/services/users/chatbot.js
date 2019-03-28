@@ -1090,7 +1090,7 @@ function getNearRestaurant (req, res) {
                 * (1 - c((item.lng - lng) * p)) / 2;
         let result = 12742 * Math.asin(Math.sqrt(a));
 
-        if (result < 0.5) {
+        if (result < 100) {
           console.log(item.subway + item.res_name + ' >> ' + result*1000+'m');
           resultList.push(item);
         }
