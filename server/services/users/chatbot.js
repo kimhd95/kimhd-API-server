@@ -2551,6 +2551,8 @@ function getOtherRestaurant (req, res) {
         models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`)
         .then(rest_stack => {
           console.log("point5");
+          let lat = result[0][0].lat;
+          let lng = result[0][0].lng;
           // 1. GPS 에서 다른식당보기
           if (lat != null && lng != null) {
             console.log("point11");
@@ -2558,8 +2560,6 @@ function getOtherRestaurant (req, res) {
             let price_lunch = result[0][0].price_lunch;
             let price_dinner = result[0][0].price_dinner;
             let hate_food = result[0][0].hate_food;
-            let lat = result[0][0].lat;
-            let lng = result[0][0].lng;
 
             let price_lunch_flag = '';
             let price_dinner_flag = '';
