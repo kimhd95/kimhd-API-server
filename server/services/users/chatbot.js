@@ -2535,60 +2535,48 @@ function getOtherRestaurant (req, res) {
   let userid = req.body.userid;
   let rest1 = req.body.rest1;
   let rest2 = req.body.rest2;
-  console.log("req.body: ", req.body);
+
   models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
   .then(result => {
-    console.log("point1");
     if (result[0].length === 1) {
-      console.log("point2");
-
-
-
-      console.log("point3");
       models.sequelize.query(`UPDATE users SET rest_stack = CONCAT(rest_stack, ',${rest1},${rest2}') WHERE id=${userid};`)
       .then(() => {
-        console.log("point4");
         models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`)
         .then(rest_stack => {
-          console.log("point5");
           let lat = result[0][0].lat;
           let lng = result[0][0].lng;
+          let price_lunch = result[0][0].price_lunch;
+          let price_dinner = result[0][0].price_dinner;
+          let hate_food = result[0][0].hate_food;
+          let price_lunch_flag = '';
+          let price_dinner_flag = '';
+
+          if (price_dinner === 'x') { //점심식사
+            if (price_lunch === null) {
+              price_lunch = '0,1,2,3,4';
+              price_lunch = price_lunch.replace(/,/g,' ');
+            }
+            else {
+              price_lunch = price_lunch.replace(/,/g,' ');
+            }
+            price_dinner_flag = 'NOT'
+          } else if (price_lunch === 'x') { //저녁식사
+            if (price_dinner === null) {
+              price_dinner = '0,1,2,3,4';
+              price_dinner = price_dinner.replace(/,/g, ' ');
+            }
+            else {
+              price_dinner = price_dinner.replace(/,/g, ' ');
+            }
+            price_lunch_flag = 'NOT'
+          }
+          if (hate_food === null){
+            hate_food = 'x';
+          }
+          hate_food = hate_food.replace(/,/g,' ');
+
           // 1. GPS 에서 다른식당보기
           if (lat != null && lng != null) {
-            console.log("point11");
-
-            let price_lunch = result[0][0].price_lunch;
-            let price_dinner = result[0][0].price_dinner;
-            let hate_food = result[0][0].hate_food;
-
-            let price_lunch_flag = '';
-            let price_dinner_flag = '';
-
-            if (price_dinner === 'x') { //점심식사
-                if (price_lunch === null) {
-                  price_lunch = '0,1,2,3,4';
-                  price_lunch = price_lunch.replace(/,/g,' ');
-                }
-                else {
-                  price_lunch = price_lunch.replace(/,/g,' ');
-                }
-                price_dinner_flag = 'NOT'
-            } else if (price_lunch === 'x') { //저녁식사
-                if (price_dinner === null) {
-                  price_dinner = '0,1,2,3,4';
-                  price_dinner = price_dinner.replace(/,/g, ' ');
-                }
-                else {
-                  price_dinner = price_dinner.replace(/,/g, ' ');
-                }
-                price_lunch_flag = 'NOT'
-            }
-            if(hate_food === null){
-                hate_food = 'x';
-            }
-            hate_food = hate_food.replace(/,/g,' ');
-
-
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
              (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
              (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
@@ -2601,7 +2589,6 @@ function getOtherRestaurant (req, res) {
 
             models.sequelize.query(query)
             .then(nears => {
-              console.log("point12");
               let list = nears[0];
               let nearsList = [];
               if (list.length > 1) {
@@ -2623,75 +2610,44 @@ function getOtherRestaurant (req, res) {
                 var actions = list.map(fn);
                 Promise.all(actions)
                 .then(data => {
-                  if(nearsList.length >= 2) {
-                    console.log("point13");
+                  if (nearsList.length >= 2) {
                     const shuffled = nearsList.sort(() => 0.5 - Math.random());
                     const rand_pick = shuffled.slice(0, 2);
                     return res.status(200).json({success: true, message: rand_pick});
-                  } else {
-                    console.log("point14");
+                  }
+                  else {
                     res.status(200).json({success: false, message: 'no result.'});
                   }
                 })
                 .catch(err => {
-                  console.log("point15");
                   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
                 });
-              } else {
-                console.log("point16");
+              }
+              else {
                 res.status(200).json({success: false, message: 'no result.'});
               }
-
             })
             .catch(err => {
-              console.log("point17");
               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
             });
           }
 
           // 2. 일반적인 다른식당보기
           else {
-            console.log("point6");
-
             let subway = result[0][0].subway;
             let exit_quarter = result[0][0].exit_quarter;
             let mood2 = result[0][0].mood2;
             let food_type = result[0][0].food_type;
             let taste = result[0][0].taste;
-            let hate_food = result[0][0].hate_food; //taste, food_name에 모두 반영
             let food_name = result[0][0].food_name;
-            let price_lunch = result[0][0].price_lunch;
-            let price_dinner = result[0][0].price_dinner;
-
             let subway_flag = '';
             let taste_flag = '';
             let food_type_flag = '';
             let food_name_flag = '';
             let mood2_flag = '';
-            let price_lunch_flag = '';
-            let price_dinner_flag = '';
 
             if (exit_quarter.includes('999')) {
               exit_quarter = '1,2,3,4';
-            }
-            if (price_dinner === 'x') { //점심식사
-                if (price_lunch === null) {
-                  price_lunch = '0,1,2,3,4';
-                  price_lunch = price_lunch.replace(/,/g,' ');
-                }
-                else {
-                  price_lunch = price_lunch.replace(/,/g,' ');
-                }
-                price_dinner_flag = 'NOT'
-            } else if (price_lunch === 'x') { //저녁식사
-                if (price_dinner === null) {
-                  price_dinner = '0,1,2,3,4';
-                  price_dinner = price_dinner.replace(/,/g, ' ');
-                }
-                else {
-                  price_dinner = price_dinner.replace(/,/g, ' ');
-                }
-                price_lunch_flag = 'NOT'
             }
             if (mood2 === '999' || mood2 === '998') {
               mood2_flag = 'NOT';
@@ -2702,26 +2658,20 @@ function getOtherRestaurant (req, res) {
             if (taste.includes('!-')) {
               taste = taste.replace('!-','');
               taste_flag = 'NOT';
-            } else if(taste === 'all'){
+            } else if (taste === 'all') {
               taste = 'x';
               taste_flag = 'NOT';
             }
-            if(hate_food === null){
-                hate_food = 'x';
-            }
-            hate_food = hate_food.replace(/,/g,' ');
-
-            if(food_type === null) {
+            if (food_type === null) {
               food_type = 'all';
               food_type = food_type.replace(/,/g,' ');
             } else {
               food_type = food_type.replace(/,/g,' ');
             }
-
-            if(food_type === '이국적'){
+            if (food_type === '이국적'){
               food_type = '한식 일식 중식 양식';
               food_type_flag = 'NOT';
-            } else if(food_type === 'all'){
+            } else if (food_type === 'all') {
               food_type = 'x';
               food_type_flag = 'NOT';
             }
@@ -2756,59 +2706,28 @@ function getOtherRestaurant (req, res) {
              ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
              id NOT IN (${rest_stack[0][0].rest_stack})
              ORDER BY RAND() LIMIT 2;`;
-             console.log("쿼리1");
 
             models.sequelize.query(query)
             .then(result => {
-              console.log("point7");
               if (result[0].length === 2) {
                 return res.status(200).json({success: true, try: 1, message: result[0]});
               }
               else {
-                // const query_next = `SELECT * FROM restaurants WHERE closedown=0 AND
-                //  ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-                //  (exit_quarter IN (1,2,3,4)) AND
-                //  ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-                //  ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-                //  ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-                //  ${food_name_condition} AND
-                //  NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-                //  ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-                //  ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
-                //  id NOT IN (${rest_stack[0][0].rest_stack})
-                //  ORDER BY RAND() LIMIT 2;`;
-                // console.log("쿼리2");
-                // models.sequelize.query(query_next)
-                // .then(second_result => {
-                //   if (second_result[0].length === 2) {
-                //     return res.status(200).json({success: true, try: 2, message: second_result[0]})
-                //   } else {
-                //     return res.status(200).json({success: false, message: 'no result.'})
-                //   }
-                // })
-                // .catch( err => {
-                //   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-                // });
                 return res.status(200).json({success: false, message: 'no result.'});
               }
             })
             .catch( err => {
-              console.log("point8");
               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
             });
           }
         })
         .catch( err => {
-          console.log("point9");
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         });
       })
       .catch(err => {
-        console.log("point10");
         return res.status(500).json({success: false, message: 'Update rest_stack has failed: ' + err.message});
       });
-
-
 
     }
     else {
