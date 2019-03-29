@@ -2638,7 +2638,7 @@ function getOtherRestaurant (req, res) {
         models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`)
         .then(rest_stack => {
           // 1. GPS 에서 다른식당보기
-          if (lat == null && lng == null) {
+          if (lat != null && lng != null) {
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
              (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
              (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
