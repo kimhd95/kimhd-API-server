@@ -1092,6 +1092,7 @@ function getNearRestaurant (req, res) {
         if (result < 0.5) {
           console.log(item.subway + item.res_name + ' >> ' + Math.floor(result*1000)+'m');
           resultList.push(item);
+          console.log(item);
         }
         return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
       }
