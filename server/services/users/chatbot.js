@@ -1091,6 +1091,7 @@ function getNearRestaurant (req, res) {
 
         if (result < 0.5) {
           console.log(item.subway + item.res_name + ' >> ' + Math.floor(result*1000)+'m');
+          item['distance'] = Math.floor(result*1000);
           resultList.push(item);
           console.log(item);
         }
