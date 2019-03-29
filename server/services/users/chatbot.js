@@ -1091,9 +1091,8 @@ function getNearRestaurant (req, res) {
 
         if (result < 0.5) {
           console.log(item.subway + item.res_name + ' >> ' + Math.floor(result*1000)+'m');
-          item['distance'] = Math.floor(result*1000);
+          item['distance'] = Math.floor(result*1000);   // 거리 추가
           resultList.push(item);
-          console.log(item);
         }
         return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
       }
