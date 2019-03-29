@@ -2541,98 +2541,7 @@ function getOtherRestaurant (req, res) {
     console.log("point1");
     if (result[0].length === 1) {
       console.log("point2");
-      let subway = result[0][0].subway;
-      let exit_quarter = result[0][0].exit_quarter;
-      let mood2 = result[0][0].mood2;
-      let food_type = result[0][0].food_type;
-      let taste = result[0][0].taste;
-      let hate_food = result[0][0].hate_food; //taste, food_name에 모두 반영
-      let food_name = result[0][0].food_name;
-      let price_lunch = result[0][0].price_lunch;
-      let price_dinner = result[0][0].price_dinner;
-      let lat = result[0][0].lat;
-      let lng = result[0][0].lng;
 
-      let subway_flag = '';
-      let taste_flag = '';
-      let food_type_flag = '';
-      let food_name_flag = '';
-      let mood2_flag = '';
-      let price_lunch_flag = '';
-      let price_dinner_flag = '';
-
-      if (exit_quarter.includes('999')) {
-        exit_quarter = '1,2,3,4';
-      }
-      if (price_dinner === 'x') { //점심식사
-          if (price_lunch === null) {
-            price_lunch = '0,1,2,3,4';
-            price_lunch = price_lunch.replace(/,/g,' ');
-          }
-          else {
-            price_lunch = price_lunch.replace(/,/g,' ');
-          }
-          price_dinner_flag = 'NOT'
-      } else if (price_lunch === 'x') { //저녁식사
-          if (price_dinner === null) {
-            price_dinner = '0,1,2,3,4';
-            price_dinner = price_dinner.replace(/,/g, ' ');
-          }
-          else {
-            price_dinner = price_dinner.replace(/,/g, ' ');
-          }
-          price_lunch_flag = 'NOT'
-      }
-      if (mood2 === '999' || mood2 === '998') {
-        mood2_flag = 'NOT';
-        mood2 = 'x';
-      } else {
-        mood2 = mood2.replace(/,/g,' ');
-      }
-      if (taste.includes('!-')) {
-        taste = taste.replace('!-','');
-        taste_flag = 'NOT';
-      } else if(taste === 'all'){
-        taste = 'x';
-        taste_flag = 'NOT';
-      }
-      if(hate_food === null){
-          hate_food = 'x';
-      }
-      hate_food = hate_food.replace(/,/g,' ');
-
-      if(food_type === null) {
-        food_type = 'all';
-        food_type = food_type.replace(/,/g,' ');
-      } else {
-        food_type = food_type.replace(/,/g,' ');
-      }
-
-      if(food_type === '이국적'){
-        food_type = '한식 일식 중식 양식';
-        food_type_flag = 'NOT';
-      } else if(food_type === 'all'){
-        food_type = 'x';
-        food_type_flag = 'NOT';
-      }
-
-      let food_name_condition;
-      if (food_name === null || food_name ==='x'){
-        food_name = 'x';
-        food_name_flag = 'NOT';
-        food_name_condition = `${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode))`;
-      } else {
-        let food_name_leng = food_name.split(',').length;
-        if (food_name.includes(',')) {
-          food_name_condition = `(food_name LIKE ("%${food_name.split(',')[0]}%")`;
-          for (var i = 1; i<food_name_leng; i++) {
-            food_name_condition += ` or food_name LIKE ("%${food_name.split(',')[i]}%")`;
-          }
-          food_name_condition += ')';
-        } else {
-          food_name_condition = `food_name LIKE ("%${food_name}%")`;
-        }
-      }
 
 
       console.log("point3");
@@ -2645,6 +2554,41 @@ function getOtherRestaurant (req, res) {
           // 1. GPS 에서 다른식당보기
           if (lat != null && lng != null) {
             console.log("point11");
+
+            let price_lunch = result[0][0].price_lunch;
+            let price_dinner = result[0][0].price_dinner;
+            let hate_food = result[0][0].hate_food;
+            let lat = result[0][0].lat;
+            let lng = result[0][0].lng;
+
+            let price_lunch_flag = '';
+            let price_dinner_flag = '';
+
+            if (price_dinner === 'x') { //점심식사
+                if (price_lunch === null) {
+                  price_lunch = '0,1,2,3,4';
+                  price_lunch = price_lunch.replace(/,/g,' ');
+                }
+                else {
+                  price_lunch = price_lunch.replace(/,/g,' ');
+                }
+                price_dinner_flag = 'NOT'
+            } else if (price_lunch === 'x') { //저녁식사
+                if (price_dinner === null) {
+                  price_dinner = '0,1,2,3,4';
+                  price_dinner = price_dinner.replace(/,/g, ' ');
+                }
+                else {
+                  price_dinner = price_dinner.replace(/,/g, ' ');
+                }
+                price_lunch_flag = 'NOT'
+            }
+            if(hate_food === null){
+                hate_food = 'x';
+            }
+            hate_food = hate_food.replace(/,/g,' ');
+
+
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
              (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
              (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
@@ -2708,6 +2652,98 @@ function getOtherRestaurant (req, res) {
           // 2. 일반적인 다른식당보기
           else {
             console.log("point6");
+
+            let subway = result[0][0].subway;
+            let exit_quarter = result[0][0].exit_quarter;
+            let mood2 = result[0][0].mood2;
+            let food_type = result[0][0].food_type;
+            let taste = result[0][0].taste;
+            let hate_food = result[0][0].hate_food; //taste, food_name에 모두 반영
+            let food_name = result[0][0].food_name;
+            let price_lunch = result[0][0].price_lunch;
+            let price_dinner = result[0][0].price_dinner;
+
+            let subway_flag = '';
+            let taste_flag = '';
+            let food_type_flag = '';
+            let food_name_flag = '';
+            let mood2_flag = '';
+            let price_lunch_flag = '';
+            let price_dinner_flag = '';
+
+            if (exit_quarter.includes('999')) {
+              exit_quarter = '1,2,3,4';
+            }
+            if (price_dinner === 'x') { //점심식사
+                if (price_lunch === null) {
+                  price_lunch = '0,1,2,3,4';
+                  price_lunch = price_lunch.replace(/,/g,' ');
+                }
+                else {
+                  price_lunch = price_lunch.replace(/,/g,' ');
+                }
+                price_dinner_flag = 'NOT'
+            } else if (price_lunch === 'x') { //저녁식사
+                if (price_dinner === null) {
+                  price_dinner = '0,1,2,3,4';
+                  price_dinner = price_dinner.replace(/,/g, ' ');
+                }
+                else {
+                  price_dinner = price_dinner.replace(/,/g, ' ');
+                }
+                price_lunch_flag = 'NOT'
+            }
+            if (mood2 === '999' || mood2 === '998') {
+              mood2_flag = 'NOT';
+              mood2 = 'x';
+            } else {
+              mood2 = mood2.replace(/,/g,' ');
+            }
+            if (taste.includes('!-')) {
+              taste = taste.replace('!-','');
+              taste_flag = 'NOT';
+            } else if(taste === 'all'){
+              taste = 'x';
+              taste_flag = 'NOT';
+            }
+            if(hate_food === null){
+                hate_food = 'x';
+            }
+            hate_food = hate_food.replace(/,/g,' ');
+
+            if(food_type === null) {
+              food_type = 'all';
+              food_type = food_type.replace(/,/g,' ');
+            } else {
+              food_type = food_type.replace(/,/g,' ');
+            }
+
+            if(food_type === '이국적'){
+              food_type = '한식 일식 중식 양식';
+              food_type_flag = 'NOT';
+            } else if(food_type === 'all'){
+              food_type = 'x';
+              food_type_flag = 'NOT';
+            }
+
+            let food_name_condition;
+            if (food_name === null || food_name ==='x'){
+              food_name = 'x';
+              food_name_flag = 'NOT';
+              food_name_condition = `${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode))`;
+            } else {
+              let food_name_leng = food_name.split(',').length;
+              if (food_name.includes(',')) {
+                food_name_condition = `(food_name LIKE ("%${food_name.split(',')[0]}%")`;
+                for (var i = 1; i<food_name_leng; i++) {
+                  food_name_condition += ` or food_name LIKE ("%${food_name.split(',')[i]}%")`;
+                }
+                food_name_condition += ')';
+              } else {
+                food_name_condition = `food_name LIKE ("%${food_name}%")`;
+              }
+            }
+
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
              ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
              (exit_quarter IN (${exit_quarter})) AND
