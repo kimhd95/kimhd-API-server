@@ -2615,7 +2615,7 @@ function getOtherRestaurant (req, res) {
 
                   if (result < 0.5) {
                     console.log(item.subway + item.res_name + ' >> ' + Math.floor(result*1000)+'m');
-                    resultList.push(item);
+                    nearsList.push(item);
                   }
                   return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
                 }
@@ -2623,9 +2623,9 @@ function getOtherRestaurant (req, res) {
                 var actions = list.map(fn);
                 Promise.all(actions)
                 .then(data => {
-                  if(resultList.length >= 2) {
+                  if(nearsList.length >= 2) {
                     console.log("point13");
-                    const shuffled = resultList.sort(() => 0.5 - Math.random());
+                    const shuffled = nearsList.sort(() => 0.5 - Math.random());
                     const rand_pick = shuffled.slice(0, 2);
                     return res.status(200).json({success: true, message: rand_pick});
                   } else {
