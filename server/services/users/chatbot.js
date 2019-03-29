@@ -2535,9 +2535,12 @@ function getOtherRestaurant (req, res) {
   let userid = req.body.userid;
   let rest1 = req.body.rest1;
   let rest2 = req.body.rest2;
+  console.log("req.body: ", req.body);
   models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
   .then(result => {
+    console.log("point1");
     if (result[0].length === 1) {
+      console.log("point2");
       let subway = result[0][0].subway;
       let exit_quarter = result[0][0].exit_quarter;
       let mood2 = result[0][0].mood2;
@@ -2632,13 +2635,16 @@ function getOtherRestaurant (req, res) {
       }
 
 
-
+      console.log("point3");
       models.sequelize.query(`UPDATE users SET rest_stack = CONCAT(rest_stack, ',${rest1},${rest2}') WHERE id=${userid};`)
       .then(() => {
+        console.log("point4");
         models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`)
         .then(rest_stack => {
+          console.log("point5");
           // 1. GPS 에서 다른식당보기
           if (lat != null && lng != null) {
+            console.log("point11");
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
              (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
              (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
@@ -2651,6 +2657,7 @@ function getOtherRestaurant (req, res) {
 
             models.sequelize.query(query)
             .then(nears => {
+              console.log("point12");
               let list = nears[0];
               let nearsList = [];
               if (list.length > 1) {
@@ -2673,28 +2680,34 @@ function getOtherRestaurant (req, res) {
                 Promise.all(actions)
                 .then(data => {
                   if(resultList.length >= 2) {
+                    console.log("point13");
                     const shuffled = resultList.sort(() => 0.5 - Math.random());
                     const rand_pick = shuffled.slice(0, 2);
                     return res.status(200).json({success: true, message: rand_pick});
                   } else {
+                    console.log("point14");
                     res.status(200).json({success: false, message: 'no result.'});
                   }
                 })
                 .catch(err => {
+                  console.log("point15");
                   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
                 });
               } else {
+                console.log("point16");
                 res.status(200).json({success: false, message: 'no result.'});
               }
 
             })
             .catch(err => {
+              console.log("point17");
               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
             });
           }
 
           // 2. 일반적인 다른식당보기
           else {
+            console.log("point6");
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
              ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
              (exit_quarter IN (${exit_quarter})) AND
@@ -2711,6 +2724,7 @@ function getOtherRestaurant (req, res) {
 
             models.sequelize.query(query)
             .then(result => {
+              console.log("point7");
               if (result[0].length === 2) {
                 return res.status(200).json({success: true, try: 1, message: result[0]});
               }
@@ -2743,15 +2757,18 @@ function getOtherRestaurant (req, res) {
               }
             })
             .catch( err => {
+              console.log("point8");
               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
             });
           }
         })
         .catch( err => {
+          console.log("point9");
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         });
       })
       .catch(err => {
+        console.log("point10");
         return res.status(500).json({success: false, message: 'Update rest_stack has failed: ' + err.message});
       });
 
