@@ -2535,7 +2535,8 @@ function getOtherRestaurant (req, res) {
   let userid = req.body.userid;
   let rest1 = req.body.rest1;
   let rest2 = req.body.rest2;
-  models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`).then(result => {
+  models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
+  .then(result => {
     if (result[0].length === 1) {
       let subway = result[0][0].subway;
       let exit_quarter = result[0][0].exit_quarter;
@@ -2546,6 +2547,8 @@ function getOtherRestaurant (req, res) {
       let food_name = result[0][0].food_name;
       let price_lunch = result[0][0].price_lunch;
       let price_dinner = result[0][0].price_dinner;
+      let lat = result[0][0].lat;
+      let lng = result[0][0].lng;
 
       let subway_flag = '';
       let taste_flag = '';
@@ -2629,72 +2632,137 @@ function getOtherRestaurant (req, res) {
       }
 
 
+
       models.sequelize.query(`UPDATE users SET rest_stack = CONCAT(rest_stack, ',${rest1},${rest2}') WHERE id=${userid};`)
       .then(() => {
         models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`)
         .then(rest_stack => {
-          let query = `SELECT * FROM restaurants WHERE closedown=0 AND
-           ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-           (exit_quarter IN (${exit_quarter})) AND
-           ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-           ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-           ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-           ${food_name_condition} AND
-           NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-           ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-           ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
-           id NOT IN (${rest_stack[0][0].rest_stack})
-           ORDER BY RAND() LIMIT 2;`;
-           console.log("쿼리1");
+          // 1. GPS 에서 다른식당보기
+          if (lat == null && lng == null) {
+            let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+             (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
+             (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
+             ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+             ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+             NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+             NOT (match(taste) against('${hate_food}' in boolean mode)) AND
+             id NOT IN (${rest_stack[0][0].rest_stack});`;
+             console.log(query);
 
-          models.sequelize.query(query)
-          .then(result => {
-            if (result[0].length === 2) {
-              return res.status(200).json({success: true, try: 1, message: result[0]})
-            }
-            else {
-              const query_next = `SELECT * FROM restaurants WHERE closedown=0 AND
-               ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-               (exit_quarter IN (1,2,3,4)) AND
-               ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-               ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-               ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-               ${food_name_condition} AND
-               NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-               ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-               ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
-               id NOT IN (${rest_stack[0][0].rest_stack})
-               ORDER BY RAND() LIMIT 2;`;
-               console.log("쿼리2");
-              models.sequelize.query(query_next)
-              .then(second_result => {
-                if (second_result[0].length === 2) {
-                  return res.status(200).json({success: true, try: 2, message: second_result[0]})
-                } else {
-                  return res.status(200).json({success: false, message: 'no result.'})
+            models.sequelize.query(query)
+            .then(nears => {
+              let list = nears[0];
+              let nearsList = [];
+              if (list.length > 1) {
+                var fn = function distance(item) {
+                  const p = 0.017453292519943295; // Math.PI / 180
+                  const c = Math.cos;
+                  let a = 0.5 - c((item.lat - lat) * p) / 2
+                          + c(lat * p) * c(item.lat * p)
+                          * (1 - c((item.lng - lng) * p)) / 2;
+                  let result = 12742 * Math.asin(Math.sqrt(a));
+
+                  if (result < 0.5) {
+                    console.log(item.subway + item.res_name + ' >> ' + Math.floor(result*1000)+'m');
+                    resultList.push(item);
+                  }
+                  return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
                 }
-              })
-              .catch( err => {
-                return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-              });
-            }
-          })
-          .catch( err => {
-            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-          });
+
+                var actions = list.map(fn);
+                Promise.all(actions)
+                .then(data => {
+                  if(resultList.length >= 2) {
+                    const shuffled = resultList.sort(() => 0.5 - Math.random());
+                    const rand_pick = shuffled.slice(0, 2);
+                    return res.status(200).json({success: true, message: rand_pick});
+                  } else {
+                    res.status(200).json({success: false, message: 'no result.'});
+                  }
+                })
+                .catch(err => {
+                  return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+                });
+              } else {
+                res.status(200).json({success: false, message: 'no result.'});
+              }
+
+            })
+            .catch(err => {
+              return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+            });
+          }
+
+          // 2. 일반적인 다른식당보기
+          else {
+            let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+             ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+             (exit_quarter IN (${exit_quarter})) AND
+             ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+             ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+             ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+             ${food_name_condition} AND
+             NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+             ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
+             ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
+             id NOT IN (${rest_stack[0][0].rest_stack})
+             ORDER BY RAND() LIMIT 2;`;
+             console.log("쿼리1");
+
+            models.sequelize.query(query)
+            .then(result => {
+              if (result[0].length === 2) {
+                return res.status(200).json({success: true, try: 1, message: result[0]});
+              }
+              else {
+                // const query_next = `SELECT * FROM restaurants WHERE closedown=0 AND
+                //  ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+                //  (exit_quarter IN (1,2,3,4)) AND
+                //  ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+                //  ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+                //  ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+                //  ${food_name_condition} AND
+                //  NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+                //  ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
+                //  ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
+                //  id NOT IN (${rest_stack[0][0].rest_stack})
+                //  ORDER BY RAND() LIMIT 2;`;
+                // console.log("쿼리2");
+                // models.sequelize.query(query_next)
+                // .then(second_result => {
+                //   if (second_result[0].length === 2) {
+                //     return res.status(200).json({success: true, try: 2, message: second_result[0]})
+                //   } else {
+                //     return res.status(200).json({success: false, message: 'no result.'})
+                //   }
+                // })
+                // .catch( err => {
+                //   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+                // });
+                return res.status(200).json({success: false, message: 'no result.'});
+              }
+            })
+            .catch( err => {
+              return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+            });
+          }
         })
-
-
-      }).catch(err => {
+        .catch( err => {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        });
+      })
+      .catch(err => {
         return res.status(500).json({success: false, message: 'Update rest_stack has failed: ' + err.message});
       });
 
 
 
-    } else {
+    }
+    else {
       return res.status(400).json({success: false, message: 'No such user who has the requested id.'});
     }
-  }).catch( err => {
+  })
+  .catch( err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
 
