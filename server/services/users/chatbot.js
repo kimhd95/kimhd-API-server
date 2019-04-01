@@ -1043,7 +1043,6 @@ function getNearRestaurant (req, res) {
   let price_dinner = req.body.price_dinner;
   let lat = req.body.lat;
   let lng = req.body.lng;
-  console.log(price_lunch, price_dinner);
   let price_lunch_flag = '';
   let price_dinner_flag = '';
 
@@ -1075,7 +1074,6 @@ function getNearRestaurant (req, res) {
    ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
    NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
    NOT (match(taste) against('${hate_food}' in boolean mode));`;
-   console.log(query);
 
   models.sequelize.query(query).then(result => {
     let list = result[0];
@@ -2586,7 +2584,6 @@ function getOtherRestaurant (req, res) {
              NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
              NOT (match(taste) against('${hate_food}' in boolean mode)) AND
              id NOT IN (${rest_stack[0][0].rest_stack});`;
-             console.log(query);
 
             models.sequelize.query(query)
             .then(nears => {
@@ -2603,6 +2600,7 @@ function getOtherRestaurant (req, res) {
 
                   if (result < 0.5) {
                     console.log(item.subway + item.res_name + ' >> ' + Math.floor(result*1000)+'m');
+                    item['distance'] = Math.floor(result*1000);
                     nearsList.push(item);
                   }
                   return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
