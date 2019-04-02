@@ -1771,12 +1771,16 @@ function updateDrinkStart (req, res) {
 
     models.User.update(
         {
+            mood1: null,
             mood2: null,
             rest1: null,
             rest2: null,
             taste: null,
             drink_type: null,
             drink_round: null,
+            lat: null,
+            lng: null,
+            price_dinner: null,
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
