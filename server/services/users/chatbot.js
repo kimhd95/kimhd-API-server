@@ -3593,7 +3593,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    let lat = req.body.lat;
    let drink_round = req.body.drink_round;
    let subway = req.body.subway;
-   let price_dinner = req.bdoy.price_dinner;
+   let price_dinner = req.body.price_dinner;
    let mood2 = req.body.mood2;
    let mood = req.body.mood;
    let drink_type = req.body.drink_type;
