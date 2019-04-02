@@ -3701,7 +3701,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                   match(drink_round) against('${drink_round}' in boolean mode) and
                   ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
                   ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
-                  match(mood) against('${mood}' in boolean mode) and
+                  ${mood_flag} match(mood) against('${mood}' in boolean mode) and
                   match(drink_type) against('${drink_type} in boolean mode') ORDER BY RAND() LIMIT 2;`;
 
      models.sequelize.query(query).then(result => {
