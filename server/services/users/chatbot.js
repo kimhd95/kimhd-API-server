@@ -3642,6 +3642,8 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    drink_type = drink_type.replace('양주&칵테일','양주');
    drink_type = drink_type.replace('맥주','생맥주, 병맥주');
 
+   console.log(`drink_round : ${drink_round}, price_dinner_flag : ${price_dinner_flag}, price_dinner : ${price_dinner},
+     mood2_flag : ${mood2_flag}, mood2 : ${mood2}, mood_flag : ${mood_flag}, mood : ${mood}, drink_type : ${drink_type}`);
    //lng, lat 값이 있는 경우
    if (lng != null && lat != null) {
      console.log("gps case");
