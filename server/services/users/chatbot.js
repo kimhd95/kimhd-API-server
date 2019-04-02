@@ -1781,6 +1781,7 @@ function updateDrinkStart (req, res) {
             lat: null,
             lng: null,
             price_dinner: null,
+            stack: null,
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
