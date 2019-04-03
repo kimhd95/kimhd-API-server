@@ -3030,7 +3030,7 @@ function verifyDrinktypeList (req, res) {
       models.sequelize.query(query)
       .then(result => {
         let list = [];
-        console.log(result[0]);
+        console.log(result[0][0].drink_type);
 
         // 쿼리 결과 식당들의 drink type을 ,로 파싱한 후 list에 전부 넣고 후에 중복 제거 후 response
         var parseFunc = (item) => {
