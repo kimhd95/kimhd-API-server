@@ -3026,9 +3026,11 @@ function verifyDrinktypeList (req, res) {
                            ${price_dinner==null?'NOT':''} (MATCH(price_dinner) AGAINST ('${price_dinner}' IN BOOLEAN MODE)) AND
                            ${mood1==null?'NOT':''} (MATCH(mood) AGAINST ('${mood1}' IN BOOLEAN MODE)) AND
                            ${mood2==null?'NOT':''} (MATCH(mood2) AGAINST ('${mood2}' IN BOOLEAN MODE));`;
+      console.log(query);
       models.sequelize.query(query)
       .then(result => {
         let list = [];
+        console.log(result[0]);
 
         // 쿼리 결과 식당들의 drink type을 ,로 파싱한 후 list에 전부 넣고 후에 중복 제거 후 response
         var parseFunc = (item) => {
