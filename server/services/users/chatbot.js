@@ -1782,6 +1782,7 @@ function updateDrinkStart (req, res) {
             lng: null,
             price_dinner: null,
             stack: null,
+            rest_stack: '00',
         },     // What to update
         {where: {
                 kakao_id: kakao_id}
@@ -3833,7 +3834,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                    * (1 - c((item.lng - lng) * p)) / 2;
            const result = 12742 * Math.asin(Math.sqrt(a));
            if (result < 100) {
-             console.log(item.res_name + ": " + result);
+             console.log(item.res_name + " >> " + Math.floor(result*1000)+'m');
              resultList.push(item);
            }
            return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
