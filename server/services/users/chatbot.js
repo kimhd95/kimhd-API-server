@@ -3032,7 +3032,7 @@ function verifyDrinktypeList (req, res) {
 
         // 쿼리 결과 식당들의 drink type을 ,로 파싱한 후 list에 전부 넣고 후에 중복 제거 후 response
         var parseFunc = (item) => {
-          item.split(',').forEach(element => {
+          item.drink_type.split(',').forEach(element => {
             list.push(element);
           });
           return new Promise(resolve => setTimeout(() => resolve(), 50));
