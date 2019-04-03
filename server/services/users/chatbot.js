@@ -3811,6 +3811,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                   ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
                   ${mood_flag} match(mood) against('${mood}' in boolean mode) and
                   match(drink_type) against('${drink_type} in boolean mode');`;
+    console.log(query);
 
      models.sequelize.query(query).then(result => {
        let list = result[0];
