@@ -3013,11 +3013,11 @@ function verifyDrinktypeList (req, res) {
 
     models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
     .then(userData => {
-      const drink_round = userData[0].drink_round;
-      const subway = userData[0].subway;
-      const price_dinner = userData[0].price_dinner;
-      const mood1 = userData[0].mood1;
-      const mood2 = userData[0].mood2;
+      const drink_round = userData[0][0].drink_round;
+      const subway = userData[0][0].subway;
+      const price_dinner = userData[0][0].price_dinner;
+      const mood1 = userData[0][0].mood1;
+      const mood2 = userData[0][0].mood2;
 
       const query = `SELECT DISTINCT drink_type
                      FROM restaurants
