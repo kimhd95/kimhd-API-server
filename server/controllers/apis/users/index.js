@@ -91,6 +91,7 @@ router.post('/get_cafe_info', chatbotService.getCafeInfo);
 
 router.post('/get_cafe_test', chatbotService.getCafeTest);
 router.post('/verify_result_exist', chatbotService.verifyResultExist);
+router.post('/verify_drinktype_list', chatbotService.verifyDrinktypeList);
 
 router.get('/get_users', userService.getUsers); // 현재 미사용
 router.get('/:id', userService.getUserWithId); // 현재 미사용
