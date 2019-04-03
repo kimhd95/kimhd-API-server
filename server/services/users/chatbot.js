@@ -2768,7 +2768,7 @@ function getOtherDrinkRestaurant (req, res) {
 
           // mood parsing
           let mood1_flag = '';
-          if (mood1 == null || mood == undefined) {
+          if (mood1 == null || mood1 == undefined) {
            mood1_flag = 'NOT';
            mood1 = 'x';
           }
@@ -2871,7 +2871,7 @@ function getOtherDrinkRestaurant (req, res) {
                   ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
                   ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
                   ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
-                  ${mood_flag} match(mood) against('${mood}' in boolean mode) and
+                  ${mood1_flag} match(mood) against('${mood1}' in boolean mode) and
                   ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) and
                   id NOT in(${rest_stack[0][0].rest_stack}) ORDER BY RAND() LIMIT 2;`;
             console.log(query);
