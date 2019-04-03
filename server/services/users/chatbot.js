@@ -2744,6 +2744,164 @@ function getOtherRestaurant (req, res) {
 
 }
 
+function getOtherDrinkRestaurant (req, res) {
+  let userid = req.body.userid;
+  let rest1 = req.body.rest1;
+  let rest2 = req.body.rest2;
+
+  models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
+  .then(result => {
+    if (result[0].length === 1) {
+      models.sequelize.query(`UPDATE users SET rest_stack = CONCAT(rest_stack, ',${rest1},${rest2}') WHERE id=${userid};`)
+      .then(() => {
+        models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`)
+        .then(rest_stack => {
+          let lat = result[0][0].lat;
+          let lng = result[0][0].lng;
+          let subway = result[0][0].subway;
+          let drink_round = result[0][0].drink_round;
+          let price_dinner = result[0][0].price_dinner;
+          let mood2 = result[0][0].mood2;
+          let mood = result[0][0].mood;
+          let drink_type = result[0][0].drink_type;
+
+          // mood parsing
+          let mood_flag = '';
+          if (mood == null || mood == undefined) {
+           mood_flag = 'NOT';
+           mood = 'x';
+          }
+          // price_dinner parsing
+          let price_dinner_flag = '';
+          if (price_dinner != null || price_dinner != undefined) {
+           if (price_dinner.includes('!')){
+             price_dinner_flag = 'NOT';
+             price_dinner = price_dinner.replace(/\!/g,'');
+           }
+          } else {
+           price_dinner = '0,1,2,3,4';
+          }
+          // mood2 parsing
+          let mood2_flag = '';
+          if (mood2 != null || mood2 != undefined) {
+           if (mood2.includes('!')) {
+             mood2_flag = 'NOT';
+             mood2 = mood2.replace(/\!/g,'');
+           }
+          } else {
+           mood2_flag = 'NOT';
+           mood2 = 'x';
+          }
+          // drink_type parsing
+          if (drink_type != null || drink_type != undefined) {
+           if (drink_type === '상관없음') {
+             drink_type = '맥주 양주 와인 사케 소주 전통주';
+           }
+          } else {
+           drink_type = '맥주 양주 와인 사케 소주 전통주';
+          }
+          drink_type = drink_type.replace('양주&칵테일','양주');
+          drink_type = drink_type.replace('맥주','생맥주, 병맥주');
+
+          // 1. GPS 에서 다른식당보기
+          if (lat != null && lng != null) {
+            let query = `select * from restaurants where match(drink_round) against('${drink_round}' in boolean mode) and
+                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
+                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
+                  ${mood_flag} match(mood) against('${mood}' in boolean mode) and
+                  match(drink_type) against('${drink_type} in boolean mode') and
+                  id NOT in (${rest_stack[0][0].rest_stack});`;
+
+            models.sequelize.query(query)
+            .then(nears => {
+              let list = nears[0];
+              let nearsList = [];
+              if (list.length > 1) {
+                var fn = function distance(item) {
+                  const p = 0.017453292519943295; // Math.PI / 180
+                  const c = Math.cos;
+                  let a = 0.5 - c((item.lat - lat) * p) / 2
+                          + c(lat * p) * c(item.lat * p)
+                          * (1 - c((item.lng - lng) * p)) / 2;
+                  let result = 12742 * Math.asin(Math.sqrt(a));
+
+                  if (result < 0.5) {
+                    console.log(item.subway + item.res_name + ' >> ' + Math.floor(result*1000)+'m');
+                    item['distance'] = Math.floor(result*1000);
+                    nearsList.push(item);
+                  }
+                  return new Promise(resolve => setTimeout(() => resolve("ok"), 100));
+                }
+
+                var actions = list.map(fn);
+                Promise.all(actions)
+                .then(data => {
+                  if (nearsList.length >= 2) {
+                    const shuffled = nearsList.sort(() => 0.5 - Math.random());
+                    const rand_pick = shuffled.slice(0, 2);
+                    return res.status(200).json({success: true, num: 2, message: rand_pick});
+                  } else if(nearsList.length == 1) {
+                    return res.status(200).json({success: true, num: 1, message: nearsList})
+                  } else {
+                    res.status(200).json({success: false, message: 'no result.'});
+                  }
+                })
+                .catch(err => {
+                  return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+                });
+              }
+              else {
+                res.status(200).json({success: false, message: 'no result.'});
+              }
+            })
+            .catch(err => {
+              return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+            });
+          }
+
+          // 2. 일반적인 다른식당보기
+          else {
+            let query = `select * from restaurants where subway = '${subway}' and
+                 match(drink_round) against('${drink_round}' in boolean mode) and
+                 ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
+                 ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
+                 ${mood_flag} match(mood) against('${mood}' in boolean mode) and
+                 match(drink_type) against('${drink_type} in boolean mode') and
+                 id NOT in(${rest_stack[0][0].rest_stack}) ORDER BY RAND() LIMIT 2;`;
+
+            models.sequelize.query(query)
+            .then(result => {
+              if (result[0].length == 2) {
+                return res.status(200).json({success: true, num: 2, message: result[0]});
+              } else if (result[0].length == 1) {
+                return res.status(200).json({success: true, num: 1, message: result[0]});
+              } else {
+                return res.status(200).json({success: false, message: 'no result.'});
+              }
+            })
+            .catch( err => {
+              return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+            });
+          }
+        })
+        .catch( err => {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        });
+      })
+      .catch(err => {
+        return res.status(500).json({success: false, message: 'Update rest_stack has failed: ' + err.message});
+      });
+
+    }
+    else {
+      return res.status(400).json({success: false, message: 'No such user who has the requested id.'});
+    }
+  })
+  .catch( err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
+}
+
 function verifySubway (req, res) {
     console.log("here is verifYSubway");
     let subway;
@@ -3652,7 +3810,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                   ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
                   ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
                   ${mood_flag} match(mood) against('${mood}' in boolean mode) and
-                  match(drink_type) against('${drink_type} in boolean mode') ORDER BY RAND() LIMIT 2;`;
+                  match(drink_type) against('${drink_type} in boolean mode');`;
 
      models.sequelize.query(query).then(result => {
        let list = result[0];
@@ -4241,6 +4399,7 @@ module.exports = {
     getAllRestsaurant: getAllRestsaurant,
     getSimilarRestaurant: getSimilarRestaurant,
     getOtherRestaurant: getOtherRestaurant,
+    getOtherDrinkRestaurant: getOtherDrinkRestaurant,
     verifySearchFood: verifySearchFood,
     verifySubway: verifySubway,
     verifySubwayDrinktype: verifySubwayDrinktype,
