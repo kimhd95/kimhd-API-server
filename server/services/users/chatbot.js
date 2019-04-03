@@ -2763,14 +2763,14 @@ function getOtherDrinkRestaurant (req, res) {
           let drink_round = result[0][0].drink_round;
           let price_dinner = result[0][0].price_dinner;
           let mood2 = result[0][0].mood2;
-          let mood = result[0][0].mood;
+          let mood = result[0][0].mood1;
           let drink_type = result[0][0].drink_type;
 
           // mood parsing
-          let mood_flag = '';
-          if (mood == null || mood == undefined) {
-           mood_flag = 'NOT';
-           mood = 'x';
+          let mood1_flag = '';
+          if (mood1 == null || mood == undefined) {
+           mood1_flag = 'NOT';
+           mood1 = 'x';
           }
           // price_dinner parsing
           let price_dinner_flag = '';
@@ -2812,7 +2812,7 @@ function getOtherDrinkRestaurant (req, res) {
                   ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
                   ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
                   ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
-                  ${mood_flag} match(mood) against('${mood}' in boolean mode) and
+                  ${mood1_flag} match(mood) against('${mood1}' in boolean mode) and
                   ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) and
                   id NOT in (${rest_stack[0][0].rest_stack});`;
             console.log(query);
