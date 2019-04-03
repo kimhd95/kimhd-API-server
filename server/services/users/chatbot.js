@@ -2762,8 +2762,8 @@ function getOtherDrinkRestaurant (req, res) {
           let subway = result[0][0].subway;
           let drink_round = result[0][0].drink_round;
           let price_dinner = result[0][0].price_dinner;
+          let mood1 = result[0][0].mood1;
           let mood2 = result[0][0].mood2;
-          let mood = result[0][0].mood1;
           let drink_type = result[0][0].drink_type;
 
           // mood parsing
