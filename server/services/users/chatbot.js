@@ -2805,12 +2805,16 @@ function getOtherDrinkRestaurant (req, res) {
 
           // 1. GPS 에서 다른식당보기
           if (lat != null && lng != null) {
-            let query = `select * from restaurants where match(drink_round) against('${drink_round}' in boolean mode) and
+            let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+                  (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
+                  (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
+                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
                   ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
                   ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
                   ${mood_flag} match(mood) against('${mood}' in boolean mode) and
-                  match(drink_type) against('${drink_type} in boolean mode') and
+                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) and
                   id NOT in (${rest_stack[0][0].rest_stack});`;
+            console.log(query);
 
             models.sequelize.query(query)
             .then(nears => {
@@ -2861,14 +2865,15 @@ function getOtherDrinkRestaurant (req, res) {
 
           // 2. 일반적인 다른식당보기
           else {
-            let query = `select * from restaurants where subway = '${subway}' and
-                 match(drink_round) against('${drink_round}' in boolean mode) and
-                 ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
-                 ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
-                 ${mood_flag} match(mood) against('${mood}' in boolean mode) and
-                 match(drink_type) against('${drink_type} in boolean mode') and
-                 id NOT in(${rest_stack[0][0].rest_stack}) ORDER BY RAND() LIMIT 2;`;
-
+            let query = `select * from restaurants where closedown=0 AND
+                  subway = '${subway}' and
+                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
+                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
+                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
+                  ${mood_flag} match(mood) against('${mood}' in boolean mode) and
+                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) and
+                  id NOT in(${rest_stack[0][0].rest_stack}) ORDER BY RAND() LIMIT 2;`;
+            console.log(query);
             models.sequelize.query(query)
             .then(result => {
               if (result[0].length == 2) {
@@ -3806,11 +3811,14 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    //lng, lat 값이 있는 경우
    if (lng != null && lat != null) {
      console.log("gps case");
-     let query = `select * from restaurants where match(drink_round) against('${drink_round}' in boolean mode) and
+     let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+                  (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
+                  (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
+                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
                   ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
                   ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
                   ${mood_flag} match(mood) against('${mood}' in boolean mode) and
-                  match(drink_type) against('${drink_type} in boolean mode');`;
+                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`;
     console.log(query);
 
      models.sequelize.query(query).then(result => {
@@ -3857,12 +3865,14 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
 
    } else {
      console.log("일반적인 경우");
-     let query = `select * from restaurants where subway = '${subway}' and
-                  match(drink_round) against('${drink_round}' in boolean mode) and
+     let query = `select * from restaurants where closedown=0 AND
+                  subway = '${subway}' and
+                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
                   ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
                   ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
                   ${mood_flag} match(mood) against('${mood}' in boolean mode) and
-                  match(drink_type) against('${drink_type} in boolean mode') ORDER BY RAND() LIMIT 2;`;
+                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) ORDER BY RAND() LIMIT 2;`;
+     console.log(query);
 
      models.sequelize.query(query).then(result => {
           console.log(result);
