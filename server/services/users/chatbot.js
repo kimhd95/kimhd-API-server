@@ -3041,7 +3041,7 @@ function verifyDrinktypeList (req, res) {
           return new Promise(resolve => setTimeout(() => resolve(), 50));
         }
 
-        var action = result.map(parseFunc);
+        var action = result[0].map(parseFunc);
         Promise.all(action).then(() => {
           // list = Array.from(new Set(list));   // 중복 제거
           return res.status(200).json({success: true, message: Array.from(new Set(list))});
