@@ -2825,7 +2825,7 @@ function getOtherDrinkRestaurant (req, res) {
                           * (1 - c((item.lng - lng) * p)) / 2;
                   let result = 12742 * Math.asin(Math.sqrt(a));
 
-                  if (result < 0.5) {
+                  if (result < 100) {
                     console.log(item.subway + item.res_name + ' >> ' + Math.floor(result*1000)+'m');
                     item['distance'] = Math.floor(result*1000);
                     nearsList.push(item);
@@ -3823,7 +3823,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                    + c(lat * p) * c(item.lat * p)
                    * (1 - c((item.lng - lng) * p)) / 2;
            const result = 12742 * Math.asin(Math.sqrt(a));
-           if (result < 0.5) {
+           if (result < 100) {
              console.log(item.res_name + ": " + result);
              resultList.push(item);
            }
