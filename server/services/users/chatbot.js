@@ -3045,9 +3045,9 @@ function verifyDrinktypeList (req, res) {
                      FROM restaurants
                      WHERE ${drink_round==null?'NOT':''} (MATCH(drink_round) AGAINST ('${drink_round}' IN BOOLEAN MODE)) AND
                            ${subway==null?'NOT':''} (MATCH(subway) AGAINST ('${subway}' IN BOOLEAN MODE)) AND
-                           ${price_dinner_flag} (MATCH(price_dinner) AGAINST ('${price_dinner)}' IN BOOLEAN MODE)) AND
-                           ${mood1_flag} (MATCH(mood) AGAINST ('${mood1)}' IN BOOLEAN MODE)) AND
-                           ${mood2_flag} (MATCH(mood2) AGAINST ('${mood2)}' IN BOOLEAN MODE));`;
+                           ${price_dinner_flag} (MATCH(price_dinner) AGAINST ('${price_dinner}' IN BOOLEAN MODE)) AND
+                           ${mood1_flag} (MATCH(mood) AGAINST ('${mood1}' IN BOOLEAN MODE)) AND
+                           ${mood2_flag} (MATCH(mood2) AGAINST ('${mood2}' IN BOOLEAN MODE));`;
       console.log(query);
       models.sequelize.query(query)
       .then(result => {
