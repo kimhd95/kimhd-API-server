@@ -3018,19 +3018,31 @@ function verifyDrinktypeList (req, res) {
       const price_dinner = userData[0][0].price_dinner;
       const mood1 = userData[0][0].mood1;
       const mood2 = userData[0][0].mood2;
+      let price_dinner_flag = '';
+      let mood1_flag = '';
+      let mood2_flag = '';
+
+      if (price_dinner == null || price_dinner == undefined || price_dinner.indexOf('!') !== -1) {
+        price_dinner_flag = 'NOT';
+      }
+      if (mood1 == null || mood1 == undefined || mood1.indexOf('!') !== -1) {
+        mood1_flag = 'NOT';
+      }
+      if (mood2 == null || mood2 == undefined || mood2.indexOf('!') !== -1) {
+        mood2_flag = 'NOT';
+      }
 
       const query = `SELECT DISTINCT drink_type
                      FROM restaurants
                      WHERE ${drink_round==null?'NOT':''} (MATCH(drink_round) AGAINST ('${drink_round}' IN BOOLEAN MODE)) AND
                            ${subway==null?'NOT':''} (MATCH(subway) AGAINST ('${subway}' IN BOOLEAN MODE)) AND
-                           ${price_dinner==null?'NOT':''} (MATCH(price_dinner) AGAINST ('${price_dinner}' IN BOOLEAN MODE)) AND
-                           ${mood1==null?'NOT':''} (MATCH(mood) AGAINST ('${mood1}' IN BOOLEAN MODE)) AND
-                           ${mood2==null?'NOT':''} (MATCH(mood2) AGAINST ('${mood2}' IN BOOLEAN MODE));`;
+                           ${price_dinner_flag} (MATCH(price_dinner) AGAINST ('${price_dinner.replace(/\!/gi,'')}' IN BOOLEAN MODE)) AND
+                           ${mood1_flag} (MATCH(mood) AGAINST ('${mood1.replace(/\!/gi,'')}' IN BOOLEAN MODE)) AND
+                           ${mood2_flag} (MATCH(mood2) AGAINST ('${mood2.replace(/\!/gi,'')}' IN BOOLEAN MODE));`;
       console.log(query);
       models.sequelize.query(query)
       .then(result => {
         let list = [];
-        console.log(result[0][0].drink_type);
 
         // 쿼리 결과 식당들의 drink type을 ,로 파싱한 후 list에 전부 넣고 후에 중복 제거 후 response
         var parseFunc = (item) => {
@@ -3048,10 +3060,12 @@ function verifyDrinktypeList (req, res) {
         }
 
         var action = result[0].map(parseFunc);
-        Promise.all(action).then(() => {
+        Promise.all(action)
+        .then(() => {
           // list = Array.from(new Set(list));   // 중복 제거
           return res.status(200).json({success: true, message: Array.from(new Set(list))});
-        }).catch(err => {
+        })
+        .catch(err => {
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
         })
       })
