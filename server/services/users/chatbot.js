@@ -3034,9 +3034,15 @@ function verifyDrinktypeList (req, res) {
 
         // 쿼리 결과 식당들의 drink type을 ,로 파싱한 후 list에 전부 넣고 후에 중복 제거 후 response
         var parseFunc = (item) => {
-          let types = item.drink_type;
+          let types = item.replace(/ /gi, '').drink_type;
           types.split(',').forEach(element => {
-            list.push(element);
+            if (element.indexOf('맥주') != -1) {
+              list.push('맥주');
+            } else if (element === '양주' || element === '칵테일') {
+              list.push('양주&칵테일');
+            } else {
+              list.push(element);
+            }
           });
           return new Promise(resolve => setTimeout(() => resolve(), 50));
         }
