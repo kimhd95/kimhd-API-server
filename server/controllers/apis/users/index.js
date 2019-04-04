@@ -60,6 +60,7 @@ router.get('/get_all_restaurant', chatbotService.getAllRestsaurant);
 router.post('/get_similar_restaurant', chatbotService.getSimilarRestaurant);
 router.post('/get_other_restaurant', chatbotService.getOtherRestaurant);
 router.post('/get_other_drink_restaurant', chatbotService.getOtherDrinkRestaurant);
+router.post('/get_similar_drink_restaurant', chatbotService.getSimilarDrinkRestaurant);
 router.post('/verify_subway', chatbotService.verifySubway);
 router.post('/verify_subway_drinktype', chatbotService.verifySubwayDrinktype);
 router.post('/verify_search_food', chatbotService.verifySearchFood);
