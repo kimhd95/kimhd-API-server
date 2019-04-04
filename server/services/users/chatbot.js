@@ -3022,23 +3022,23 @@ function verifyDrinktypeList (req, res) {
       let mood1_flag = '';
       let mood2_flag = '';
 
-      if (price_dinner == null || price_dinner == undefined || price_dinner.indexOf('!') !== -1) {
+      if (price_dinner == null || price_dinner == undefined) {
         price_dinner_flag = 'NOT';
-        if (price_dinner.indexOf('!') !== -1) {
-          price_dinner = price_dinner.replace(/\!/gi,'');
-        }
+      } else if (price_dinner.indexOf('!') !== -1) {
+        price_dinner_flag = 'NOT';
+        price_dinner = price_dinner.replace(/\!/gi,'');
       }
-      if (mood1 == null || mood1 == undefined || mood1.indexOf('!') !== -1) {
+      if (mood1 == null || mood1 == undefined) {
         mood1_flag = 'NOT';
-        if (mood1.indexOf('!') !== -1) {
-          mood1 = mood1.replace(/\!/gi,'');
-        }
+      } else if (mood1.indexOf('!') !== -1) {
+        mood1_flag = 'NOT';
+        mood1 = mood1.replace(/\!/gi,'');
       }
-      if (mood2 == null || mood2 == undefined || mood2.indexOf('!') !== -1) {
+      if (mood2 == null || mood2 == undefined) {
         mood2_flag = 'NOT';
-        if (mood2.indexOf('!') !== -1) {
-          mood2 = mood2.replace(/\!/gi,'');
-        }
+      } else if (mood2.indexOf('!') !== -1) {
+        mood2_flag = 'NOT';
+        mood2 = mood2.replace(/\!/gi,'');
       }
 
       const query = `SELECT DISTINCT drink_type
