@@ -43,11 +43,11 @@ function verifyToken (req, res) {
     let onetime = cookies.onetime;
     const secret = config.jwt_secret;
 
-    console.log(`cookie: ${cookie}`);
-    console.log(`token: ${token}`);
-    console.log(`onetime: ${onetime}`);
+    // console.log(`cookie: ${cookie}`);
+    // console.log(`token: ${token}`);
+    // console.log(`onetime: ${onetime}`);
     if (token) {
-        console.log('token given');
+        console.log('token given.');
 
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
@@ -92,7 +92,7 @@ function checkTokenVerified (req, res, next){
                 return res.json({ success: false, message: 'Failed to authenticate token. err: ' + err.message });
             } else {
                 // if everything is good, save decoded token payload to request for use in other routes
-                console.log('Token verified')
+                console.log('Token verified.');
                 // req.decoded 에 저장해두어야 이후 함수에서 refer 가능.
                 req.decoded = decoded;
                 next()
@@ -1164,9 +1164,6 @@ function getRestaurant (req, res) {
       }
       price_lunch_flag = 'NOT'
   }
-    console.log('price_lunch, price_dinner2:'+price_lunch+price_dinner);
-    console.log(`price_lunch_flag : ${price_lunch_flag}, price_dinner_flag : ${price_dinner_flag}`);
-    console.log(`mood2 : ${mood2}`);
   // 일상적인 식사일 경우에는 mood2 고려 안 함
   // 일상적인 식사가 아닌 경우에는 keyword를 공백을 두어 문자열로 만듦
   if(mood2 === '999' || mood2 === '998'){
@@ -1223,9 +1220,6 @@ function getRestaurant (req, res) {
       food_name_condition = `food_name LIKE ("%${food_name}%")`;
     }
   }
-  console.log('food_name:'+food_name);
-  console.log('food_name_flag:'+food_name_flag);
-  console.log('hate_food:'+hate_food);
 
   let query = `SELECT * FROM restaurants WHERE closedown=0 AND
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
@@ -1239,7 +1233,6 @@ function getRestaurant (req, res) {
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
    ORDER BY RAND() LIMIT 2;`;
 
-  console.log("1", query);
   models.sequelize.query(query).then(result => {
     if (result[0].length === 2) {
       return res.status(200).json({success: true, try: 1, message: result[0]})
@@ -1255,7 +1248,6 @@ function getRestaurant (req, res) {
        ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
        ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
        ORDER BY RAND() LIMIT 2;`
-      console.log("2",query_next);
       models.sequelize.query(query_next).then(second_result => {
         if (second_result[0].length === 2) {
           return res.status(200).json({success: true, try: 2, message: second_result[0]})
@@ -1360,7 +1352,7 @@ function verifyResultExist (req, res) {
   var results = Promise.all(applyAll);
 
   results.then(() => {
-    console.log("Consequence : ", verifyResult);
+    console.log("verifyResult : ", verifyResult);
     return res.status(200).json({success: true, valid: verifyResult});
   })
 }
@@ -2969,7 +2961,6 @@ function verifySubway (req, res) {
 
 function verifySearchFood (req, res) {
     console.log("Here is verifySearchFood");
-    console.log("req.body.search_food: "+req.body.search_food);
 
     let search_food, subway, query;
 
@@ -3120,31 +3111,6 @@ function verifyDrinktypeList (req, res) {
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
     });
 }
-
-/*
-function testSubwayExist (req, res) {
-  console.log("here is testSubwayExist.");
-  let subway;
-  if ((req.body.subway !== undefined)) {
-    subway = req.body.subway;
-  } else {
-    return res.status(400).json({success: false, message: 'Parameters not properly given. Check parameter names (subway).',
-        subway: req.body.subway});
-  }
-  models.Cafe.findOne({
-      where: {
-          subway: subway
-      }
-  }).then(result => {
-      if(result !== null) {
-          res.status(200).json({result: 'success'})
-      } else {
-          res.status(200).json({result: 'no subway'})
-      }
-  }).catch(err => {
-      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-  });
-}*/
 
 function verifySubwayDrinktype (req, res) {
     let subway;
@@ -3875,7 +3841,6 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      });
 
    } else {
-     console.log("일반적인 경우");
      let query = `select * from restaurants where closedown=0 AND
                   subway = '${subway}' and
                   ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
@@ -3886,15 +3851,11 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      console.log(query);
 
      models.sequelize.query(query).then(result => {
-          console.log(result);
           if (result[0].length == 2) {
-            console.log("length 2");
             return res.status(200).json({success: true, num: 2, message: result[0]})
           } else if (result[0].length == 1) {
-            console.log("length 1");
             return res.status(200).json({success: true, num: 1, message: result[0]})
           } else {
-            console.log("length 0");
             return res.status(403).json({success: false, message: 'no result'})
           }
         }).catch(err => {
