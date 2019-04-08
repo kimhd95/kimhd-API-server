@@ -1232,6 +1232,7 @@ function getRestaurant (req, res) {
    ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
    ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
    ORDER BY RAND() LIMIT 2;`;
+   console.log(query);
 
   models.sequelize.query(query).then(result => {
     if (result[0].length === 2) {
@@ -1248,6 +1249,7 @@ function getRestaurant (req, res) {
        ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
        ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
        ORDER BY RAND() LIMIT 2;`
+       console.log(query_next);
       models.sequelize.query(query_next).then(second_result => {
         if (second_result[0].length === 2) {
           return res.status(200).json({success: true, try: 2, message: second_result[0]})
@@ -3735,12 +3737,12 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    const kakao_id = req.body.kakao_id;
    let lng = req.body.lng;
    let lat = req.body.lat;
-   let drink_round = req.body.drink_round;
+   let drink_round = req.body.drink_round.replace(/ /gi, '');
    let subway = req.body.subway;
-   let price_dinner = req.body.price_dinner;
-   let mood2 = req.body.mood2;
-   let mood = req.body.mood;
-   let drink_type = req.body.drink_type;
+   let price_dinner = req.body.price_dinner.replace(/ /gi, '');
+   let mood2 = req.body.mood2.replace(/ /gi, '');
+   let mood = req.body.mood.replace(/ /gi, '');
+   let drink_type = req.body.drink_type.replace(/ /gi, '');
 
    console.log(`lng : ${lng}, lat : ${lat}, drink_round : ${drink_round}, subway : ${subway}, price_dinner : ${price_dinner}, mood2 : ${mood2}, mood : ${mood}, drink_type : ${drink_type}`);
 
@@ -3789,12 +3791,44 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      console.log("gps case");
      let query = `SELECT * FROM restaurants WHERE closedown=0 AND
                   (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
-                  (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
-                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
-                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
-                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
-                  ${mood_flag} match(mood) against('${mood}' in boolean mode) and
-                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`;
+                  (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND `;
+
+     const drink_round_arr = drink_round.split(',');
+     const drink_type_arr = drink_type.split(',');
+     const price_dinner_arr = price_dinner.split(',');
+     const mood_arr = mood.split(',');
+     const mood2_arr = mood2.split(',');
+     query += `${drink_round==null?'NOT':''} (MATCH(drink_round) AGAINST('${drink_round_arr[0]}' IN BOOLEAN MODE) `;
+     for (let i=1; i < drink_round_arr.length; i++) {
+       query += `OR MATCH(drink_round) AGAINST('${drink_round_arr[i]}' IN BOOLEAN MODE) `;
+     }
+     query += `) AND `;
+     query += `${price_dinner_flag} (MATCH(price_dinner) AGAINST('${price_dinner_arr[0]}' IN BOOLEAN MODE) `;
+     for (let i=1; i < price_dinner_arr.length; i++) {
+       query += `OR MATCH(price_dinner) AGAINST('${price_dinner_arr[i]}' IN BOOLEAN MODE) `;
+     }
+     query += `) AND `;
+     query += `${mood_flag} (MATCH(mood) AGAINST('${mood_arr[0]}' IN BOOLEAN MODE) `;
+     for (let i=1; i < mood_arr.length; i++) {
+       query += `OR MATCH(mood) AGAINST('${mood_arr[i]}' IN BOOLEAN MODE) `;
+     }
+     query += `) AND `;
+     query += `${mood2_flag} (MATCH(mood2) AGAINST('${mood2_arr[0]}' IN BOOLEAN MODE) `;
+     for (let i=1; i < mood2_arr.length; i++) {
+       query += `OR MATCH(mood2) AGAINST('${mood2_arr[i]}' IN BOOLEAN MODE) `;
+     }
+     query += `) AND `;
+     query += `${drink_type=='888'?'NOT':''} (MATCH(drink_type) AGAINST('${drink_type_arr[0]}' IN BOOLEAN MODE) `;
+     for (let i=1; i < drink_type_arr.length; i++) {
+       query += `OR MATCH(drink_type) AGAINST('${drink_type_arr[i]}' IN BOOLEAN MODE) `;
+     }
+     query += `);`;
+                  //  `
+                  // ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
+                  // ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
+                  // ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
+                  // ${mood_flag} match(mood) against('${mood}' in boolean mode) and
+                  // ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`;
     console.log(query);
 
      models.sequelize.query(query).then(result => {
