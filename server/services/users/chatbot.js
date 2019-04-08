@@ -1293,24 +1293,7 @@ function verifyResultExist (req, res) {
       hate_food = 'x';
   }
   hate_food = hate_food.replace(/,/g,' ');
-/*
-  let food_name_condition;
-  if(food_name === null || food_name ==='x'){
-    food_name = 'x';
-    food_name_flag = 'NOT';
-    food_name_condition = `${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode))`;
-  } else {
-    let food_name_leng = food_name.split(',').length;
-    if(food_name.includes(',')) {
-      food_name_condition = `(food_name LIKE ("%${food_name.split(',')[0]}%")`;
-      for (var i = 1; i<food_name_leng; i++) {
-        food_name_condition += ` or food_name LIKE ("%${food_name.split(',')[i]}%")`;
-      }
-      food_name_condition += ')';
-    } else {
-      food_name_condition = `food_name LIKE ("%${food_name}%")`;
-    }
-  }*/
+
   let query = `SELECT * FROM restaurants WHERE
    closedown=0 AND
    subway = '${subway}' AND
@@ -1326,22 +1309,18 @@ function verifyResultExist (req, res) {
     models.sequelize.query(newQuery1).then(result => {
       let i = taste_list.indexOf(taste);
       if (result[0].length === 2) {                           // 1-1 있
-        console.log(`Query${i+1}-1 Exist`);
         models.sequelize.query(newQuery2).then(result => {
           if (result[0].length === 2) {
             verifyResult.push({'index': i, 'valid': true});
-            console.log(`Query${i+1}-2 Exist`);
           }  // 1-2 있
           else {
             verifyResult.push({'index': i, 'valid': false});
-            console.log(`Query${i+1}-2 not Exist`);
           }                        // 1-2 없
         }).catch( err => {
           return new Promise(reject => setTimeout(() => reject(err), 100));
         });
       } else {                                                // 1-1 없
         verifyResult.push({'index': i, 'valid': false});
-        console.log(`Query${i+1}-1 not Exist`);
       }
     }).catch( err => {
       return new Promise(reject => setTimeout(() => reject(err), 100));
@@ -1363,15 +1342,15 @@ function getTwoRestaurant (req, res) {
     const rest1 = req.body.rest1;
     const rest2 = req.body.rest2;
 
-    models.sequelize.query(`SELECT * FROM restaurants WHERE id='${rest1}' UNION ALL SELECT * FROM restaurants WHERE id='${rest2}';`).then(result => {
+    models.sequelize.query(`SELECT * FROM restaurants WHERE id='${rest1}' UNION ALL SELECT * FROM restaurants WHERE id='${rest2}';`)
+    .then(result => {
       if (result) {
-        console.log('result: ' + result.toString())
         return res.status(200).json({success: true, message: result[0]})
       } else {
-        console.log('result없음');
         return res.status(403).json({success: false, message: 'user update query failed.'})
       }
-    }).catch(function (err) {
+    })
+    .catch(function (err) {
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
@@ -1385,19 +1364,20 @@ function getAllHistory (req, res) {
             kakao_id: kakao_id
         }
     }).then(user_email => {
-      if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' ORDER BY id DESC;').then(result => {
-            if (result){
-                console.log('result: ' + result.toString())
+      if(user_email) {
+        models.sequelize.query(`SELECT * FROM decide_histories WHERE email = '${user_email.email}' ORDER BY id DESC;`)
+        .then(result => {
+            if (result) {
                 return res.status(200).json({success: true, message: result[0]})
             } else {
-                console.log('result없음');
                 return res.status(403).json({success: false, message: 'user update query failed.'})
             }
-        }).catch(function (err){
+        })
+        .catch(function (err){
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         });
-      }else{
+      }
+      else {
         return res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
@@ -1416,18 +1396,19 @@ function getSubwayHistory (req, res) {
         }
     }).then(user_email => {
       if(user_email){
-        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND subway = '+"'"+subway+"'"+' ORDER BY id;').then(result => {
-            if (result){
-                console.log('result: ' + result.toString())
+        models.sequelize.query('SELECT * FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' AND subway = '+"'"+subway+"'"+' ORDER BY id;')
+        .then(result => {
+            if (result) {
                 return res.status(200).json({success: true, message: result[0]})
             } else {
-                console.log('result없음');
                 return res.status(403).json({success: false, message: 'no result'})
             }
-        }).catch(function (err){
+        })
+        .catch(function (err) {
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         });
-      }else{
+      }
+      else {
         return res.status(401).json({message: 'Cant find user email : ' + err.message})
       }
     }).catch(err => {
@@ -1444,23 +1425,24 @@ function getCountHistory (req, res) {
             kakao_id: kakao_id
         }
     }).then(user_email => {
-      if(user_email){
-        models.sequelize.query('SELECT *,count(*) as cnt FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' GROUP BY res_name ORDER BY cnt DESC;').then(result => {
-            if (result){
-                console.log('result: ' + result.toString())
-                return res.status(200).json({success: true, message: result[0]})
+      if (user_email) {
+        models.sequelize.query('SELECT *,count(*) as cnt FROM decide_histories WHERE email = '+"'"+user_email.email+"'"+' GROUP BY res_name ORDER BY cnt DESC;')
+        .then(result => {
+            if (result) {
+                return res.status(200).json({success: true, message: result[0]});
             } else {
-                console.log('result없음');
-                return res.status(403).json({success: false, message: 'no result'})
+                return res.status(403).json({success: false, message: 'no result'});
             }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        })
+        .catch(function (err) {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
         });
-      }else{
-        return res.status(401).json({message: 'Cant find user email : ' + err.message})
+      }
+      else {
+        return res.status(401).json({message: 'Cant find user email : ' + err.message});
       }
     }).catch(err => {
-        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
     });
 }
 
@@ -1477,12 +1459,12 @@ function updateSocket (req, res) {
         })  // Condition
         .then(result => {
           if (result) {
-            return res.status(200).json({success: true, message: 'User Socket Update complete.', email: email})
+            return res.status(200).json({success: true, message: 'User Socket Update complete.', email: email});
           } else {
-            return res.status(403).json({success: false, message: 'no result'})
+            return res.status(403).json({success: false, message: 'no result'});
           }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        }).catch(function (err) {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
     })
 }
 
@@ -1504,12 +1486,13 @@ function updatePartLog (req, res) {
         })  // Condition
         .then(result => {
           if (result) {
-            return res.status(200).json({success: true, message: 'User Socket Update complete.'})
+            return res.status(200).json({success: true, message: 'User Socket Update complete.'});
           } else {
-            return res.status(403).json({success: false, message: 'no result'})
+            return res.status(403).json({success: false, message: 'no result'});
           }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        })
+        .catch(function (err) {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
     })
 }
 
@@ -1533,19 +1516,20 @@ function updateChatLog (req, res) {
         })  // Condition
         .then(result => {
           if (result) {
-            return res.status(200).json({success: true, message: 'User Socket Update complete.'})
+            return res.status(200).json({success: true, message: 'User Socket Update complete.'});
           } else {
-            return res.status(403).json({success: false, message: 'no result'})
+            return res.status(403).json({success: false, message: 'no result'});
           }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        })
+        .catch(function (err) {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
     })
 }
 
 
 function getUserInfo (req, res) {
-    console.log('getUserInfo called.')
-    const kakao_id = req.params.kakao_id
+    console.log('getUserInfo called.');
+    const kakao_id = req.params.kakao_id;
     let nowDate = new Date();
     nowDate.getTime();
     const now = nowDate;
@@ -1556,8 +1540,8 @@ function getUserInfo (req, res) {
                 kakao_id: kakao_id
             }
         }).then(user => {
-            if (!user){
-                return res.status(403).json({success: false, message: 'user not found with kakao_id: ' + kakao_id})
+            if (!user) {
+                return res.status(403).json({success: false, message: 'user not found with kakao_id: ' + kakao_id});
             }
             models.UserLog.findAll({
                 where: {
@@ -1569,7 +1553,7 @@ function getUserInfo (req, res) {
                 ]
             }).then(userLog => {
                 console.log('userLog findAll finished.')
-                if (userLog){
+                if (userLog) {
                     //console.log(userLog);
                     models.User.update({
                         exit: 0,
@@ -1577,19 +1561,19 @@ function getUserInfo (req, res) {
                     }, {
                         where: {kakao_id: kakao_id} // Condition
                     })
-                    return res.status(200).json({success: true, message: 'user and user_log both found.', user_info: user, user_log: userLog})
+                    return res.status(200).json({success: true, message: 'user and user_log both found.', user_info: user, user_log: userLog});
                 } else {
                     // Return when no data found
-                    return res.status(403).json({success: false, message: 'No userLog found with given kakao_id.'})
+                    return res.status(403).json({success: false, message: 'No userLog found with given kakao_id.'});
                 }
-            }).catch(function (err){
-              return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+            }).catch(function (err) {
+              return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
             })
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+        }).catch(function (err) {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
         })
     } else {
-        return res.status(401).json({success: false, message: 'kakao_id not given.'})
+        return res.status(401).json({success: false, message: 'kakao_id not given.'});
     }
 }
 
@@ -1606,7 +1590,7 @@ function getUserInfoByEmail (req, res) {
                 email: email
             }
         }).then(user => {
-            if (!user){
+            if (!user) {
                 return res.status(403).json({success: false, message: 'user not found with email: ' + email})
             }
             models.UserLog.findAll({
@@ -1619,7 +1603,7 @@ function getUserInfoByEmail (req, res) {
                 ]
             }).then(userLog => {
                 console.log('userLog findAll finished.')
-                if (userLog){
+                if (userLog) {
                     //console.log(userLog);
                     models.User.update({
                         exit: 0,
@@ -1632,10 +1616,10 @@ function getUserInfoByEmail (req, res) {
                     // Return when no data found
                     return res.status(403).json({success: false, message: 'No userLog found with given email.'})
                 }
-            }).catch(function (err){
+            }).catch(function (err) {
               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
             })
-        }).catch(function (err){
+        }).catch(function (err) {
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         })
     } else {
@@ -1644,15 +1628,13 @@ function getUserInfoByEmail (req, res) {
 }
 
 function getRestaurantInfo (req, res) {
-    console.log('getRestaurantInfo called.')
-    const id = req.body.id
+    console.log('getRestaurantInfo called.');
+    const id = req.body.id;
 
     models.sequelize.query('SELECT * FROM restaurants WHERE id= '+id+';').then(result => {
-        if (result){
-            console.log('result: ' + result.toString())
+        if (result) {
             return res.status(200).json({success: true, message: result[0]})
         } else {
-            console.log('result없음');
             return res.status(403).json({success: false, message: 'no result.'})
         }
     }).catch(function (err){
@@ -1661,8 +1643,8 @@ function getRestaurantInfo (req, res) {
 }
 
 function getCafeInfo (req, res) {
-    console.log('getCafeInfo called.')
-    const id = req.body.id
+    console.log('getCafeInfo called.');
+    const id = req.body.id;
 
     models.sequelize.query('SELECT * FROM cafes WHERE id= '+id+';').then(result => {
         if (result){
@@ -1850,7 +1832,7 @@ function updateRest2 (req, res) {
 }
 
 function updateCafe2 (req, res) {
-    console.log('updateCafe called.')
+    console.log('updateCafe called.');
     const kakao_id = req.body.kakao_id;
     const cafe1 = req.body.cafe1;
     const cafe2 = req.body.cafe2;
@@ -1872,13 +1854,13 @@ function updateCafe2 (req, res) {
           } else {
             return res.status(403).json({success: false, message: 'no result'})
           }
-        }).catch(function (err){
+        }).catch(function (err) {
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     })
 }
 
 function updatePlaceInfo (req, res) {
-    console.log('updatePlaceInfo called.')
+    console.log('updatePlaceInfo called.');
     const kakao_id = req.body.kakao_id;
     const lat = req.body.lat;
     const lng = req.body.lng;
@@ -1898,13 +1880,13 @@ function updatePlaceInfo (req, res) {
         })  // Condition
         .then(result => {
           if (result) {
-            return res.status(200).json({success: true, message: 'updatePlaceInfo Update complete.'})
+            return res.status(200).json({success: true, message: 'updatePlaceInfo Update complete.'});
           } else {
-            return res.status(403).json({success: false, message: 'no result'})
+            return res.status(403).json({success: false, message: 'no result'});
           }
-        }).catch(function (err){
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    })
+        }).catch(function (err) {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+      });
 }
 
 function updateMidInfo (req, res) {
@@ -2003,7 +1985,7 @@ function createUserFeedback (req, res) {
       } else {
         return res.status(403).json({success: false, message: 'no result'})
       }
-    }).catch(function (err){
+    }).catch(function (err) {
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     })
 }
@@ -2019,7 +2001,7 @@ function getFeedbackInfo (req, res) {
             console.log('result없음');
             return res.status(403).json({success: false, message: 'no result'})
         }
-    }).catch(function (err){
+    }).catch(function (err) {
         return res.status(403).json({success: false, message: 'Unknown error while querying users table for update from ChatBot server. err: ' + err.message})
     })
     //}
@@ -2463,7 +2445,7 @@ function getAllSubway(req, res) {
     }).then(result => {
         let term = req.query.term;
         console.log( `term : ${term}`);
-        if(result){
+        if (result) {
             let subway_array = result.reduce((acc,cur) => {
               acc.push(cur.subway);
               return acc;
@@ -2475,7 +2457,7 @@ function getAllSubway(req, res) {
 
             return res.status(200).json(result_array);
             // return '됨';
-        }else{
+        } else {
             return res.status(403).json({error: 'no result'});
         }
     }).catch(function (err){
@@ -2488,17 +2470,17 @@ function getAllRestsaurant(req, res) {
         attributes: ['res_name','subway'],
         group: ['res_name', 'subway']
     }).then(result => {
-        if(result){
+        if (result) {
             let result_array = result.reduce((acc,cur) => {
               acc.push(cur.subway + ' ' + cur.res_name);
               return acc;
             },[]);
             return res.status(200).json(result_array);
             // return '됨';
-        }else{
+        } else {
             return res.status(404).json({error: 'no result'});
         }
-    }).catch(function (err){
+    }).catch(function (err) {
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     });
 }
@@ -2513,7 +2495,7 @@ function getSimilarRestaurant (req, res) {
        food_type = '${result[0][0].food_type}' AND
        match(price_dinner) against('${result[0][0].price_dinner}') AND
        id != '${rest}' ORDER BY RAND() LIMIT 2;`).then(result2 => {
-        if(result2[0].length >= 2){
+        if (result2[0].length >= 2) {
           return res.status(200).json({success: true, message: result2[0]});
         } else {
           return res.status(200).json({success: false, message: 'no result.'});
@@ -3842,14 +3824,25 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      });
 
    } else {
-     let query = `select * from restaurants where closedown=0 AND
-                  subway = '${subway}' and
-                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
-                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
-                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
-                  ${mood_flag} match(mood) against('${mood}' in boolean mode) and
+     let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+                  subway = '${subway}' AND
+                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) AND
+                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) AND
+                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) AND
+                  ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
                   ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) ORDER BY RAND() LIMIT 2;`;
      console.log(query);
+     models.sequelize.query(`SELECT count(*) AS count FROM restaurants WHERE
+                  closedown = 0 AND
+                  subway = '${subway}' AND
+                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) AND
+                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) AND
+                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) AND
+                  ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
+                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`)
+     .then(cnt => {
+       console.log(`검색 결과 : ${cnt[0][0].count}개`);
+     })
 
      models.sequelize.query(query).then(result => {
           if (result[0].length == 2) {
@@ -3864,74 +3857,6 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
         });
    }
  }
-
-
- // function getCafe(req, res) {
-//   let subway = req.body.subway_cafe;
-//   let exit_quarter = req.body.exit_quarter;
-//   let mainmenu_type = req.body.mainmenu_type;
-//   console.log(`getCafe함수에서 subway : ${subway}, exit_quarter : ${exit_quarter}, mainmenu_type : ${mainmenu_type}`);
-//
-//   const condition = [];
-//   const cLeng = mainmenu_type.split(',').length;
-//   if(mainmenu_type.includes('!')) {
-//     for (var i = 0; i < cLeng; i++) {
-//       condition.push(`${mainmenu_type.split(',')[i].split('!')[1]}`);
-//     }
-//   } else {
-//     for (var i = 0; i < cLeng; i++) {
-//       condition.push(`${mainmenu_type.split(',')[i]}`);
-//     }
-//   }
-//   console.log(condition);
-//
-//   const condition2 = [];
-//   const cLeng2 = exit_quarter.split(',').length;
-//   for(var j = 0; j < cLeng2; j++) {
-//     condition2.push(`${exit_quarter.split(',')[j]}`);
-//   }
-//
-//   models.Cafe.findAll({
-//       where: {
-//           subway: subway,
-//           exit_quarter: {
-//             [Op.or]: condition2
-//           },
-//           mainmenu_type: {
-//             [Op.or]: condition
-//           }
-//       }})
-//       .then(result => {
-//         // console.log(result);
-//       if(result.length !== 0) {
-//         console.log("if");
-//         const leng = result.length;
-//         const rand = Math.floor(Math.random() * leng);
-//         models.Sequelize.query
-//
-//         res.status(200).json({success: true, message: result[rand], exit_quarter: true})
-//       } else {
-//         models.Cafe.findAll({
-//           where: {
-//               subway: subway,
-//               mainmenu_type: {
-//                 [Op.or]: condition
-//               }
-//             }
-//         }).then(result => {
-//           console.log("else");
-//           console.log(result);
-//           const leng = result.length;
-//           const rand = Math.floor(Math.random() * leng);
-//           res.status(200).json({success: true, message: result[rand], exit_quarter: false})
-//         }).catch(err => {
-//           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-//         });
-//       }
-//   }).catch(err => {
-//     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-//   });
-// }
 
 function getCafe(req, res) {
   let subway = req.body.subway_cafe;
