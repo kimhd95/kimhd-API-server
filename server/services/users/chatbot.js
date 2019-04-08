@@ -3791,44 +3791,44 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      console.log("gps case");
      let query = `SELECT * FROM restaurants WHERE closedown=0 AND
                   (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
-                  (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND `;
-
-     const drink_round_arr = drink_round.split(',');
-     const drink_type_arr = drink_type.split(',');
-     const price_dinner_arr = price_dinner.split(',');
-     const mood_arr = mood.split(',');
-     const mood2_arr = mood2.split(',');
-     query += `${drink_round==null?'NOT':''} (MATCH(drink_round) AGAINST('${drink_round_arr[0]}' IN BOOLEAN MODE) `;
-     for (let i=1; i < drink_round_arr.length; i++) {
-       query += `OR MATCH(drink_round) AGAINST('${drink_round_arr[i]}' IN BOOLEAN MODE) `;
-     }
-     query += `) AND `;
-     query += `${price_dinner_flag} (MATCH(price_dinner) AGAINST('${price_dinner_arr[0]}' IN BOOLEAN MODE) `;
-     for (let i=1; i < price_dinner_arr.length; i++) {
-       query += `OR MATCH(price_dinner) AGAINST('${price_dinner_arr[i]}' IN BOOLEAN MODE) `;
-     }
-     query += `) AND `;
-     query += `${mood_flag} (MATCH(mood) AGAINST('${mood_arr[0]}' IN BOOLEAN MODE) `;
-     for (let i=1; i < mood_arr.length; i++) {
-       query += `OR MATCH(mood) AGAINST('${mood_arr[i]}' IN BOOLEAN MODE) `;
-     }
-     query += `) AND `;
-     query += `${mood2_flag} (MATCH(mood2) AGAINST('${mood2_arr[0]}' IN BOOLEAN MODE) `;
-     for (let i=1; i < mood2_arr.length; i++) {
-       query += `OR MATCH(mood2) AGAINST('${mood2_arr[i]}' IN BOOLEAN MODE) `;
-     }
-     query += `) AND `;
-     query += `${drink_type=='888'?'NOT':''} (MATCH(drink_type) AGAINST('${drink_type_arr[0]}' IN BOOLEAN MODE) `;
-     for (let i=1; i < drink_type_arr.length; i++) {
-       query += `OR MATCH(drink_type) AGAINST('${drink_type_arr[i]}' IN BOOLEAN MODE) `;
-     }
-     query += `);`;
-                  //  `
-                  // ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
-                  // ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
-                  // ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
-                  // ${mood_flag} match(mood) against('${mood}' in boolean mode) and
-                  // ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`;
+                  (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
+                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
+                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
+                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
+                  ${mood_flag} match(mood) against('${mood}' in boolean mode) and
+                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`;
+                  //
+                  // const drink_round_arr = drink_round.split(',');
+                  // const drink_type_arr = drink_type.split(',');
+                  // const price_dinner_arr = price_dinner.split(',');
+                  // const mood_arr = mood.split(',');
+                  // const mood2_arr = mood2.split(',');
+                  // query += `${drink_round==null?'NOT':''} (MATCH(drink_round) AGAINST('${drink_round_arr[0]}' IN BOOLEAN MODE) `;
+                  // for (let i=1; i < drink_round_arr.length; i++) {
+                  //   query += `OR MATCH(drink_round) AGAINST('${drink_round_arr[i]}' IN BOOLEAN MODE) `;
+                  // }
+                  // query += `) AND `;
+                  // query += `${price_dinner_flag} (MATCH(price_dinner) AGAINST('${price_dinner_arr[0]}' IN BOOLEAN MODE) `;
+                  // for (let i=1; i < price_dinner_arr.length; i++) {
+                  //   query += `OR MATCH(price_dinner) AGAINST('${price_dinner_arr[i]}' IN BOOLEAN MODE) `;
+                  // }
+                  // query += `) AND `;
+                  // query += `${mood_flag} (MATCH(mood) AGAINST('${mood_arr[0]}' IN BOOLEAN MODE) `;
+                  // for (let i=1; i < mood_arr.length; i++) {
+                  //   query += `OR MATCH(mood) AGAINST('${mood_arr[i]}' IN BOOLEAN MODE) `;
+                  // }
+                  // query += `) AND `;
+                  // query += `${mood2_flag} (MATCH(mood2) AGAINST('${mood2_arr[0]}' IN BOOLEAN MODE) `;
+                  // for (let i=1; i < mood2_arr.length; i++) {
+                  //   query += `OR MATCH(mood2) AGAINST('${mood2_arr[i]}' IN BOOLEAN MODE) `;
+                  // }
+                  // query += `) AND `;
+                  // query += `${drink_type=='888'?'NOT':''} (MATCH(drink_type) AGAINST('${drink_type_arr[0]}' IN BOOLEAN MODE) `;
+                  // for (let i=1; i < drink_type_arr.length; i++) {
+                  //   query += `OR MATCH(drink_type) AGAINST('${drink_type_arr[i]}' IN BOOLEAN MODE) `;
+                  // }
+                  // query += `);`;
+                  //               `
     console.log(query);
 
      models.sequelize.query(query).then(result => {
