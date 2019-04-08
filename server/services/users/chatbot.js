@@ -2823,7 +2823,7 @@ function getOtherDrinkRestaurant (req, res) {
                   } else if(nearsList.length == 1) {
                     return res.status(200).json({success: true, num: 1, message: nearsList})
                   } else {
-                    res.status(200).json({success: false, message: 'no result.'});
+                    res.status(200).json({success: false, num: 0, message: 'no result.'});
                   }
                 })
                 .catch(err => {
@@ -3806,11 +3806,11 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
            if(resultList.length >= 2) {
              const shuffled = resultList.sort(() => 0.5 - Math.random());
              const rand_pick = shuffled.slice(0, 2);
-             return res.status(200).json({success: true, num: 2, message: rand_pick});
+             return res.status(200).json({success: true, num: resultList.length, message: rand_pick});
            } else if(resultList.length == 1) {
              return res.status(200).json({success: true, num: 1, message: resultList});
            } else {
-             res.status(200).json({success: false, message: 'no result.'});
+             res.status(200).json({success: false, num: 0, message: 'no result.'});
            }
          }).catch(err => {
            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
@@ -3832,6 +3832,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                   ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
                   ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) ORDER BY RAND() LIMIT 2;`;
      console.log(query);
+     let resultNum = 0;
      models.sequelize.query(`SELECT count(*) AS count FROM restaurants WHERE
                   closedown = 0 AND
                   subway = '${subway}' AND
@@ -3841,16 +3842,17 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                   ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
                   ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`)
      .then(cnt => {
+       resultNum = cnt[0][0].count;
        console.log(`검색 결과 : ${cnt[0][0].count}개`);
      })
 
      models.sequelize.query(query).then(result => {
           if (result[0].length == 2) {
-            return res.status(200).json({success: true, num: 2, message: result[0]})
+            return res.status(200).json({success: true, num: resultNum, message: result[0]})
           } else if (result[0].length == 1) {
             return res.status(200).json({success: true, num: 1, message: result[0]})
           } else {
-            return res.status(403).json({success: false, message: 'no result'})
+            return res.status(200).json({success: false, num: 0, message: 'no result'})
           }
         }).catch(err => {
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
