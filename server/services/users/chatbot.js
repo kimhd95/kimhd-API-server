@@ -1240,7 +1240,6 @@ function getRestaurant (req, res) {
     } else {
       const query_next = `SELECT * FROM restaurants WHERE closedown=0 AND
        ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-       (exit_quarter IN (1,2,3,4)) AND
        ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
        ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
        ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
