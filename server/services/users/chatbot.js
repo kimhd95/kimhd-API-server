@@ -1222,19 +1222,21 @@ function getRestaurant (req, res) {
     }
   }
 
+  let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+  NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
+  ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+  ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+  ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+  ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+  ${food_name_condition} AND
+  NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+  ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
+  ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
+  ORDER BY RAND() LIMIT 2;`;
+
   if(exit_quarter == undefined || exit_quarter == '') {
      console.log("exit_quarter 없는 경우");
-     let query = `SELECT * FROM restaurants WHERE closedown=0 AND
-     NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
-     ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-     ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-     ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-     ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-     ${food_name_condition} AND
-     NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-     ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-     ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
-     ORDER BY RAND() LIMIT 2;`
+
 
      models.sequelize.query(query).then(result => {
       if (result[0].length === 2) {
@@ -1248,23 +1250,13 @@ function getRestaurant (req, res) {
   }
   else {
     console.log("exit_quarter 있는 경우");
-    let query = `SELECT * FROM restaurants WHERE closedown=0 AND
-     ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-     (exit_quarter IN (${exit_quarter})) AND
-     ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-     ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-     ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-     ${food_name_condition} AND
-     NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-     ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-     ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
-     ORDER BY RAND() LIMIT 2;`;
 
     models.sequelize.query(query).then(result => {
       if (result[0].length === 2) {
         return res.status(200).json({success: true, try: 1, message: result[0]})
       } else {
         const query_next = `SELECT * FROM restaurants WHERE closedown=0 AND
+          NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
          ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
