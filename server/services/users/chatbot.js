@@ -1068,6 +1068,7 @@ function getNearRestaurant (req, res) {
 
   // (match(subway) against('${subway}' in boolean mode)) AND
   query = `SELECT * FROM restaurants WHERE closedown=0 AND
+   NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
    (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
    (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
    ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
@@ -1221,7 +1222,9 @@ function getRestaurant (req, res) {
     }
   }
 
-  let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+  let query = `SELECT * FROM restaurants WHERE
+   closedown = 0 AND
+   NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
    ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
    (exit_quarter IN (${exit_quarter})) AND
    ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
@@ -1295,7 +1298,8 @@ function verifyResultExist (req, res) {
   hate_food = hate_food.replace(/,/g,' ');
 
   let query = `SELECT * FROM restaurants WHERE
-   closedown=0 AND
+   closedown = 0 AND
+   NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
    subway = '${subway}' AND
    ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
    ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
@@ -2490,7 +2494,9 @@ function getSimilarRestaurant (req, res) {
   console.log(`getSimilarRestaurant에서 rest : ${rest}`);
   models.sequelize.query(`SELECT * FROM restaurants WHERE id = ${rest}`).then(result => {
     if (result[0].length !== 0) {
-      models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND
+      models.sequelize.query(`SELECT * FROM restaurants WHERE
+       closedown = 0 AND
+       NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
        subway = '${result[0][0].subway}' AND
        food_type = '${result[0][0].food_type}' AND
        match(price_dinner) against('${result[0][0].price_dinner}') AND
@@ -2558,6 +2564,7 @@ function getOtherRestaurant (req, res) {
           // 1. GPS 에서 다른식당보기
           if (lat != null && lng != null) {
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+             NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
              (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
              (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
              ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
@@ -2675,6 +2682,7 @@ function getOtherRestaurant (req, res) {
             }
 
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+             NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
              ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
              (exit_quarter IN (${exit_quarter})) AND
              ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
@@ -2963,11 +2971,13 @@ function verifySearchFood (req, res) {
 
     if (typeof search_food == 'string') {
       query = `SELECT * FROM restaurants WHERE closedown=0 AND
+        NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
         subway = '${subway}' AND
         (food_name LIKE '%${search_food}%' OR food_type LIKE '%${search_food}%' OR taste LIKE '%${search_food}%')
         ORDER BY rand() limit 2;`;
     } else {
       query = `SELECT * FROM restaurants WHERE closedown=0 AND
+       NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
        subway='${subway}' AND
        (`;
       for (let i in search_food) {
@@ -2995,7 +3005,7 @@ function verifyMood2 (req, res) {
     let filtered_list = [];
 
     var fn = function asyncAddList(item) {
-      models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND subway = '${subway}' AND mood2 LIKE("%${item}%") limit 2;`).then(result => {
+      models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND subway = '${subway}' AND mood2 LIKE("%${item}%") limit 2;`).then(result => {
             if (result[0].length === 2){
               filtered_list.push(item);
             }
