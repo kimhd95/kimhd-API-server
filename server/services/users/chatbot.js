@@ -1231,29 +1231,17 @@ function getRestaurant (req, res) {
   ${food_name_condition} AND
   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
   ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-  ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
-  ORDER BY RAND() LIMIT 2;`;
-
-  if(exit_quarter == undefined || exit_quarter == '') {
-     console.log("exit_quarter 없는 경우");
-
-
-     models.sequelize.query(query).then(result => {
-      if (result[0].length === 2) {
-        return res.status(200).json({success: true, try: 0, message: result[0]})
-      } else {
-        return res.status(200).json({success: false, message: 'no result.'})
-      }
-    }).catch( err => {
-      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    });
+  ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))`;
+  if (exit_quarter != '1,2,3,4') {
+    query += ` AND match(exit_quarter) against('${exit_quarter}' in boolean mode) ORDER BY RAND() LIMIT 2;`;
   }
-  else {
-    console.log("exit_quarter 있는 경우");
 
-    models.sequelize.query(query).then(result => {
-      if (result[0].length === 2) {
-        return res.status(200).json({success: true, try: 1, message: result[0]})
+  models.sequelize.query(query).then(result => {
+    if (result[0].length === 2) {
+      return res.status(200).json({success: true, try: 1, message: result[0]})
+    } else {
+      if (exit_quarter == undefined || exit_quarter == '' || exit_quarter == '1,2,3,4') {
+        return res.status(200).json({success: false, message: 'no result.'})
       } else {
         const query_next = `SELECT * FROM restaurants WHERE closedown=0 AND
           NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
@@ -1267,7 +1255,7 @@ function getRestaurant (req, res) {
          ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
          ORDER BY RAND() LIMIT 2;`
          console.log(query_next);
-        models.sequelize.query(query_next).then(second_result => {
+         models.sequelize.query(query_next).then(second_result => {
           if (second_result[0].length === 2) {
             return res.status(200).json({success: true, try: 2, message: second_result[0]})
           } else {
@@ -1277,10 +1265,10 @@ function getRestaurant (req, res) {
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         });
       }
-    }).catch( err => {
-      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    });
-  }
+    }
+  }).catch( err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
 }
 
 function verifyResultExist (req, res) {
@@ -3872,7 +3860,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
        console.log(`검색 결과 : ${cnt[0][0].count}개`);
        models.sequelize.query(query).then(result => {
             if (result[0].length == 2) {
-              return res.status(200).json({success: true, num: cnt[0][0], message: result[0]})
+              return res.status(200).json({success: true, num: parseInt(cnt[0][0]), message: result[0]})
             } else if (result[0].length == 1) {
               return res.status(200).json({success: true, num: 1, message: result[0]})
             } else {
