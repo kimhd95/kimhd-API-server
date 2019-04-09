@@ -1235,9 +1235,11 @@ function getRestaurant (req, res) {
   if (exit_quarter != '1,2,3,4') {
     query += ` AND match(exit_quarter) against('${exit_quarter}' in boolean mode) `;
   }
-  query += `ORDER BY RAND() LIMIT 2;`
+  query += `ORDER BY RAND() LIMIT 2;`;
+  console.log(query);
 
   models.sequelize.query(query).then(result => {
+    console.log(result[0].length);
     if (result[0].length === 2) {
       return res.status(200).json({success: true, try: 1, message: result[0]})
     } else {
@@ -3858,7 +3860,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
                   ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`)
      .then(cnt => {
        resultNum = cnt[0][0].count;
-       console.log(`검색 결과 : ${cnt[0][0].count}개`, typeof cnt[0][0].count);
+       console.log(`검색 결과 : ${cnt[0][0].count}개`);
        models.sequelize.query(query).then(result => {
             if (result[0].length == 2) {
               return res.status(200).json({success: true, num: resultNum, message: result[0]})
