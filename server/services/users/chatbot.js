@@ -1233,8 +1233,9 @@ function getRestaurant (req, res) {
   ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
   ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))`;
   if (exit_quarter != '1,2,3,4') {
-    query += ` AND match(exit_quarter) against('${exit_quarter}' in boolean mode) ORDER BY RAND() LIMIT 2;`;
+    query += ` AND match(exit_quarter) against('${exit_quarter}' in boolean mode) `;
   }
+  query += `ORDER BY RAND() LIMIT 2;`
 
   models.sequelize.query(query).then(result => {
     if (result[0].length === 2) {
