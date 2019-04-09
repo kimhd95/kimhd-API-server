@@ -3225,7 +3225,7 @@ function crawlTwoImage (req, res) {
           $('._img').each(function (idx2) {
             img_array2.push($(this).attr('data-source'));
           });
-          if((img_array && img_array2) && (img_array.length > 0 && img_array2.length > 0))){
+          if((img_array && img_array2) && (img_array.length > 0 && img_array2.length > 0)){
             return res.status(200).json({success: true, res1: img_array, res2: img_array2})
           }else{
             return res.status(200).json({success: false, res1: 'no_image', res2: 'no image'})
