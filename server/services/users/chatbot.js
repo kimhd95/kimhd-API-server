@@ -1221,7 +1221,7 @@ function getRestaurant (req, res) {
     }
   }
 
-  if(exit_quarter == undefined || exit_quarter = '') {
+  if(exit_quarter == undefined || exit_quarter == '') {
      console.log("exit_quarter 없는 경우");
      let query = `SELECT * FROM restaurants WHERE closedown=0 AND
      ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
