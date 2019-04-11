@@ -35,7 +35,7 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
   });
 });
 
-let delete_nonmember_account_scheduler = schedule.scheduleJob('20 12 * * *', function() {
+let delete_nonmember_account_scheduler = schedule.scheduleJob('10 4 * * *', function() {
   console.log("**** delete_nonmember_account_scheduler EXECUTED ****");
   console.log("**** delete_nonmember_account_scheduler EXECUTED ****");
   console.log("**** delete_nonmember_account_scheduler EXECUTED ****");
