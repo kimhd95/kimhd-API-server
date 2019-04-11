@@ -22,9 +22,9 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
 
 let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
 // let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED ****");
+  console.log("**** closedown-scheduler EXECUTED ****");
+  console.log("**** closedown-scheduler EXECUTED ****");
 
   request('http://13.125.185.63:8000/verify_close', function (error, response, body) {
     if (error) {
@@ -34,6 +34,20 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
     }
   });
 });
+
+let delete_nonmember_account_scheduler = schedule.scheduleJob('20 12 * * *', function() {
+  console.log("**** delete_nonmember_account_scheduler EXECUTED ****");
+  console.log("**** delete_nonmember_account_scheduler EXECUTED ****");
+  console.log("**** delete_nonmember_account_scheduler EXECUTED ****");
+
+  models.sequelize.query('DELETE FROM DEV_FOOD.users WHERE registered = -1 AND updated_at <= DATE_SUB(NOW(), INTERVAL 1 DAY);')
+  .then(() => {
+    console.log('delete_nonmember_account_scheduler SUCCEED.');
+  })
+  .catch(err => {
+    console.log('delete_nonmember_account_scheduler HAS FAILED :: ', err);
+  });
+})
 //var logger = require('../../config/winston');
 
 function verifyToken (req, res) {
