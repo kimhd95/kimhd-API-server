@@ -22,9 +22,9 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
 
 let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
 // let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
-  console.log("**** closedown-scheduler EXECUTED.");
+  console.log("**** closedown-scheduler EXECUTED ****");
+  console.log("**** closedown-scheduler EXECUTED ****");
+  console.log("**** closedown-scheduler EXECUTED ****");
 
   request('http://13.125.185.63:8000/verify_close', function (error, response, body) {
     if (error) {
@@ -34,6 +34,20 @@ let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
     }
   });
 });
+
+let delete_nonmember_account_scheduler = schedule.scheduleJob('10 4 * * *', function() {
+  console.log("**** delete_nonmember_account_scheduler EXECUTED ****");
+  console.log("**** delete_nonmember_account_scheduler EXECUTED ****");
+  console.log("**** delete_nonmember_account_scheduler EXECUTED ****");
+
+  models.sequelize.query('DELETE FROM DEV_FOOD.users WHERE registered = -1 AND updated_at <= DATE_SUB(NOW(), INTERVAL 1 DAY);')
+  .then(() => {
+    console.log('delete_nonmember_account_scheduler SUCCEED.');
+  })
+  .catch(err => {
+    console.log('delete_nonmember_account_scheduler HAS FAILED :: ', err);
+  });
+})
 //var logger = require('../../config/winston');
 
 function verifyToken (req, res) {
@@ -1071,6 +1085,7 @@ function getNearRestaurant (req, res) {
 
   // (match(subway) against('${subway}' in boolean mode)) AND
   query = `SELECT * FROM restaurants WHERE closedown=0 AND
+   NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
    (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
    (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
    ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
@@ -1224,48 +1239,32 @@ function getRestaurant (req, res) {
     }
   }
 
-  if(exit_quarter == undefined || exit_quarter == '') {
-     console.log("exit_quarter 없는 경우");
-     let query = `SELECT * FROM restaurants WHERE closedown=0 AND
-     ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-     ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-     ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-     ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-     ${food_name_condition} AND
-     NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-     ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-     ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
-     ORDER BY RAND() LIMIT 2;`
-
-     models.sequelize.query(query).then(result => {
-      if (result[0].length === 2) {
-        return res.status(200).json({success: true, try: 0, message: result[0]})
-      } else {
-        return res.status(200).json({success: false, message: 'no result.'})
-      }
-    }).catch( err => {
-      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    });
+  let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+  NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
+  ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
+  ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
+  ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
+  ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
+  ${food_name_condition} AND
+  NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
+  ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
+  ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))`;
+  if (exit_quarter != '1,2,3,4') {
+    query += ` AND exit_quarter IN (${exit_quarter}) `;
   }
-  else {
-    console.log("exit_quarter 있는 경우");
-    let query = `SELECT * FROM restaurants WHERE closedown=0 AND
-     ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-     (exit_quarter IN (${exit_quarter})) AND
-     ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-     ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-     ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-     ${food_name_condition} AND
-     NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-     ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-     ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
-     ORDER BY RAND() LIMIT 2;`;
+  query += `ORDER BY RAND() LIMIT 2;`;
+  console.log(query);
 
-    models.sequelize.query(query).then(result => {
-      if (result[0].length === 2) {
-        return res.status(200).json({success: true, try: 1, message: result[0]})
+  models.sequelize.query(query).then(result => {
+    console.log(result[0].length);
+    if (result[0].length === 2) {
+      return res.status(200).json({success: true, try: 1, message: result[0]})
+    } else {
+      if (exit_quarter == undefined || exit_quarter == '' || exit_quarter == '1,2,3,4') {
+        return res.status(200).json({success: false, message: 'no result.'})
       } else {
         const query_next = `SELECT * FROM restaurants WHERE closedown=0 AND
+          NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
          ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
          ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
          ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
@@ -1276,7 +1275,7 @@ function getRestaurant (req, res) {
          ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
          ORDER BY RAND() LIMIT 2;`
          console.log(query_next);
-        models.sequelize.query(query_next).then(second_result => {
+         models.sequelize.query(query_next).then(second_result => {
           if (second_result[0].length === 2) {
             return res.status(200).json({success: true, try: 2, message: second_result[0]})
           } else {
@@ -1286,10 +1285,10 @@ function getRestaurant (req, res) {
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         });
       }
-    }).catch( err => {
-      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    });
-  }
+    }
+  }).catch( err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+  });
 }
 
 function verifyResultExist (req, res) {
@@ -1323,7 +1322,8 @@ function verifyResultExist (req, res) {
   hate_food = hate_food.replace(/,/g,' ');
 
   let query = `SELECT * FROM restaurants WHERE
-   closedown=0 AND
+   closedown = 0 AND
+   NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
    subway = '${subway}' AND
    ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
    ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
@@ -2518,7 +2518,9 @@ function getSimilarRestaurant (req, res) {
   console.log(`getSimilarRestaurant에서 rest : ${rest}`);
   models.sequelize.query(`SELECT * FROM restaurants WHERE id = ${rest}`).then(result => {
     if (result[0].length !== 0) {
-      models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND
+      models.sequelize.query(`SELECT * FROM restaurants WHERE
+       closedown = 0 AND
+       NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
        subway = '${result[0][0].subway}' AND
        food_type = '${result[0][0].food_type}' AND
        match(price_dinner) against('${result[0][0].price_dinner}') AND
@@ -2586,6 +2588,7 @@ function getOtherRestaurant (req, res) {
           // 1. GPS 에서 다른식당보기
           if (lat != null && lng != null) {
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+             NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
              (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
              (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
              ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
@@ -2703,6 +2706,7 @@ function getOtherRestaurant (req, res) {
             }
 
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
+             NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
              ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
              (exit_quarter IN (${exit_quarter})) AND
              ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
@@ -2885,7 +2889,7 @@ function getOtherDrinkRestaurant (req, res) {
               } else if (result[0].length == 1) {
                 return res.status(200).json({success: true, num: 1, message: result[0]});
               } else {
-                return res.status(200).json({success: false, message: 'no result.'});
+                return res.status(200).json({success: false, num: 0, message: 'no result.'});
               }
             })
             .catch( err => {
@@ -2991,11 +2995,13 @@ function verifySearchFood (req, res) {
 
     if (typeof search_food == 'string') {
       query = `SELECT * FROM restaurants WHERE closedown=0 AND
+        NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
         subway = '${subway}' AND
         (food_name LIKE '%${search_food}%' OR food_type LIKE '%${search_food}%' OR taste LIKE '%${search_food}%')
         ORDER BY rand() limit 2;`;
     } else {
       query = `SELECT * FROM restaurants WHERE closedown=0 AND
+       NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
        subway='${subway}' AND
        (`;
       for (let i in search_food) {
@@ -3023,7 +3029,7 @@ function verifyMood2 (req, res) {
     let filtered_list = [];
 
     var fn = function asyncAddList(item) {
-      models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND subway = '${subway}' AND mood2 LIKE("%${item}%") limit 2;`).then(result => {
+      models.sequelize.query(`SELECT * FROM restaurants WHERE closedown=0 AND NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND subway = '${subway}' AND mood2 LIKE("%${item}%") limit 2;`).then(result => {
             if (result[0].length === 2){
               filtered_list.push(item);
             }
@@ -3872,19 +3878,18 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      .then(cnt => {
        resultNum = cnt[0][0].count;
        console.log(`검색 결과 : ${cnt[0][0].count}개`);
-     })
-
-     models.sequelize.query(query).then(result => {
-          if (result[0].length == 2) {
-            return res.status(200).json({success: true, num: resultNum, message: result[0]})
-          } else if (result[0].length == 1) {
-            return res.status(200).json({success: true, num: 1, message: result[0]})
-          } else {
-            return res.status(200).json({success: false, num: 0, message: 'no result'})
-          }
-        }).catch(err => {
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+       models.sequelize.query(query).then(result => {
+            if (result[0].length == 2) {
+              return res.status(200).json({success: true, num: resultNum, message: result[0]})
+            } else if (result[0].length == 1) {
+              return res.status(200).json({success: true, num: 1, message: result[0]})
+            } else {
+              return res.status(200).json({success: false, num: 0, message: 'no result'})
+            }
+          }).catch(err => {
+            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         });
+     });
    }
  }
 
