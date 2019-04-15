@@ -1,4 +1,3 @@
-// 원격에서 작업중
 const models = require('../../models');
 const config = require('../../../configs');
 const Op = models.sequelize.Op;
@@ -21,7 +20,6 @@ client.set('headers', {           // 크롤링 방지 우회를 위한 User-Agen
 });
 
 let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
-// let closedown_scheduler = schedule.scheduleJob('20 4 1 * *', function() {
   console.log("**** closedown-scheduler EXECUTED ****");
   console.log("**** closedown-scheduler EXECUTED ****");
   console.log("**** closedown-scheduler EXECUTED ****");
@@ -2621,7 +2619,7 @@ function getOtherRestaurant (req, res) {
                   if (nearsList.length >= 2) {
                     const shuffled = nearsList.sort(() => 0.5 - Math.random());
                     const rand_pick = shuffled.slice(0, 2);
-                    return res.status(200).json({success: true, message: rand_pick});
+                    return res.status(200).json({success: true, message: rand_pick, num: nearsList.length});
                   }
                   else {
                     res.status(200).json({success: false, message: 'no result.'});
@@ -2714,12 +2712,14 @@ function getOtherRestaurant (req, res) {
              ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
              ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode)) AND
              id NOT IN (${rest_stack[0][0].rest_stack})
-             ORDER BY RAND() LIMIT 2;`;
+             ORDER BY RAND();`;
 
             models.sequelize.query(query)
             .then(result => {
-              if (result[0].length === 2) {
-                return res.status(200).json({success: true, try: 1, message: result[0]});
+              if (result[0].length >= 2) {
+                const shuffled = result[0].sort(() => 0.5 - Math.random());
+                const rand_pick = shuffled.slice(0, 2);
+                return res.status(200).json({success: true, try: 1, message: rand_pick, num: result[0].length});
               }
               else {
                 return res.status(200).json({success: false, message: 'no result.'});
