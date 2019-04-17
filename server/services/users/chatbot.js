@@ -3561,7 +3561,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    // let mood2 = req.body.mood2;
    // let mood = req.body.mood;
    // let drink_type = req.body.drink_type;
-   const {lat, lng, subway, drink_round, price_dinner, mood, mood2, drink_type} = req.body;
+   let {lat, lng, subway, drink_round, price_dinner, mood, mood2, drink_type} = req.body;
 
    console.log(`lng : ${lng}, lat : ${lat}, drink_round : ${drink_round}, subway : ${subway}, price_dinner : ${price_dinner}, mood2 : ${mood2}, mood : ${mood}, drink_type : ${drink_type}`);
 
