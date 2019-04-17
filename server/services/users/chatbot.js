@@ -2871,6 +2871,7 @@ function getSimilarDrinkRestaurant (req, res) {
   const rest = req.body.rest;
   models.sequelize.query(`SELECT * FROM restaurants WHERE id = ${rest}`).then(select => {
     if (select[0].length !== 0) {
+      console.log('=== getSimilarDrinkRestaurant 쿼리 ===');
       const query = `SELECT * FROM restaurants WHERE
                        closedown=0 AND
                        subway = '${select[0][0].subway}' AND
@@ -2879,6 +2880,7 @@ function getSimilarDrinkRestaurant (req, res) {
                        match(mood) against('${select[0][0].mood}') AND
                        match(mood2) against('${select[0][0].mood2}') AND
                        id != '${rest}' ORDER BY RAND() LIMIT 2;`;
+      console.log(query);
       models.sequelize.query(query).then(result => {
         if (result[0].length === 2) {
           return res.status(200).json({success: true, num: 2, message: result[0]});
