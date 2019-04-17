@@ -2743,14 +2743,16 @@ function getOtherRestaurant (req, res) {
 
 function getOtherDrinkRestaurant (req, res) {
   let {userid, rest1, rest2} = req.body;
+  console.log(userid, rest1, rest2)
 
-  models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
-  .then(result => {
+  models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`).then(result => {
+    console.log("1111111111111111111111111111111111111");
     if (result[0].length === 1) {
+      console.log("1111111111111111111111111111111111111");
       models.sequelize.query(`UPDATE users SET rest_stack = CONCAT(rest_stack, ',${rest1},${rest2}') WHERE id=${userid};`)
       .then(() => {
-        models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`)
-        .then(rest_stack => {
+        models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`).then(rest_stack => {
+          console.log("1111111111111111111111111111111111111");
           let {lat, lng, subway, drink_round, price_dinner, mood1, mood2, drink_type} = result[0][0];
           let price_dinner_flag = mood2_flag = '';
 
@@ -2774,7 +2776,7 @@ function getOtherDrinkRestaurant (req, res) {
               drink_type = drink_type.replace('맥주','생맥주, 병맥주');
             }
           }
-
+          console.log("1111111111111111111111111111111111111");
           // 1. GPS 에서 다른식당보기
           if (lat && lng) {
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
