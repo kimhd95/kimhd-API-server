@@ -3003,8 +3003,7 @@ function verifyMood2 (req, res) {
 
 function verifyDrinktypeList (req, res) {
     let {userid, subway} = req.body;
-    models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
-    .then(userData => {
+    models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`).then(userData => {
       let {drink_round, subway, price_dinner, mood1, mood2} = userData[0][0];
       let price_dinner_flag = mood2_flag = '';
 
@@ -3020,6 +3019,7 @@ function verifyDrinktypeList (req, res) {
           mood2 = mood2.replace(/\!/g,'');
         }
       }
+
       let query = `SELECT DISTINCT drink_type
                    FROM restaurants
                    WHERE closedown=0`
@@ -3574,16 +3574,16 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      query += ' ORDER BY RAND();';
      console.log(query);
      models.sequelize.query(query).then(result => {
-          if (result[0].length >= 2) {
-            return res.status(200).json({success: true, num: result[0].length, message: result[0].slice(0, 2)})
-          } else if (result[0].length == 1) {
-            return res.status(200).json({success: true, num: 1, message: result[0]})
-          } else {
-            return res.status(200).json({success: false, num: 0, message: 'no result'})
-          }
-        }).catch(err => {
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-      });
+       if (result[0].length >= 2) {
+         return res.status(200).json({success: true, num: result[0].length, message: result[0].slice(0, 2)})
+       } else if (result[0].length == 1) {
+         return res.status(200).json({success: true, num: 1, message: result[0]})
+       } else {
+         return res.status(200).json({success: false, num: 0, message: 'no result'})
+       }
+     }).catch(err => {
+       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+     });
    }
  }
 
