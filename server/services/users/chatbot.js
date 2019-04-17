@@ -3553,15 +3553,15 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
  }
 
  function getDrinkRestaurant (req, res) {
-   const kakao_id = req.body.kakao_id;
-   let lng = req.body.lng;
-   let lat = req.body.lat;
-   let drink_round = req.body.drink_round;
-   let subway = req.body.subway;
-   let price_dinner = req.body.price_dinner;
-   let mood2 = req.body.mood2;
-   let mood = req.body.mood;
-   let drink_type = req.body.drink_type;
+   // let lng = req.body.lng;
+   // let lat = req.body.lat;
+   // let drink_round = req.body.drink_round;
+   // let subway = req.body.subway;
+   // let price_dinner = req.body.price_dinner;
+   // let mood2 = req.body.mood2;
+   // let mood = req.body.mood;
+   // let drink_type = req.body.drink_type;
+   const {lat, lng, subway, drink_round, price_dinner, mood, mood2, drink_type} = req.body;
 
    console.log(`lng : ${lng}, lat : ${lat}, drink_round : ${drink_round}, subway : ${subway}, price_dinner : ${price_dinner}, mood2 : ${mood2}, mood : ${mood}, drink_type : ${drink_type}`);
 
@@ -3609,7 +3609,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    if (drink_type != null && drink_type != undefined) {
      if (drink_type === '상관없음') {
        drink_type = '맥주 양주 와인 사케 소주 전통주';
-     } 
+     }
      drink_type = drink_type.replace('양주&칵테일','양주');
      drink_type = drink_type.replace('맥주','생맥주, 병맥주');
    }
@@ -3618,7 +3618,6 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      mood2_flag : ${mood2_flag}, mood2 : ${mood2}, mood_flag : ${mood_flag}, mood : ${mood}, drink_type : ${drink_type}`);
    //lng, lat 값이 있는 경우
    if (lng != null && lat != null) {
-     console.log("gps case");
      let query = `SELECT * FROM restaurants WHERE closedown=0 AND
                   (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
                   (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1)`;
