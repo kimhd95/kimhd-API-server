@@ -2882,8 +2882,7 @@ function getOtherDrinkRestaurant (req, res) {
 
 function getSimilarDrinkRestaurant (req, res) {
   const rest = req.body.rest;
-  models.sequelize.query(`SELECT * FROM restaurants WHERE id = ${rest}`)
-  .then(select => {
+  models.sequelize.query(`SELECT * FROM restaurants WHERE id = ${rest}`).then(select => {
     if (select[0].length !== 0) {
       const query = `SELECT * FROM restaurants WHERE
                        closedown=0 AND
@@ -2893,8 +2892,7 @@ function getSimilarDrinkRestaurant (req, res) {
                        match(mood) against('${select[0][0].mood}') AND
                        match(mood2) against('${select[0][0].mood2}') AND
                        id != '${rest}' ORDER BY RAND() LIMIT 2;`;
-      models.sequelize.query(query)
-      .then(result => {
+      models.sequelize.query(query).then(result => {
         if (result[0].length === 2) {
           return res.status(200).json({success: true, num: 2, message: result[0]});
         } else if (result[0].length === 1) {
@@ -2902,15 +2900,13 @@ function getSimilarDrinkRestaurant (req, res) {
         } else {
           return res.status(200).json({success: false, num: 0, message: 'no result.'});
         }
-      })
-      .catch(err => {
+      }).catch(err => {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
       });
     } else {
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
     }
-  })
-  .catch(err => {
+  }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
 }
@@ -3016,51 +3012,36 @@ function verifyMood2 (req, res) {
 }
 
 function verifyDrinktypeList (req, res) {
-    let subway = req.body.subway;
-    const userid = req.body.userid;
-
+    let {userid, subway} = req.body;
     models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
     .then(userData => {
-      const drink_round = userData[0][0].drink_round;
-      const subway = userData[0][0].subway;
-      let price_dinner = userData[0][0].price_dinner;
-      let mood1 = userData[0][0].mood1;
-      let mood2 = userData[0][0].mood2;
-      let price_dinner_flag = '';
-      let mood1_flag = '';
-      let mood2_flag = '';
+      let {drink_round, subway, price_dinner, mood1, mood2} = userData[0][0];
+      let price_dinner_flag = mood2_flag = '';
 
-      if (price_dinner == null || price_dinner == undefined) {
-        price_dinner_flag = 'NOT';
-      } else if (price_dinner.indexOf('!') !== -1) {
-        price_dinner_flag = 'NOT';
-        price_dinner = price_dinner.replace(/\!/gi,'');
+      if (price_dinner) {
+        if (price_dinner.includes('!')) {
+          price_dinner_flag = 'NOT';
+          price_dinner = price_dinner.replace(/\!/g,'');
+        }
       }
-      if (mood1 == null || mood1 == undefined) {
-        mood1_flag = 'NOT';
-      } else if (mood1.indexOf('!') !== -1) {
-        mood1_flag = 'NOT';
-        mood1 = mood1.replace(/\!/gi,'');
+      if (mood2) {
+        if (mood2.includes('!')) {
+          mood2_flag = 'NOT';
+          mood2 = mood2.replace(/\!/g,'');
+        }
       }
-      if (mood2 == null || mood2 == undefined) {
-        mood2_flag = 'NOT';
-      } else if (mood2.indexOf('!') !== -1) {
-        mood2_flag = 'NOT';
-        mood2 = mood2.replace(/\!/gi,'');
-      }
-
-      const query = `SELECT DISTINCT drink_type
-                     FROM restaurants
-                     WHERE ${drink_round==null?'NOT':''} (MATCH(drink_round) AGAINST ('${drink_round}' IN BOOLEAN MODE)) AND
-                           ${subway==null?'NOT':''} (MATCH(subway) AGAINST ('${subway}' IN BOOLEAN MODE)) AND
-                           ${price_dinner_flag} (MATCH(price_dinner) AGAINST ('${price_dinner}' IN BOOLEAN MODE)) AND
-                           ${mood1_flag} (MATCH(mood) AGAINST ('${mood1}' IN BOOLEAN MODE)) AND
-                           ${mood2_flag} (MATCH(mood2) AGAINST ('${mood2}' IN BOOLEAN MODE));`;
+      let query = `SELECT DISTINCT drink_type
+                   FROM restaurants
+                   WHERE closedown=0`
+      if (subway) { query += ` AND subway = '${subway}'`; }
+      if (drink_round) { query += ` AND MATCH(drink_round) AGAINST('${drink_round}' IN BOOLEAN MODE)`; }
+      if (price_dinner) { query += ` AND ${price_dinner_flag} MATCH(price_dinner) AGAINST('${price_dinner}' IN BOOLEAN MODE)`; }
+      if (mood1) { query += ` AND MATCH(mood) AGAINST('${mood1}' IN BOOLEAN MODE)`; }
+      if (mood2) { query += ` AND ${mood2_flag} MATCH(mood2) AGAINST('${mood2}' IN BOOLEAN MODE)`; }
+      query += ';';
       console.log(query);
-      models.sequelize.query(query)
-      .then(result => {
+      models.sequelize.query(query).then(result => {
         let list = [];
-
         // 쿼리 결과 식당들의 drink type을 ,로 파싱한 후 list에 전부 넣고 후에 중복 제거 후 response
         var parseFunc = (item) => {
           let types = item.drink_type.replace(/ /gi, '');
@@ -3077,20 +3058,16 @@ function verifyDrinktypeList (req, res) {
         }
 
         var action = result[0].map(parseFunc);
-        Promise.all(action)
-        .then(() => {
+        Promise.all(action).then(() => {
           // list = Array.from(new Set(list));   // 중복 제거
           return res.status(200).json({success: true, message: Array.from(new Set(list))});
-        })
-        .catch(err => {
+        }).catch(err => {
           return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
         })
-      })
-      .catch(err => {
+      }).catch(err => {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
       });
-    })
-    .catch(err => {
+    }).catch(err => {
       return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
     });
 }
