@@ -2876,7 +2876,7 @@ function getSimilarDrinkRestaurant (req, res) {
                      closedown=0 AND
                      id != '${rest}' AND
                      subway = '${subway}'`;
-      if (drink_type) { query += ` AND drink_type = '${drink_type}'`; }
+      if (drink_type) { query += ` AND MATCH(drink_type) AGAINST('${drink_type}')`; }
       if (price_dinner) { query += ` AND MATCH(price_dinner) AGAINST('${price_dinner}')`; }
       if (mood) { query += ` AND MATCH(mood) AGAINST('${mood}')`; }
       if (mood2) { query += ` AND MATCH(mood2) AGAINST('${mood2}')`; }
