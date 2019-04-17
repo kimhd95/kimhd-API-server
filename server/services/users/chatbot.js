@@ -3566,11 +3566,12 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    console.log(`lng : ${lng}, lat : ${lat}, drink_round : ${drink_round}, subway : ${subway}, price_dinner : ${price_dinner}, mood2 : ${mood2}, mood : ${mood}, drink_type : ${drink_type}`);
 
    // mood parsing
-   let mood_flag = '';
-   if (mood == null || mood == undefined) {
-     mood_flag = 'NOT';
-     mood = 'x';
-   }
+   // let mood_flag = '';
+   // if (mood == null || mood == undefined) {
+   //   mood_flag = 'NOT';
+   //   mood = 'x';
+   // }
+
    // price_dinner parsing
    let price_dinner_flag = '';
    if (price_dinner != null || price_dinner != undefined) {
@@ -3578,9 +3579,11 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
        price_dinner_flag = 'NOT';
        price_dinner = price_dinner.replace(/\!/g,'');
      }
-   } else {
-     price_dinner = '0,1,2,3,4';
    }
+   // else {
+   //   price_dinner = '0,1,2,3,4';
+   // }
+
    // mood2 parsing
    let mood2_flag = '';
    if (mood2 != null || mood2 != undefined) {
@@ -3588,20 +3591,28 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
        mood2_flag = 'NOT';
        mood2 = mood2.replace(/\!/g,'');
      }
-   } else {
-     mood2_flag = 'NOT';
-     mood2 = 'x';
    }
+   // else {
+   //   mood2_flag = 'NOT';
+   //   mood2 = 'x';
+   // }
+
    // drink_type parsing
-   if (drink_type != null || drink_type != undefined) {
+   // if (drink_type != null || drink_type != undefined) {
+     // if (drink_type === '상관없음') {
+     //   drink_type = '맥주 양주 와인 사케 소주 전통주';
+     // }
+   // }
+   // else {
+   //   drink_type = '맥주 양주 와인 사케 소주 전통주';
+   // }
+   if (drink_type != null && drink_type != undefined) {
      if (drink_type === '상관없음') {
        drink_type = '맥주 양주 와인 사케 소주 전통주';
-     }
-   } else {
-     drink_type = '맥주 양주 와인 사케 소주 전통주';
+     } 
+     drink_type = drink_type.replace('양주&칵테일','양주');
+     drink_type = drink_type.replace('맥주','생맥주, 병맥주');
    }
-   drink_type = drink_type.replace('양주&칵테일','양주');
-   drink_type = drink_type.replace('맥주','생맥주, 병맥주');
 
    console.log(`drink_round : ${drink_round}, price_dinner_flag : ${price_dinner_flag}, price_dinner : ${price_dinner},
      mood2_flag : ${mood2_flag}, mood2 : ${mood2}, mood_flag : ${mood_flag}, mood : ${mood}, drink_type : ${drink_type}`);
