@@ -3607,11 +3607,11 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
    //   drink_type = '맥주 양주 와인 사케 소주 전통주';
    // }
    if (drink_type != null && drink_type != undefined) {
-     if (drink_type === '상관없음') {
-       drink_type = '맥주 양주 와인 사케 소주 전통주';
-     }
      drink_type = drink_type.replace('양주&칵테일','양주');
      drink_type = drink_type.replace('맥주','생맥주, 병맥주');
+     if (drink_type === '888') {
+       drink_type = null;
+     }
    }
 
    // console.log(`drink_round : ${drink_round}, price_dinner_flag : ${price_dinner_flag}, price_dinner : ${price_dinner},
@@ -3680,28 +3680,39 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
 
    } else {
      let query = `SELECT * FROM restaurants WHERE closedown=0 AND
-                  subway = '${subway}' AND
-                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) AND
-                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) AND
-                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) AND
-                  ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
-                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) ORDER BY RAND() LIMIT 2;`;
+                  subway = '${subway}'`;
+                  // `
+                  // ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) AND
+                  // ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) AND
+                  // ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) AND
+                  // ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
+                  // ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) ORDER BY RAND();`;
+     if (drink_round!=null) { query += ` AND match(drink_round) against('${drink_round}' in boolean mode)`; }
+     if (price_dinner!=null) { query += ` AND ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode)`; }
+     if (mood!=null) { query += ` AND match(mood) against('${mood}' in boolean mode)`; }
+     if (mood2!=null) { query += ` AND ${mood2_flag} match(mood2) against('${mood2}' in boolean mode)`; }
+     if (drink_type!=null) { query += ` AND ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode)`; }
+     query += ';';
+
+
      console.log(query);
-     let resultNum = 0;
-     models.sequelize.query(`SELECT count(*) AS count FROM restaurants WHERE
-                  closedown = 0 AND
-                  subway = '${subway}' AND
-                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) AND
-                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) AND
-                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) AND
-                  ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
-                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`)
-     .then(cnt => {
-       resultNum = cnt[0][0].count;
-       console.log(`검색 결과 : ${cnt[0][0].count}개`);
+     // let resultNum = 0;
+     // models.sequelize.query(`SELECT count(*) AS count FROM restaurants WHERE
+     //              closedown = 0 AND
+     //              subway = '${subway}' AND
+     //              ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) AND
+     //              ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) AND
+     //              ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) AND
+     //              ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
+     //              ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`)
+     // .then(cnt => {
+     //   resultNum = cnt[0][0].count;
+     //   console.log(`검색 결과 : ${cnt[0][0].count}개`);
        models.sequelize.query(query).then(result => {
-            if (result[0].length == 2) {
-              return res.status(200).json({success: true, num: resultNum, message: result[0]})
+            if (result[0].length >= 2) {
+              const shuffled = result[0].sort(() => 0.5 - Math.random());
+              const rand_pick = shuffled.slice(0, 2);
+              return res.status(200).json({success: true, num: result[0].length, message: rand_pick})
             } else if (result[0].length == 1) {
               return res.status(200).json({success: true, num: 1, message: result[0]})
             } else {
@@ -3710,7 +3721,7 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
           }).catch(err => {
             return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
         });
-     });
+     // });
    }
  }
 
