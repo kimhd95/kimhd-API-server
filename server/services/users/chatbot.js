@@ -3610,12 +3610,19 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
      console.log("gps case");
      let query = `SELECT * FROM restaurants WHERE closedown=0 AND
                   (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
-                  (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
-                  ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
-                  ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
-                  ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
-                  ${mood_flag} match(mood) against('${mood}' in boolean mode) and
-                  ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`;
+                  (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1)`;
+     if (drink_round!=null) { query += ` AND match(drink_round) against('${drink_round}' in boolean mode)`; }
+     if (price_dinner!=null) { query += ` AND ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode)`; }
+     if (mood!=null) { query += ` AND match(mood) against('${mood}' in boolean mode)`; }
+     if (mood2!=null) { query += ` AND ${mood2_flag} match(mood2) against('${mood2}' in boolean mode)`; }
+     if (drink_type!=null) { query += ` AND ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode)`; }
+     query += ';';
+     // ` AND
+     //              ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
+     //              ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
+     //              ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
+     //              ${mood_flag} match(mood) against('${mood}' in boolean mode) and
+     //              ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`;
     console.log(query);
 
      models.sequelize.query(query).then(result => {
