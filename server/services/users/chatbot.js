@@ -1050,44 +1050,27 @@ function updateClosedown (req, res) {
 }
 
 function getNearRestaurant (req, res) {
-  const kakao_id = req.body.kakao_id;
-  let hate_food = req.body.hate_food;
-  let price_lunch = req.body.price_lunch;
-  let price_dinner = req.body.price_dinner;
-  let lat = req.body.lat;
-  let lng = req.body.lng;
-  let price_lunch_flag = '';
-  let price_dinner_flag = '';
+  let {hate_food, price_lunch, price_dinner, lat, lng} = req.body;
+  let taste_flag = food_type_flag = '';
 
   if (price_dinner === 'x') { //점심식사
-    if (price_lunch === null) {
-      price_lunch = '0,1,2,3,4';
-      price_lunch = price_lunch.replace(/,/g,' ');
-    }
-    else {
-      price_lunch = price_lunch.replace(/,/g,' ');
-    }
-    price_dinner_flag = 'NOT';
-  } else if (price_lunch === 'x') { //저녁식사
-    if (price_dinner === null) {
-      price_dinner = '0,1,2,3,4';
-      price_dinner = price_dinner.replace(/,/g, ' ');
-    }
-    else {
-      price_dinner = price_dinner.replace(/,/g, ' ');
-    }
-    price_lunch_flag = 'NOT';
+    price_dinner = null;
+  }
+  if (price_lunch === 'x') { //저녁식사
+    price_lunch = null;
   }
 
-  // (match(subway) against('${subway}' in boolean mode)) AND
-  query = `SELECT * FROM restaurants WHERE closedown=0 AND
-   NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
-   (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
-   (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
-   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-   NOT (match(taste) against('${hate_food}' in boolean mode));`;
+  let query = `SELECT *
+               FROM restaurants
+               WHERE closedown=0 AND
+                     NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
+                     (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
+                     (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1)`;
+  if (price_lunch) { query += ` AND (MATCH(price_lunch) AGAINST('${price_lunch}' IN BOOLEAN MODE))`; }
+  if (price_dinner) { query += ` AND (MATCH(price_dinner) AGAINST('${price_dinner}' IN BOOLEAN MODE))`; }
+  if (hate_food) { query += ` AND NOT (MATCH(food_name, taste) AGAINST('${hate_food}' IN BOOLEAN MODE))`; }
+  query += `;`;
+  console.log(query);
 
   models.sequelize.query(query).then(result => {
     let list = result[0];
@@ -1114,9 +1097,9 @@ function getNearRestaurant (req, res) {
         if (resultList.length >= 2) {
           const shuffled = resultList.sort(() => 0.5 - Math.random());
           const rand_pick = shuffled.slice(0, 2);
-          return res.status(200).json({success: true, message: rand_pick});
+          return res.status(200).json({success: true, num: resultList.length, message: rand_pick});
         } else {
-          res.status(200).json({success: false, message: 'no result.'});
+          res.status(200).json({success: false, num: resultList.length, message: 'no result.'});
         }
       }).catch(err => {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
