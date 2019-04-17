@@ -2779,13 +2779,14 @@ function getOtherDrinkRestaurant (req, res) {
           console.log("1111111111111111111111111111111111111");
           // 1. GPS 에서 다른식당보기
           if (lat && lng) {
+            console.log("2222222222222222222222222222222222222222222");
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
                          (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
                          (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1) AND
                          id NOT in (${rest_stack[0][0].rest_stack})`;
             if (drink_round) { query += ` AND match(drink_round) against('${drink_round}' in boolean mode)`; }
             if (price_dinner) { query += ` AND ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode)`; }
-            if (mood) { query += ` AND match(mood) against('${mood1}' in boolean mode)`; }
+            if (mood1) { query += ` AND match(mood) against('${mood1}' in boolean mode)`; }
             if (mood2) { query += ` AND ${mood2_flag} match(mood2) against('${mood2}' in boolean mode)`; }
             if (drink_type) { query += ` AND match(drink_type) against('${drink_type}' in boolean mode)`; }
             query += ';';
@@ -2836,12 +2837,13 @@ function getOtherDrinkRestaurant (req, res) {
 
           // 2. 일반적인 다른식당보기
           else {
+            console.log("33333333333333333333333333333333333333333");
             let query = `SELECT * FROM restaurants WHERE closedown=0 AND
                          id NOT in(${rest_stack[0][0].rest_stack}) AND
                          subway = '${subway}'`;
             if (drink_round) { query += ` AND match(drink_round) against('${drink_round}' in boolean mode)`; }
             if (price_dinner) { query += ` AND ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode)`; }
-            if (mood) { query += ` AND match(mood) against('${mood1}' in boolean mode)`; }
+            if (mood1) { query += ` AND match(mood) against('${mood1}' in boolean mode)`; }
             if (mood2) { query += ` AND ${mood2_flag} match(mood2) against('${mood2}' in boolean mode)`; }
             if (drink_type) { query += ` AND match(drink_type) against('${drink_type}' in boolean mode)`; }
             query += ' ORDER BY RAND();';
