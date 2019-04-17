@@ -2440,16 +2440,21 @@ function getAllRestsaurant(req, res) {
 
 function getSimilarRestaurant (req, res) {
   const rest = req.body.rest;
-  console.log(`getSimilarRestaurant에서 rest : ${rest}`);
   models.sequelize.query(`SELECT * FROM restaurants WHERE id = ${rest}`).then(result => {
-    if (result[0].length !== 0) {
-      models.sequelize.query(`SELECT * FROM restaurants WHERE
-       closedown = 0 AND
-       NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
-       subway = '${result[0][0].subway}' AND
-       food_type = '${result[0][0].food_type}' AND
-       match(price_dinner) against('${result[0][0].price_dinner}') AND
-       id != '${rest}' ORDER BY RAND() LIMIT 2;`).then(result2 => {
+    if (result[0].length === 1) {
+      const {subway, food_type, price_dinner} = result[0][0];
+      let query = `SELECT *
+                   FROM restaurants
+                   WHERE closedown=0 AND
+                         id != '${rest}' AND
+                         NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
+                         subway = '${subway}'`;
+      if (food_type) { query += ` AND MATCH(food_type) AGAINST('${food_type}')`; }
+      if (price_dinner) { query += ` AND MATCH(price_dinner) AGAINST('${price_dinner}')`; }
+      query += ' ORDER BY RAND() LIMIT 2;';
+      console.log(query);
+
+      models.sequelize.query(query).then(result2 => {
         if (result2[0].length >= 2) {
           return res.status(200).json({success: true, message: result2[0]});
         } else {
