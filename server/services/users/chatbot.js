@@ -1217,43 +1217,25 @@ function getRestaurant (req, res) {
 }
 
 function verifyResultExist (req, res) {
-  const kakao_id = req.body.kakao_id;
-  let subway = req.body.subway;
-  let hate_food = req.body.hate_food; //taste, food_name에 모두 반영
-  let price_lunch = req.body.price_lunch;
-  let price_dinner = req.body.price_dinner;
-  let taste_list = req.body.taste_list;
-
-  let price_lunch_flag = '';
-  let price_dinner_flag = '';
+  let {subway, hate_food, price_lunch, price_dinner, taste_list} = req.body;
 
   if (price_dinner === 'x') { //점심식사
-      if (price_lunch === null) {
-        price_lunch = '0,1,2,3,4';
-      }
-      price_lunch = price_lunch.replace(/,/g,' ');
-      price_dinner_flag = 'NOT';
-  } else if (price_lunch === 'x') { //저녁식사
-      if (price_dinner === null) {
-        price_dinner = '0,1,2,3,4';
-      }
-      price_dinner = price_dinner.replace(/,/g, ' ');
-      price_lunch_flag = 'NOT';
+    price_dinner = null;
+  }
+  if (price_lunch === 'x') { //저녁식사
+    price_lunch = null;
   }
 
-  if(hate_food === null) {
-      hate_food = 'x';
-  }
-  hate_food = hate_food.replace(/,/g,' ');
+  let query = `SELECT *
+               FROM restaurants
+               WHERE closedown=0 AND
+                     NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE))`;
+  if (subway) { query += ` AND subway = '${subway}'`; }
+  if (price_lunch) { query += ` AND (MATCH(price_lunch) AGAINST('${price_lunch}' IN BOOLEAN MODE))`; }
+  if (price_dinner) { query += ` AND (MATCH(price_dinner) AGAINST('${price_dinner}' IN BOOLEAN MODE))`; }
+  if (hate_food) { query += ` AND NOT (MATCH(food_name) AGAINST('${hate_food}' IN BOOLEAN MODE))`; }
+  query += ` AND `;
 
-  let query = `SELECT * FROM restaurants WHERE
-   closedown = 0 AND
-   NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
-   subway = '${subway}' AND
-   ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-   ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-   NOT (match(food_name) against('${hate_food}' in boolean mode)) AND `;
-  //query += food_name_condition + ` AND
   let verifyResult = [];
   var exeQuery = function(taste) {
     const newQuery1 = query + `(match(taste) against('"${taste.option1}" -${hate_food}' in boolean mode)) LIMIT 2;`;
@@ -1282,9 +1264,8 @@ function verifyResultExist (req, res) {
   }
 
   var applyAll = taste_list.map(exeQuery);
-  var results = Promise.all(applyAll);
 
-  results.then(() => {
+  Promise.all(applyAll).then(() => {
     console.log("verifyResult : ", verifyResult);
     return res.status(200).json({success: true, valid: verifyResult});
   })
