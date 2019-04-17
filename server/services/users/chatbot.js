@@ -1068,7 +1068,8 @@ function getNearRestaurant (req, res) {
                      (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1)`;
   if (price_lunch) { query += ` AND (MATCH(price_lunch) AGAINST('${price_lunch}' IN BOOLEAN MODE))`; }
   if (price_dinner) { query += ` AND (MATCH(price_dinner) AGAINST('${price_dinner}' IN BOOLEAN MODE))`; }
-  if (hate_food) { query += ` AND NOT (MATCH(food_name, taste) AGAINST('${hate_food}' IN BOOLEAN MODE))`; }
+  if (hate_food) { query += ` AND NOT (MATCH(food_name) AGAINST('${hate_food}' IN BOOLEAN MODE))
+                              AND NOT (MATCH(taste) AGAINST('${taste}' IN BOOLEAN MODE))`; }
   query += `;`;
   console.log(query);
 
