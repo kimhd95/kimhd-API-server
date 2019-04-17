@@ -1131,103 +1131,47 @@ function getNearRestaurant (req, res) {
 }
 
 function getRestaurant (req, res) {
-  const kakao_id = req.body.kakao_id;
-  let subway = req.body.subway;
-  let exit_quarter = req.body.exit_quarter;
-  let mood2 = req.body.mood2;
-  let food_type = req.body.food_type;
-  let taste = req.body.taste;
-  let hate_food = req.body.hate_food; //taste, food_name에 모두 반영
-  let food_name = req.body.food_name;
-  let price_lunch = req.body.price_lunch;
-  let price_dinner = req.body.price_dinner;
-  let subway_flag = '';
-  let taste_flag = '';
-  let food_type_flag = '';
-  let food_name_flag = '';
-  let mood2_flag = '';
-  let price_lunch_flag = '';
-  let price_dinner_flag = '';
-
-  // 특정 역을 입력하므로 일단은 안 쓰임
-  if (subway === '서울 어디든 좋아' || subway === null) {
-    subway = 'x';
-    subway_flag = 'NOT';
-  }
+  let {subway, exit_quarter, mood2, food_type, taste, hate_food, food_name, price_lunch, price_dinner} = req.body;
+  let taste_flag = food_type_flag = '';
 
   if (exit_quarter.includes('999')) {
-    exit_quarter = '1,2,3,4';
+    exit_quarter = null;
   }
-
   if (price_dinner === 'x') { //점심식사
-      if(price_lunch === null) {
-        price_lunch = '0,1,2,3,4';
-        price_lunch= price_lunch.replace(/,/g,' ');
-      }
-      else {
-        price_lunch= price_lunch.replace(/,/g,' ');
-      }
-      price_dinner_flag = 'NOT'
-  } else if (price_lunch === 'x') { //저녁식사
-      if(price_dinner === null) {
-        price_dinner = '0,1,2,3,4';
-        price_dinner = price_dinner.replace(/,/g, ' ');
-      }
-      else {
-        price_dinner = price_dinner.replace(/,/g, ' ');
-      }
-      price_lunch_flag = 'NOT'
+    price_dinner = null;
+  }
+  if (price_lunch === 'x') { //저녁식사
+    price_lunch = null;
   }
   // 일상적인 식사일 경우에는 mood2 고려 안 함
   // 일상적인 식사가 아닌 경우에는 keyword를 공백을 두어 문자열로 만듦
-  if(mood2 === '999' || mood2 === '998'){
-    mood2_flag = 'NOT';
-    mood2 = 'x';
-  } else{
-  // 밥 약속이나 술 약속인 경우 keyword를 공백을 두어 문자열로 만듦
-    mood2= mood2.replace(/,/g,' ');
+  if (mood2 === '999' || mood2 === '998') {
+    mood2 = null;
   }
-
   // !-가벼운 == 헤비한 이므로, 예를 들어 헤비한 음식을 고른 경우에는 flag를 not으로 만들어서 가벼운 음식을 제외
-  if(taste.includes('!-')){
+  if (taste.includes('!-')) {
     taste = taste.replace('!-','');
     taste_flag = 'NOT';
-  } else if(taste === 'all'){
-    taste = 'x';
-    taste_flag = 'NOT';
+  } else if (taste === 'all') {
+    taste = null;
   }
 
-  if(hate_food === null){
-      hate_food = 'x';
-  }
-  hate_food = hate_food.replace(/,/g,' ');
-
-  if(food_type === null) {
-    food_type = 'all';
-    food_type = food_type.replace(/,/g,' ');
-  } else {
-    food_type = food_type.replace(/,/g,' ');
-  }
-
-  if(food_type === '이국적'){
+  if (food_type === '이국적') {
     food_type = '한식 일식 중식 양식';
     food_type_flag = 'NOT';
-  } else if(food_type === 'all'){
-    food_type = 'x';
-    food_type_flag = 'NOT';
+  } else if (food_type === 'all') {
+    food_type = null;
   }
 
-  let food_name_condition;
-  if(food_name === null || food_name ==='x'){
-    food_name = 'x';
-    food_name_flag = 'NOT';
-    food_name_condition = `${food_name_flag} (match(food_name) against('${food_name}*' in boolean mode))`;
-  } else {
+  let food_name_condition = '';
+  if (food_name === 'x') {
+    food_name = null;
+  } else if (food_name) {
     let food_name_leng = food_name.split(',').length;
-    if(food_name.includes(',')) {
+    if (food_name.includes(',')) {
       food_name_condition = `(food_name LIKE ("%${food_name.split(',')[0]}%")`;
-      for (var i = 1; i<food_name_leng; i++) {
-        food_name_condition += ` or food_name LIKE ("%${food_name.split(',')[i]}%")`;
+      for (let i = 1; i < food_name_leng; i++) {
+        food_name_condition += ` OR food_name LIKE ("%${food_name.split(',')[i]}%")`;
       }
       food_name_condition += ')';
     } else {
@@ -1235,45 +1179,46 @@ function getRestaurant (req, res) {
     }
   }
 
-  let query = `SELECT * FROM restaurants WHERE closedown=0 AND
-  NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
-  ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-  ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-  ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-  ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-  ${food_name_condition} AND
-  NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-  ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-  ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))`;
-  if (exit_quarter != '1,2,3,4') {
-    query += ` AND exit_quarter IN (${exit_quarter}) `;
-  }
-  query += `ORDER BY RAND() LIMIT 2;`;
+  let query = `SELECT *
+               FROM restaurants
+               WHERE closedown=0 AND
+                     NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE))`;
+  if (subway) { query += ` AND subway = ${subway}`; }
+  if (exit_quarter) { query += ` AND exit_quarter IN (${exit_quarter})`; }
+  if (price_lunch) { query += ` AND (MATCH(price_lunch) AGAINST('${price_lunch}' IN BOOLEAN MODE))`; }
+  if (price_dinner) { query += ` AND (MATCH(price_dinner) AGAINST('${price_dinner}' IN BOOLEAN MODE))`; }
+  if (mood2) { query += ` AND (MATCH(mood2) AGAINST('${mood2}' IN BOOLEAN MODE))`; }
+  if (food_name) { query += ` AND ${food_name_condition}`; }
+  if (hate_food) { query += ` AND NOT (MATCH(food_name) AGAINST('${hate_food}' IN BOOLEAN MODE))`; }
+  if (taste) { query += ` AND ${taste_flag} (MATCH(taste) AGAINST('"${taste}" -${hate_food}' IN BOOLEAN MODE))`; }
+  if (food_type) { query += ` AND ${food_type_flag} (MATCH(food_type) AGAINST('${food_type}' IN BOOLEAN MODE))`; }
+  query += `ORDER BY RAND();`;
   console.log(query);
 
   models.sequelize.query(query).then(result => {
-    console.log(result[0].length);
-    if (result[0].length === 2) {
-      return res.status(200).json({success: true, try: 1, message: result[0]})
+    if (result[0].length >= 2) {
+      return res.status(200).json({success: true, try: 1, num:result[0].length, message: result[0].slice(0, 2)})
     } else {
-      if (exit_quarter == undefined || exit_quarter == '' || exit_quarter == '1,2,3,4') {
+      if (!exit_quarter || exit_quarter == '1,2,3,4') {
         return res.status(200).json({success: false, message: 'no result.'})
       } else {
-        const query_next = `SELECT * FROM restaurants WHERE closedown=0 AND
-          NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE)) AND
-         ${subway_flag} (match(subway) against('${subway}' in boolean mode)) AND
-         ${price_lunch_flag} (match(price_lunch) against('${price_lunch}' in boolean mode)) AND
-         ${price_dinner_flag} (match(price_dinner) against('${price_dinner}' in boolean mode)) AND
-         ${mood2_flag} (match(mood2) against('${mood2}' in boolean mode)) AND
-         ${food_name_condition} AND
-         NOT (match(food_name) against('${hate_food}' in boolean mode)) AND
-         ${taste_flag} (match(taste) against('"${taste}" -${hate_food}' in boolean mode)) AND
-         ${food_type_flag} (match(food_type) against('${food_type}' in boolean mode))
-         ORDER BY RAND() LIMIT 2;`
-         console.log(query_next);
-         models.sequelize.query(query_next).then(second_result => {
-          if (second_result[0].length === 2) {
-            return res.status(200).json({success: true, try: 2, message: second_result[0]})
+        let query_next = `SELECT *
+                          FROM restaurants
+                          WHERE closedown=0 AND
+                                NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE))`;
+        if (subway) { query += ` AND subway = ${subway}`; }
+        if (price_lunch) { query += ` AND (MATCH(price_lunch) AGAINST('${price_lunch}' IN BOOLEAN MODE))`; }
+        if (price_dinner) { query += ` AND (MATCH(price_dinner) AGAINST('${price_dinner}' IN BOOLEAN MODE))`; }
+        if (mood2) { query += ` AND (MATCH(mood2) AGAINST('${mood2}' IN BOOLEAN MODE))`; }
+        if (food_name) { query += ` AND ${food_name_condition}`; }
+        if (hate_food) { query += ` AND NOT (MATCH(food_name) AGAINST('${hate_food}' IN BOOLEAN MODE))`; }
+        if (taste) { query += ` AND ${taste_flag} (MATCH(taste) AGAINST('"${taste}" -${hate_food}' IN BOOLEAN MODE))`; }
+        if (food_type) { query += ` AND ${food_type_flag} (MATCH(food_type) AGAINST('${food_type}' IN BOOLEAN MODE))`; }
+        query += `ORDER BY RAND();`;
+        console.log(query_next);
+        models.sequelize.query(query_next).then(second_result => {
+          if (second_result[0].length >= 2) {
+            return res.status(200).json({success: true, try: 2, num: second_result[0].length, message: second_result[0].slice(0, 2)})
           } else {
             return res.status(200).json({success: false, message: 'no result.'})
           }
@@ -1282,7 +1227,7 @@ function getRestaurant (req, res) {
         });
       }
     }
-  }).catch( err => {
+  }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
   });
 }
