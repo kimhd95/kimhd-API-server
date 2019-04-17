@@ -1025,9 +1025,7 @@ function setRestaurantLatLng (req, res) {
   }
 
   var actions = data.map(fn);
-  var results = Promise.all(actions);
-
-  results.then(data => {
+  Promise.all(actions).then(() => {
     console.log("Update Finish.");
     res.status(200).json({success: true, message: 'update complete.'});
   }).catch(err => {
@@ -1112,8 +1110,8 @@ function getNearRestaurant (req, res) {
       }
 
       var actions = list.map(fn);
-      Promise.all(actions).then(data => {
-        if(resultList.length >= 2) {
+      Promise.all(actions).then(() => {
+        if (resultList.length >= 2) {
           const shuffled = resultList.sort(() => 0.5 - Math.random());
           const rand_pick = shuffled.slice(0, 2);
           return res.status(200).json({success: true, message: rand_pick});
@@ -2544,13 +2542,10 @@ function getOtherRestaurant (req, res) {
   let rest1 = req.body.rest1;
   let rest2 = req.body.rest2;
 
-  models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
-  .then(result => {
+  models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`).then(result => {
     if (result[0].length === 1) {
-      models.sequelize.query(`UPDATE users SET rest_stack = CONCAT(rest_stack, ',${rest1},${rest2}') WHERE id=${userid};`)
-      .then(() => {
-        models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`)
-        .then(rest_stack => {
+      models.sequelize.query(`UPDATE users SET rest_stack = CONCAT(rest_stack, ',${rest1},${rest2}') WHERE id=${userid};`).then(() => {
+        models.sequelize.query(`SELECT rest_stack FROM users WHERE id=${userid};`).then(rest_stack => {
           let lat = result[0][0].lat;
           let lng = result[0][0].lng;
           let price_lunch = result[0][0].price_lunch;
@@ -2595,8 +2590,7 @@ function getOtherRestaurant (req, res) {
              NOT (match(taste) against('${hate_food}' in boolean mode)) AND
              id NOT IN (${rest_stack[0][0].rest_stack});`;
 
-            models.sequelize.query(query)
-            .then(nears => {
+            models.sequelize.query(query).then(nears => {
               let list = nears[0];
               let nearsList = [];
               if (list.length > 1) {
@@ -2617,8 +2611,7 @@ function getOtherRestaurant (req, res) {
                 }
 
                 var actions = list.map(fn);
-                Promise.all(actions)
-                .then(data => {
+                Promise.all(actions).then(() => {
                   if (nearsList.length >= 2) {
                     const shuffled = nearsList.sort(() => 0.5 - Math.random());
                     const rand_pick = shuffled.slice(0, 2);
@@ -2627,16 +2620,14 @@ function getOtherRestaurant (req, res) {
                   else {
                     res.status(200).json({success: false, message: 'no result.'});
                   }
-                })
-                .catch(err => {
+                }).catch(err => {
                   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
                 });
               }
               else {
                 res.status(200).json({success: false, message: 'no result.'});
               }
-            })
-            .catch(err => {
+            }).catch(err => {
               return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
             });
           }
@@ -3004,8 +2995,7 @@ function verifyMood2 (req, res) {
     var actions = filter.map(fn);
     var results = Promise.all(actions);
 
-    results.then(data => {
-      console.log(data);
+    Promise.all(actions).then(() => {
       console.log(filtered_list);
       return res.status(200).json({result : filtered_list});
     });
