@@ -1183,7 +1183,7 @@ function getRestaurant (req, res) {
                FROM restaurants
                WHERE closedown=0 AND
                      NOT (MATCH(drink_round) AGAINST('1,2,3' IN BOOLEAN MODE))`;
-  if (subway) { query += ` AND subway = ${subway}`; }
+  if (subway) { query += ` AND subway = '${subway}'`; }
   if (exit_quarter) { query += ` AND exit_quarter IN (${exit_quarter})`; }
   if (price_lunch) { query += ` AND (MATCH(price_lunch) AGAINST('${price_lunch}' IN BOOLEAN MODE))`; }
   if (price_dinner) { query += ` AND (MATCH(price_dinner) AGAINST('${price_dinner}' IN BOOLEAN MODE))`; }
@@ -1192,7 +1192,7 @@ function getRestaurant (req, res) {
   if (hate_food) { query += ` AND NOT (MATCH(food_name) AGAINST('${hate_food}' IN BOOLEAN MODE))`; }
   if (taste) { query += ` AND ${taste_flag} (MATCH(taste) AGAINST('"${taste}" -${hate_food}' IN BOOLEAN MODE))`; }
   if (food_type) { query += ` AND ${food_type_flag} (MATCH(food_type) AGAINST('${food_type}' IN BOOLEAN MODE))`; }
-  query += `ORDER BY RAND();`;
+  query += ` ORDER BY RAND();`;
   console.log(query);
 
   models.sequelize.query(query).then(result => {
