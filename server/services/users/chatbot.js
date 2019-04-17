@@ -2753,9 +2753,7 @@ function getOtherRestaurant (req, res) {
 }
 
 function getOtherDrinkRestaurant (req, res) {
-  let userid = req.body.userid;
-  let rest1 = req.body.rest1;
-  let rest2 = req.body.rest2;
+  let {userid, rest1, rest2} = req.body;
 
   models.sequelize.query(`SELECT * FROM users WHERE id=${userid};`)
   .then(result => {
@@ -3553,87 +3551,42 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
  }
 
  function getDrinkRestaurant (req, res) {
-   // let lng = req.body.lng;
-   // let lat = req.body.lat;
-   // let drink_round = req.body.drink_round;
-   // let subway = req.body.subway;
-   // let price_dinner = req.body.price_dinner;
-   // let mood2 = req.body.mood2;
-   // let mood = req.body.mood;
-   // let drink_type = req.body.drink_type;
    let {lat, lng, subway, drink_round, price_dinner, mood, mood2, drink_type} = req.body;
-
+   let price_dinner_flag = mood2_flag = '';
    console.log(`lng : ${lng}, lat : ${lat}, drink_round : ${drink_round}, subway : ${subway}, price_dinner : ${price_dinner}, mood2 : ${mood2}, mood : ${mood}, drink_type : ${drink_type}`);
 
-   // mood parsing
-   // let mood_flag = '';
-   // if (mood == null || mood == undefined) {
-   //   mood_flag = 'NOT';
-   //   mood = 'x';
-   // }
-
-   // price_dinner parsing
-   let price_dinner_flag = '';
-   if (price_dinner != null || price_dinner != undefined) {
-     if (price_dinner.includes('!')){
+   if (price_dinner) {
+     if (price_dinner.includes('!')) {
        price_dinner_flag = 'NOT';
        price_dinner = price_dinner.replace(/\!/g,'');
      }
    }
-   // else {
-   //   price_dinner = '0,1,2,3,4';
-   // }
-
-   // mood2 parsing
-   let mood2_flag = '';
-   if (mood2 != null || mood2 != undefined) {
+   if (mood2) {
      if (mood2.includes('!')) {
        mood2_flag = 'NOT';
        mood2 = mood2.replace(/\!/g,'');
      }
    }
-   // else {
-   //   mood2_flag = 'NOT';
-   //   mood2 = 'x';
-   // }
-
-   // drink_type parsing
-   // if (drink_type != null || drink_type != undefined) {
-     // if (drink_type === '상관없음') {
-     //   drink_type = '맥주 양주 와인 사케 소주 전통주';
-     // }
-   // }
-   // else {
-   //   drink_type = '맥주 양주 와인 사케 소주 전통주';
-   // }
-   if (drink_type != null && drink_type != undefined) {
-     drink_type = drink_type.replace('양주&칵테일','양주');
-     drink_type = drink_type.replace('맥주','생맥주, 병맥주');
+   if (drink_type) {
      if (drink_type === '888') {
        drink_type = null;
+     } else {
+       drink_type = drink_type.replace('양주&칵테일','양주');
+       drink_type = drink_type.replace('맥주','생맥주, 병맥주');
      }
    }
-
-   // console.log(`drink_round : ${drink_round}, price_dinner_flag : ${price_dinner_flag}, price_dinner : ${price_dinner},
-   //   mood2_flag : ${mood2_flag}, mood2 : ${mood2}, mood : ${mood}, drink_type : ${drink_type}`);
    //lng, lat 값이 있는 경우
-   if (lng != null && lat != null) {
+   if (lat && lng) {
      let query = `SELECT * FROM restaurants WHERE closedown=0 AND
                   (lat - ${lat} < 0.1 AND lat - ${lat} > -0.1) AND
                   (lng - ${lng} < 0.1 AND lng - ${lng} > -0.1)`;
-     if (drink_round!=null) { query += ` AND match(drink_round) against('${drink_round}' in boolean mode)`; }
-     if (price_dinner!=null) { query += ` AND ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode)`; }
-     if (mood!=null) { query += ` AND match(mood) against('${mood}' in boolean mode)`; }
-     if (mood2!=null) { query += ` AND ${mood2_flag} match(mood2) against('${mood2}' in boolean mode)`; }
-     if (drink_type!=null) { query += ` AND ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode)`; }
+     if (drink_round) { query += ` AND match(drink_round) against('${drink_round}' in boolean mode)`; }
+     if (price_dinner) { query += ` AND ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode)`; }
+     if (mood) { query += ` AND match(mood) against('${mood}' in boolean mode)`; }
+     if (mood2) { query += ` AND ${mood2_flag} match(mood2) against('${mood2}' in boolean mode)`; }
+     if (drink_type) { query += ` AND match(drink_type) against('${drink_type}' in boolean mode)`; }
      query += ';';
-     // ` AND
-     //              ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) and
-     //              ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) and
-     //              ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) and
-     //              ${mood_flag} match(mood) against('${mood}' in boolean mode) and
-     //              ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`;
-    console.log(query);
+     console.log(query);
 
      models.sequelize.query(query).then(result => {
        let list = result[0];
@@ -3655,73 +3608,51 @@ WHERE date=(SELECT MAX(date) FROM decide_histories WHERE subway = p.subway AND e
          }
 
          var actions = list.map(fn);
-         var results = Promise.all(actions);
-
-         results.then(data => {
-           if(resultList.length >= 2) {
+         Promise.all(actions).then(() => {
+           if (resultList.length >= 2) {
              const shuffled = resultList.sort(() => 0.5 - Math.random());
              const rand_pick = shuffled.slice(0, 2);
              return res.status(200).json({success: true, num: resultList.length, message: rand_pick});
            } else if(resultList.length == 1) {
              return res.status(200).json({success: true, num: 1, message: resultList});
            } else {
-             res.status(200).json({success: false, num: 0, message: 'no result.'});
+             return res.status(200).json({success: false, num: 0, message: 'no result.'});
            }
          }).catch(err => {
            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
          });
-       } else {
-         res.status(200).json({success: false, message: 'no result.'});
        }
-
+       else {
+         return res.status(200).json({success: false, message: 'no result.'});
+       }
      }).catch(err => {
        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
      });
+   }
 
-   } else {
+   else {
      let query = `SELECT * FROM restaurants WHERE closedown=0 AND
                   subway = '${subway}'`;
-                  // `
-                  // ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) AND
-                  // ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) AND
-                  // ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) AND
-                  // ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
-                  // ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode) ORDER BY RAND();`;
-     if (drink_round!=null) { query += ` AND match(drink_round) against('${drink_round}' in boolean mode)`; }
-     if (price_dinner!=null) { query += ` AND ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode)`; }
-     if (mood!=null) { query += ` AND match(mood) against('${mood}' in boolean mode)`; }
-     if (mood2!=null) { query += ` AND ${mood2_flag} match(mood2) against('${mood2}' in boolean mode)`; }
-     if (drink_type!=null) { query += ` AND ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode)`; }
+     if (drink_round) { query += ` AND match(drink_round) against('${drink_round}' in boolean mode)`; }
+     if (price_dinner) { query += ` AND ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode)`; }
+     if (mood) { query += ` AND match(mood) against('${mood}' in boolean mode)`; }
+     if (mood2) { query += ` AND ${mood2_flag} match(mood2) against('${mood2}' in boolean mode)`; }
+     if (drink_type) { query += ` AND match(drink_type) against('${drink_type}' in boolean mode)`; }
      query += ';';
-
-
      console.log(query);
-     // let resultNum = 0;
-     // models.sequelize.query(`SELECT count(*) AS count FROM restaurants WHERE
-     //              closedown = 0 AND
-     //              subway = '${subway}' AND
-     //              ${drink_round==null?'NOT':''} match(drink_round) against('${drink_round}' in boolean mode) AND
-     //              ${price_dinner_flag} match(price_dinner) against('${price_dinner}' in boolean mode) AND
-     //              ${mood2_flag} match(mood2) against('${mood2}' in boolean mode) AND
-     //              ${mood_flag} match(mood) against('${mood}' in boolean mode) AND
-     //              ${drink_type=='888'?'NOT':''} match(drink_type) against('${drink_type}' in boolean mode);`)
-     // .then(cnt => {
-     //   resultNum = cnt[0][0].count;
-     //   console.log(`검색 결과 : ${cnt[0][0].count}개`);
-       models.sequelize.query(query).then(result => {
-            if (result[0].length >= 2) {
-              const shuffled = result[0].sort(() => 0.5 - Math.random());
-              const rand_pick = shuffled.slice(0, 2);
-              return res.status(200).json({success: true, num: result[0].length, message: rand_pick})
-            } else if (result[0].length == 1) {
-              return res.status(200).json({success: true, num: 1, message: result[0]})
-            } else {
-              return res.status(200).json({success: false, num: 0, message: 'no result'})
-            }
-          }).catch(err => {
-            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-        });
-     // });
+     models.sequelize.query(query).then(result => {
+          if (result[0].length >= 2) {
+            const shuffled = result[0].sort(() => 0.5 - Math.random());
+            const rand_pick = shuffled.slice(0, 2);
+            return res.status(200).json({success: true, num: result[0].length, message: rand_pick})
+          } else if (result[0].length == 1) {
+            return res.status(200).json({success: true, num: 1, message: result[0]})
+          } else {
+            return res.status(200).json({success: false, num: 0, message: 'no result'})
+          }
+        }).catch(err => {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+      });
    }
  }
 
