@@ -3843,14 +3843,13 @@ function getCafe5(req, res) {
 
 function updateMBTILogs(req, res) {
   const {socket_id, user_name, type, E, O, S, P, stack} = req.body;
-  console.log(req.body);
 
   const query = `INSERT INTO MBTI_logs (socket_id, name, type, E, O, S, P, stack) VALUES ('${socket_id}', '${user_name}', '${type}', ${E}, ${O}, ${S}, ${P}, '${stack}');`;
   console.log(query);
   models.sequelize.query(query).then(() => {
     console.log('MBTI log saved.');
     return res.status(200).json({success: true});
-  }).catch(function (err){
+  }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   })
 }
