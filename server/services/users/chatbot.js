@@ -3842,10 +3842,10 @@ function getCafe5(req, res) {
 }
 
 function updateMBTILogs(req, res) {
-  let {socket_id, name, type, E, O, S, P, stack} = req.body;
+  const {socket_id, user_name, type, E, O, S, P, stack} = req.body;
   console.log(req.body);
 
-  const query = `INSERT INTO MBTI_logs (socket_id, name, type, E, O, S, P, stack) VALUES (${socket_id}, ${name}, ${type}, ${E}, ${O}, ${S}, ${P}, ${stack});`;
+  const query = `INSERT INTO MBTI_logs (socket_id, name, type, E, O, S, P, stack) VALUES ('${socket_id}', '${user_name}', '${type}', ${E}, ${O}, ${S}, ${P}, '${stack}');`;
   console.log(query);
   models.sequelize.query(query).then(() => {
     console.log('MBTI log saved.');
