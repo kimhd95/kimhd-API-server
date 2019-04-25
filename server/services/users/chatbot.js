@@ -701,63 +701,22 @@ function updatePassword (req, res) {
 function updateUser (req, res) {
     console.log('updateUser called.');
     let kakao_id;
-    if (req.body){
+    if (req.body) {
         kakao_id = req.body.kakao_id;
-        if (!kakao_id){
+        if (!kakao_id) {
             return res.status(401).json({success: false, message: 'kakao_id not provided.'})
         }
     } else {
         return res.status(401).json({success: false, message: 'No input parameters received in body.'})
     }
 
-    const name = req.body.name;
-    const birthday = req.body.birthday;
-    const sex = req.body.sex;
-    const hate_food = req.body.hate_food;
-    const vegi = req.body.vegi;
-    const snack = req.body.snack;
-    const serving_size = req.body.serving_size;
-    const disease = req.body.disease;
-    const diet = req.body.diet;
-    const alone_level = req.body.alone_level;
-    const job = req.body.job;
-    const register = req.body.register;
-    const subway = req.body.subway;
-    const exit_quarter = req.body.exit_quarter;
-    const rest_final = req.body.rest_final;
-    const lat = req.body.lat;
-    const lng = req.body.lng;
-    const mid_lat = req.body.mid_lat;
-    const mid_lng = req.body.mid_lng;
-    const cnt = req.body.cnt;
-    const limit_cnt = req.body.limit_cnt;
-    const mood2 = req.body.mood2;
-    const with_mood = req.body.with_mood;
-    const taste = req.body.taste;
-    const food_type = req.body.food_type;
-    const chat_log = req.body.chat_log;
-    const freq_subway = req.body.freq_subway;
-    const drink_before = req.body.drink_before;
-    const drink_type = req.body.drink_type;
-    const drink_round = req.body.drink_round;
+    const {name, birthday, sex, hate_food, vegi, snack, serving_size, disease, diet, alone_level, job, register,
+            subway, exit_quarter, rest_final, lat, lng, mid_lat, mid_lng, cnt, limit_cnt, mood2, with_mood, taste,
+            food_type, chat_log, freq_subway, drink_before, drink_type, drink_round, limit_cnt_drink, cafe_before,
+            limit_cnt_cafe, mood1, subway_cafe, freq_subway_cafe, mainmenu_type, food_name, price_lunch, price_dinner,
+            cafe_final, stack, state, scenario} = req.body;
 
-    const limit_cnt_drink = req.body.limit_cnt_drink;
-    const cafe_before = req.body.cafe_before;
-    const limit_cnt_cafe = req.body.limit_cnt_cafe;
-    const mood1 = req.body.mood1;
-    const subway_cafe = req.body.subway_cafe;
-    const freq_subway_cafe = req.body.freq_subway_cafe;
-    const mainmenu_type = req.body.mainmenu_type;
-    const food_name = req.body.food_name;
-    const price_lunch = req.body.price_lunch;
-    const price_dinner = req.body.price_dinner;
-    const cafe_final = req.body.cafe_final;
-
-    const stack = req.body.stack;
-    const state = req.body.state;
-    const scenario = req.body.scenario;
-
-    if(name){
+    if (name) {
         // models.Medicine_time.create({
         //     kakao_id: kakao_id,
         //     encrypted_kakao_id: kakao_id,
