@@ -3854,6 +3854,48 @@ function updateMBTILogs(req, res) {
   })
 }
 
+function addChelinguideItem(req, res) {
+  const {user_id, res_name, region, subway, rating, comment} = req.body;
+  const getInfo_query = `SELECT * FROM restaurants WHERE res_name='${res_name}' AND region='${region}' AND subway='${subway}';`;
+  console.log(getInfo_query);
+  models.sequelize.query(getInfo_query).then(result => {
+    const {id, mood2, food_type, food_name} = result[0][0];
+    const res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
+    const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price)
+      VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}');`;
+    console.log(query);
+    models.sequelize.query(query).then(() => {
+      console.log('슐랭가이드 item added.');
+      return res.status(200).json({success: true});
+    }).catch(err => {
+      return res.status(500).json({success: false, message: '해당 식당없음. ' + err.message});
+    });
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+}
+
+function modifyChelinguideItem(req, res) {
+  const {user_id, res_name, region, subway, rating, comment, price, mood} = req.body;
+  const getID_query = `SELECT id FROM user_chelinguides WHERE user_id='${user_id}' AND res_name='${res_name}' AND res_region='${region}' AND res_subway='${subway}';`;
+  console.log(getID_query);
+  models.sequelize.query(getID_query).then(result => {
+    const id = result[0][0].id;
+    const query = `UPDATE user_chelinguides
+      SET res_mood='${mood}' AND res_price='${price}' AND rating=${rating} AND comment='${comment}'
+      WHERE id=${id};`;
+    console.log(query);
+    models.sequelize.query(query).then(() => {
+      console.log('슐랭가이드 item modified.');
+      return res.status(200).json({success: true});
+    }).catch(err => {
+      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+    });
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+}
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
@@ -3939,4 +3981,6 @@ module.exports = {
     updateClosedown: updateClosedown,
     verifyDrinktypeList: verifyDrinktypeList,
     updateMBTILogs: updateMBTILogs,
+    addChelinguideItem: addChelinguideItem,
+    modifyChelinguideItem: modifyChelinguideItem,
 }
