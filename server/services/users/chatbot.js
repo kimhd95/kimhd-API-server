@@ -3896,6 +3896,26 @@ function modifyChelinguideItem(req, res) {
   });
 }
 
+function getChelinguideList(req, res) {
+  const {user_id, region, subway, sortby} = req.body;
+  const query = `SELECT * FROM user_chelinguides WHERE user_id='${user_id} AND region='${region}' AND subway='${subway}' }'`;
+  if (sortby === 'res_name') {
+    query += `ORDER BY res_name DESC;`;
+  } else if (sortby === 'rating') {
+    query += `ORDER BY rating DESC;`;
+  } else if (sortby === 'updated_at') {
+    query += `ORDER BY updated_at ASC;`;
+  } else {
+    query += ';';
+  }
+  console.log(query);
+  models.sequelize.query(query).then(result => {
+    return res.status(200).json({success: true, num: result[0].length, message: result[0]});
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+}
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
