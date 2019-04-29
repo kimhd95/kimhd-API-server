@@ -3016,6 +3016,8 @@ function verifySearchFood (req, res) {
     models.sequelize.query(query).then(result => {
         if (result[0].length == 2){
           return res.status(200).json({result: 'success', message: result[0]});
+        } else if(result[0].length == 1) {
+          return res.status(200).json({result: 'success', message: result[0]});
         } else {
           return  res.status(200).json({result: 'no food in this subway'})
         }
