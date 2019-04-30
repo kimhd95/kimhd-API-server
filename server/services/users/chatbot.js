@@ -3817,6 +3817,8 @@ function updateMBTILogs(req, res) {
 
 function addChelinguideItem(req, res) {
   const {user_id, res_name, region, subway, rating, comment} = req.body;
+  console.log(user_id, res_name, region, subway, rating, comment);
+
   const getInfo_query = `SELECT * FROM restaurants WHERE res_name='${res_name}' AND region='${region}' AND subway='${subway}';`;
   console.log(getInfo_query);
   models.sequelize.query(getInfo_query).then(result => {
