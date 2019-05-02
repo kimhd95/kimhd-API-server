@@ -3867,7 +3867,7 @@ function getChelinguideList(req, res) {
   } else if (sortby === 'rating' || sortby === '별점순') {
     query += `ORDER BY rating DESC;`;
   } else if (sortby === 'updated_at' || sortby === '최신순') {
-    query += `ORDER BY updated_at ASC;`;
+    query += `ORDER BY updated_at DESC;`;
   } else {
     query += ';';
   }
