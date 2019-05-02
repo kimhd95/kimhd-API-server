@@ -3821,7 +3821,7 @@ async function addChelinguideItem(req, res) {
 
   const getInfo_query = `SELECT * FROM restaurants WHERE res_name='${res_name}' AND region='${region}' AND subway='${subway}';`;
   console.log(getInfo_query);
-  models.sequelize.query(getInfo_query).then(result => {
+  models.sequelize.query(getInfo_query).then(async (result) => {
     const {id, mood2, food_type, food_name} = result[0][0];
     const res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
 
