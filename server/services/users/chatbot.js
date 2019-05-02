@@ -3832,7 +3832,7 @@ function addChelinguideItem(req, res) {
           console.log(err);
           return;
       }
-      res_image = $('._img')[0].attr('data-source');
+      res_image = $('._img')[0]['data-source'];
       // .each(function (idx) {
       //   img_array.push($(this).attr('data-source'));
       // });
