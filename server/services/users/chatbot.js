@@ -3832,7 +3832,7 @@ function addChelinguideItem(req, res) {
           console.log(err);
           return;
       }
-      res_image = $('._img')[0]['data-source'];
+      res_image = $('._img');
       // .each(function (idx) {
       //   img_array.push($(this).attr('data-source'));
       // });
@@ -3842,6 +3842,7 @@ function addChelinguideItem(req, res) {
     //   return res.status(200).json({success: true, num: result[0].length, message: result[0], image: imgArray});
     // }, 5000);
     setTimeout(() => {
+      console.log("===========================================================");
       console.log(res_image);
 
 
