@@ -3966,4 +3966,5 @@ module.exports = {
     updateMBTILogs: updateMBTILogs,
     addChelinguideItem: addChelinguideItem,
     modifyChelinguideItem: modifyChelinguideItem,
+    getChelinguideList: getChelinguideList,
 }
