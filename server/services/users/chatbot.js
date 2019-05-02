@@ -3839,6 +3839,10 @@ function addChelinguideItem(req, res) {
           res_images.push($('._img')['2']['attribs']['data-source']);
           res_images.push($('._img')['3']['attribs']['data-source']);
           res_images.push($('._img')['4']['attribs']['data-source']);
+          resolve();
+        } else {
+          res_images.push($('._img')['0']['attribs']['data-source']);
+          resolve();
         }
       }).then(() => {
         const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
