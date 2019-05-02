@@ -3889,8 +3889,10 @@ function getChelinguideList(req, res) {
           imgArray[content.res_id] = img_array;
       });
     });
-    console.log(imgArray);
-    return res.status(200).json({success: true, num: result[0].length, message: result[0], image: imgArray});
+    setTimeout(() => {
+      console.log(imgArray);
+      return res.status(200).json({success: true, num: result[0].length, message: result[0], image: imgArray});
+    }, 5000});
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
