@@ -3824,8 +3824,29 @@ function addChelinguideItem(req, res) {
   models.sequelize.query(getInfo_query).then(result => {
     const {id, mood2, food_type, food_name} = result[0][0];
     const res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
-    const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price)
-      VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}');`;
+
+    let res_image;
+    let url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0]..subway} ${result[0][0]..res_name}`);
+    client.fetch(url, param, function(err, $, resp) {
+      if (err) {
+          console.log(err);
+          return;
+      }
+      res_image = $('._img')[0]
+      // .each(function (idx) {
+      //   img_array.push($(this).attr('data-source'));
+      // });
+    });
+    // setTimeout(() => {
+    //   console.log(imgArray);
+    //   return res.status(200).json({success: true, num: result[0].length, message: result[0], image: imgArray});
+    // }, 5000);
+
+    console.log(res_image);
+
+
+    const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price, res_image)
+      VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}', '${res_image}');`;
     console.log(query);
     models.sequelize.query(query).then(() => {
       console.log('슐랭가이드 item added.');
