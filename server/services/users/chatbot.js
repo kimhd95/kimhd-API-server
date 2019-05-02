@@ -3863,7 +3863,7 @@ function getChelinguideList(req, res) {
   const {user_id, region, subway, sortby} = req.body;
   let query = `SELECT * FROM user_chelinguides WHERE user_id='${user_id}' AND res_region='${region}' AND res_subway='${subway}' `;
   if (sortby === 'res_name' || sortby === '이름순') {
-    query += `ORDER BY res_name DESC;`;
+    query += `ORDER BY res_name;`;
   } else if (sortby === 'rating' || sortby === '별점순') {
     query += `ORDER BY rating DESC;`;
   } else if (sortby === 'updated_at' || sortby === '최신순') {
