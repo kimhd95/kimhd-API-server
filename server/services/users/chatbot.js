@@ -3832,7 +3832,7 @@ function addChelinguideItem(req, res) {
           console.log(err);
           return;
       }
-      res_image = $('._img')[0];
+      res_image = $('._img')[0].attr('data-source');
       // .each(function (idx) {
       //   img_array.push($(this).attr('data-source'));
       // });
@@ -3854,7 +3854,7 @@ function addChelinguideItem(req, res) {
       }).catch(err => {
         return res.status(500).json({success: false, message: '해당 식당없음. ' + err.message});
       });
-    }, 3000);
+    }, 2000);
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
@@ -3896,25 +3896,26 @@ function getChelinguideList(req, res) {
 
   console.log(query);
   models.sequelize.query(query).then(result => {
-    let imgArray = {};
-    result[0].forEach(content => {
-      let url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(content.res_name);
-      client.fetch(url, param, function(err, $, resp) {
-          if (err) {
-              console.log(err);
-              return;
-          }
-          let img_array = [];
-          $('._img').each(function (idx) {
-            img_array.push($(this).attr('data-source'));
-          });
-          imgArray[content.res_id] = img_array;
-      });
-    });
-    setTimeout(() => {
-      console.log(imgArray);
-      return res.status(200).json({success: true, num: result[0].length, message: result[0], image: imgArray});
-    }, 5000);
+    // let imgArray = {};
+    // result[0].forEach(content => {
+    //   let url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(content.res_name);
+    //   client.fetch(url, param, function(err, $, resp) {
+    //       if (err) {
+    //           console.log(err);
+    //           return;
+    //       }
+    //       let img_array = [];
+    //       $('._img').each(function (idx) {
+    //         img_array.push($(this).attr('data-source'));
+    //       });
+    //       imgArray[content.res_id] = img_array;
+    //   });
+    // });
+    // setTimeout(() => {
+    //   console.log(imgArray);
+    //   return res.status(200).json({success: true, num: result[0].length, message: result[0], image: imgArray});
+    // }, 5000);
+    return res.status(200).json({success: true, num: result[0].length, message: result[0]});
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
