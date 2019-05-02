@@ -3842,7 +3842,7 @@ function addChelinguideItem(req, res) {
     });
     setTimeout(() => {
       const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
-        VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}', '${res_image[0]}', '${res_image[1]}', '${res_image[2]}', '${res_image[3]}', '${res_image[4]}');`;
+        VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}', '${res_images[0]}', '${res_images[1]}', '${res_images[2]}', '${res_images[3]}', '${res_images[4]}');`;
       console.log(query);
       models.sequelize.query(query).then(() => {
         console.log('슐랭가이드 item added.');
