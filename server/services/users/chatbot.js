@@ -3832,7 +3832,7 @@ function addChelinguideItem(req, res) {
           console.log(err);
           return;
       }
-      new Promise(() => {
+      new Promise((resolve, reject) => {
         if ($('._img')['4']) {
           res_images.push($('._img')['0']['attribs']['data-source']);
           res_images.push($('._img')['1']['attribs']['data-source']);
