@@ -3886,7 +3886,7 @@ function getChelinguideList(req, res) {
           $('._img').each(function (idx) {
             img_array.push($(this).attr('data-source'));
           });
-          imgArray.[content.res_id] = img_array;
+          imgArray[content.res_id] = img_array;
       });
     })
     return res.status(200).json({success: true, num: result[0].length, message: result[0], image: imgArray});
