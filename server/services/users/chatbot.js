@@ -3827,7 +3827,7 @@ async function addChelinguideItem(req, res) {
 
     let res_images = [];
     let url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0].subway} ${result[0][0].res_name}`);
-    client.fetch(url, param, function(err, $, resp) {
+    await client.fetch(url, param, async function(err, $, resp) {
       if (err) {
           console.log(err);
           return;
