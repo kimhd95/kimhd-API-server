@@ -3861,7 +3861,7 @@ function modifyChelinguideItem(req, res) {
 
 function getChelinguideList(req, res) {
   const {user_id, region, subway, sortby} = req.body;
-  let query = `SELECT * FROM user_chelinguides WHERE user_id='${user_id}' AND region='${region}' AND subway='${subway}'`;
+  let query = `SELECT * FROM user_chelinguides WHERE user_id='${user_id}' AND res_region='${region}' AND res_subway='${subway}' `;
   if (sortby === 'res_name') {
     query += `ORDER BY res_name DESC;`;
   } else if (sortby === 'rating') {
