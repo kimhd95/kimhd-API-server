@@ -3854,7 +3854,7 @@ function addChelinguideItem(req, res) {
         }).catch(err => {
           return res.status(500).json({success: false, message: '해당 식당없음. ' + err.message});
         });
-      }).catch(() => {
+      }).catch(err => {
         return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
       });
     });
