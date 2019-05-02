@@ -3832,7 +3832,7 @@ function addChelinguideItem(req, res) {
           console.log(err);
           return;
       }
-      res_image = $('._img')[0]
+      res_image = $('._img')[0];
       // .each(function (idx) {
       //   img_array.push($(this).attr('data-source'));
       // });
@@ -3841,19 +3841,20 @@ function addChelinguideItem(req, res) {
     //   console.log(imgArray);
     //   return res.status(200).json({success: true, num: result[0].length, message: result[0], image: imgArray});
     // }, 5000);
+    setTimeout(() => {
+      console.log(res_image);
 
-    console.log(res_image);
 
-
-    const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price, res_image)
-      VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}', '${res_image}');`;
-    console.log(query);
-    models.sequelize.query(query).then(() => {
-      console.log('슐랭가이드 item added.');
-      return res.status(200).json({success: true});
-    }).catch(err => {
-      return res.status(500).json({success: false, message: '해당 식당없음. ' + err.message});
-    });
+      const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price, res_image)
+        VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}', '${res_image}');`;
+      console.log(query);
+      models.sequelize.query(query).then(() => {
+        console.log('슐랭가이드 item added.');
+        return res.status(200).json({success: true});
+      }).catch(err => {
+        return res.status(500).json({success: false, message: '해당 식당없음. ' + err.message});
+      });
+    }, 3000);
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
