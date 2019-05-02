@@ -3871,12 +3871,33 @@ function getChelinguideList(req, res) {
   } else {
     query += ';';
   }
+
   console.log(query);
   models.sequelize.query(query).then(result => {
-    return res.status(200).json({success: true, num: result[0].length, message: result[0]});
+    let imgArray = {};
+    result[0].forEach(content => {
+      let url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(content.res_name);
+      client.fetch(url, param, function(err, $, resp) {
+          if (err) {
+              console.log(err);
+              return;
+          }
+          let img_array = [];
+          $('._img').each(function (idx) {
+            img_array.push($(this).attr('data-source'));
+          });
+          imgArray.[content.res_id] = img_array;
+      });
+    })
+    return res.status(200).json({success: true, num: result[0].length, message: result[0], image: imgArray});
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
   });
+
+
+
+
+
 }
 
 module.exports = {
