@@ -3825,7 +3825,7 @@ function addChelinguideItem(req, res) {
     const {id, mood2, food_type, food_name} = result[0][0];
     const res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
 
-    let res_images;
+    let res_images = [];
     let url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0].subway} ${result[0][0].res_name}`);
     client.fetch(url, param, function(err, $, resp) {
       if (err) {
