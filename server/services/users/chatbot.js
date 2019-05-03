@@ -3817,16 +3817,13 @@ function updateMBTILogs(req, res) {
 
 function addChelinguideItem(req, res) {
   const {user_id, res_name, region, subway, rating, comment} = req.body;
-  console.log(user_id, res_name, region, subway, rating, comment);
-
   const getInfo_query = `SELECT * FROM restaurants WHERE res_name='${res_name}' AND region='${region}' AND subway='${subway}';`;
   console.log(getInfo_query);
   models.sequelize.query(getInfo_query).then(result => {
     const {id, mood2, food_type, food_name} = result[0][0];
+    const res_images = [];
     const res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
-
-    let res_images = [];
-    let url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0].subway} ${result[0][0].res_name}`);
+    const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0].subway} ${result[0][0].res_name}`);
       client.fetch(url, param, function(err, $, resp) {
       if (err) {
           console.log(err);
@@ -3834,6 +3831,7 @@ function addChelinguideItem(req, res) {
       }
       new Promise((resolve, reject) => {
         if ($('._img')['4']) {
+          // 크롤링 결과 중 상위5개 저장
           res_images.push($('._img')['0']['attribs']['data-source']);
           res_images.push($('._img')['1']['attribs']['data-source']);
           res_images.push($('._img')['2']['attribs']['data-source']);
@@ -3841,6 +3839,7 @@ function addChelinguideItem(req, res) {
           res_images.push($('._img')['4']['attribs']['data-source']);
           resolve();
         } else {
+          // 5개 이하일때 1개만 저장
           res_images.push($('._img')['0']['attribs']['data-source']);
           resolve();
         }
