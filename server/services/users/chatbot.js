@@ -3848,15 +3848,15 @@ function addChelinguideItem(req, res) {
           resolve();
 
         }).then(() => {
-          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_name, res_region, res_subway, res_image1, res_image2, res_image3, res_image4, res_image5)
-            VALUES ('${user_id}', ${rating}, '${comment}', '${res_name}', '${region}', '${subway}',
+          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_image1, res_image2, res_image3, res_image4, res_image5)
+            VALUES ('${user_id}', ${rating}, '${comment}', NULL, '${res_name}', '${region}', '${subway}',
             ${res_images[0]?`'${res_images[0]}'`:'NULL'}, ${res_images[1]?`'${res_images[1]}'`:'NULL'}, ${res_images[2]?`'${res_images[2]}'`:'NULL'}, ${res_images[3]?`'${res_images[3]}'`:'NULL'}, ${res_images[4]?`'${res_images[4]}'`:'NULL'});`;
           console.log(query);
           models.sequelize.query(query).then(() => {
             console.log('슐랭가이드 item added.');
             return res.status(200).json({success: true});
           }).catch(err => {
-            return res.status(500).json({success: false, message: '해당 식당없음. ' + err.message});
+            return res.status(500).json({success: false, message: 'INSERT Fail. ' + err.message});
           });
 
         }).catch(err => {
