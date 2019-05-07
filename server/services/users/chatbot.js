@@ -3820,62 +3820,96 @@ function addChelinguideItem(req, res) {
   const getInfo_query = `SELECT * FROM restaurants WHERE res_name='${res_name}' AND region='${region}' AND subway='${subway}';`;
   console.log(getInfo_query);
   models.sequelize.query(getInfo_query).then(result => {
-    const {id, mood2, food_type, food_name} = result[0][0];
-    const res_images = [];
-    const res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
-    const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0].subway} ${result[0][0].res_name}`);
-    console.log("hi");
+    if (result[0].length === 0) {
+      const res_images = [];
+      const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${subway} ${res_name}`);
 
-    client.fetch(url, param, function(err, $, resp) {
-      if (err) {
-          console.log(err);
-          return;
-      }
-      new Promise((resolve, reject) => {
-        if ($('._img')['0']) {
-          res_images.push($('._img')['0']['attribs']['data-source']);
-          if ($('._img')['1']) {
-            res_images.push($('._img')['1']['attribs']['data-source']);
-            if ($('._img')['2']) {
-              res_images.push($('._img')['2']['attribs']['data-source']);
-              if ($('._img')['3']) {
-                res_images.push($('._img')['3']['attribs']['data-source']);
-                if ($('._img')['4']) {
-                  res_images.push($('._img')['4']['attribs']['data-source']);
+      client.fetch(url, param, function(err, $, resp) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        new Promise((resolve, reject) => {
+          if ($('._img')['0']) {
+            res_images.push($('._img')['0']['attribs']['data-source']);
+            if ($('._img')['1']) {
+              res_images.push($('._img')['1']['attribs']['data-source']);
+              if ($('._img')['2']) {
+                res_images.push($('._img')['2']['attribs']['data-source']);
+                if ($('._img')['3']) {
+                  res_images.push($('._img')['3']['attribs']['data-source']);
+                  if ($('._img')['4']) {
+                    res_images.push($('._img')['4']['attribs']['data-source']);
+                  }
                 }
               }
             }
           }
-        }
-        resolve();
-        // if ($('._img')['4']) {
-        //   // 크롤링 결과 중 상위5개 저장
-        //   res_images.push($('._img')['0']['attribs']['data-source']);
-        //   res_images.push($('._img')['1']['attribs']['data-source']);
-        //   res_images.push($('._img')['2']['attribs']['data-source']);
-        //   res_images.push($('._img')['3']['attribs']['data-source']);
-        //   res_images.push($('._img')['4']['attribs']['data-source']);
-        //   resolve();
-        // } else {
-        //   // 5개 이하일때 1개만 저장
-        //   res_images.push($('._img')['0']['attribs']['data-source']);
-        //   resolve();
-        // }
-      }).then(() => {
-        const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
-          VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}',
-          ${res_images[0]?`'${res_images[0]}'`:'NULL'}, ${res_images[1]?`'${res_images[1]}'`:'NULL'}, ${res_images[2]?`'${res_images[2]}'`:'NULL'}, ${res_images[3]?`'${res_images[3]}'`:'NULL'}, ${res_images[4]?`'${res_images[4]}'`:'NULL'});`;
-        console.log(query);
-        models.sequelize.query(query).then(() => {
-          console.log('슐랭가이드 item added.');
-          return res.status(200).json({success: true});
+          resolve();
+
+        }).then(() => {
+          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_name, res_region, res_subway, res_image1, res_image2, res_image3, res_image4, res_image5)
+            VALUES ('${user_id}', ${rating}, '${comment}', '${res_name}', '${region}', '${subway}',
+            ${res_images[0]?`'${res_images[0]}'`:'NULL'}, ${res_images[1]?`'${res_images[1]}'`:'NULL'}, ${res_images[2]?`'${res_images[2]}'`:'NULL'}, ${res_images[3]?`'${res_images[3]}'`:'NULL'}, ${res_images[4]?`'${res_images[4]}'`:'NULL'});`;
+          console.log(query);
+          models.sequelize.query(query).then(() => {
+            console.log('슐랭가이드 item added.');
+            return res.status(200).json({success: true});
+          }).catch(err => {
+            return res.status(500).json({success: false, message: '해당 식당없음. ' + err.message});
+          });
+
         }).catch(err => {
-          return res.status(500).json({success: false, message: '해당 식당없음. ' + err.message});
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
         });
-      }).catch(err => {
-        return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
       });
-    });
+    }
+    else {
+      const {id, mood2, food_type, food_name} = result[0][0];
+      const res_images = [];
+      const res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
+      const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0].subway} ${result[0][0].res_name}`);
+
+      client.fetch(url, param, function(err, $, resp) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        new Promise((resolve, reject) => {
+          if ($('._img')['0']) {
+            res_images.push($('._img')['0']['attribs']['data-source']);
+            if ($('._img')['1']) {
+              res_images.push($('._img')['1']['attribs']['data-source']);
+              if ($('._img')['2']) {
+                res_images.push($('._img')['2']['attribs']['data-source']);
+                if ($('._img')['3']) {
+                  res_images.push($('._img')['3']['attribs']['data-source']);
+                  if ($('._img')['4']) {
+                    res_images.push($('._img')['4']['attribs']['data-source']);
+                  }
+                }
+              }
+            }
+          }
+          resolve();
+
+        }).then(() => {
+          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
+            VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}',
+            ${res_images[0]?`'${res_images[0]}'`:'NULL'}, ${res_images[1]?`'${res_images[1]}'`:'NULL'}, ${res_images[2]?`'${res_images[2]}'`:'NULL'}, ${res_images[3]?`'${res_images[3]}'`:'NULL'}, ${res_images[4]?`'${res_images[4]}'`:'NULL'});`;
+          console.log(query);
+          models.sequelize.query(query).then(() => {
+            console.log('슐랭가이드 item added.');
+            return res.status(200).json({success: true});
+          }).catch(err => {
+            return res.status(500).json({success: false, message: '해당 식당없음. ' + err.message});
+          });
+
+        }).catch(err => {
+          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+        });
+      });
+    }
 
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
