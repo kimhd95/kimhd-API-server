@@ -3824,21 +3824,23 @@ function addChelinguideItem(req, res) {
     const res_images = [];
     const res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
     const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0].subway} ${result[0][0].res_name}`);
-      client.fetch(url, param, function(err, $, resp) {
+    console.log("hi");
+
+    client.fetch(url, param, function(err, $, resp) {
       if (err) {
           console.log(err);
           return;
       }
       new Promise((resolve, reject) => {
-        if ($('._img')['0']['attribs']['data-source']) {
+        if ($('._img')['0']) {
           res_images.push($('._img')['0']['attribs']['data-source']);
-          if ($('._img')['1']['attribs']['data-source']) {
+          if ($('._img')['1']) {
             res_images.push($('._img')['1']['attribs']['data-source']);
-            if ($('._img')['2']['attribs']['data-source']) {
+            if ($('._img')['2']) {
               res_images.push($('._img')['2']['attribs']['data-source']);
-              if ($('._img')['3']['attribs']['data-source']) {
+              if ($('._img')['3']) {
                 res_images.push($('._img')['3']['attribs']['data-source']);
-                if ($('._img')['4']['attribs']['data-source']) {
+                if ($('._img')['4']) {
                   res_images.push($('._img')['4']['attribs']['data-source']);
                 }
               }
