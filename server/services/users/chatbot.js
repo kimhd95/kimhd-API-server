@@ -3830,22 +3830,39 @@ function addChelinguideItem(req, res) {
           return;
       }
       new Promise((resolve, reject) => {
-        if ($('._img')['4']) {
-          // 크롤링 결과 중 상위5개 저장
+        if ($('._img')['0']['attribs']['data-source']) {
           res_images.push($('._img')['0']['attribs']['data-source']);
-          res_images.push($('._img')['1']['attribs']['data-source']);
-          res_images.push($('._img')['2']['attribs']['data-source']);
-          res_images.push($('._img')['3']['attribs']['data-source']);
-          res_images.push($('._img')['4']['attribs']['data-source']);
-          resolve();
-        } else {
-          // 5개 이하일때 1개만 저장
-          res_images.push($('._img')['0']['attribs']['data-source']);
-          resolve();
+          if ($('._img')['1']['attribs']['data-source']) {
+            res_images.push($('._img')['1']['attribs']['data-source']);
+            if ($('._img')['2']['attribs']['data-source']) {
+              res_images.push($('._img')['2']['attribs']['data-source']);
+              if ($('._img')['3']['attribs']['data-source']) {
+                res_images.push($('._img')['3']['attribs']['data-source']);
+                if ($('._img')['4']['attribs']['data-source']) {
+                  res_images.push($('._img')['4']['attribs']['data-source']);
+                }
+              }
+            }
+          }
         }
+        resolve();
+        // if ($('._img')['4']) {
+        //   // 크롤링 결과 중 상위5개 저장
+        //   res_images.push($('._img')['0']['attribs']['data-source']);
+        //   res_images.push($('._img')['1']['attribs']['data-source']);
+        //   res_images.push($('._img')['2']['attribs']['data-source']);
+        //   res_images.push($('._img')['3']['attribs']['data-source']);
+        //   res_images.push($('._img')['4']['attribs']['data-source']);
+        //   resolve();
+        // } else {
+        //   // 5개 이하일때 1개만 저장
+        //   res_images.push($('._img')['0']['attribs']['data-source']);
+        //   resolve();
+        // }
       }).then(() => {
         const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
-          VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}', '${res_images[0]}', '${res_images[1]}', '${res_images[2]}', '${res_images[3]}', '${res_images[4]}');`;
+          VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}',
+          ${res_images[0]?`'${res_images[0]}'`:'NULL'}, ${res_images[1]?`'${res_images[1]}'`:'NULL'}, ${res_images[2]?`'${res_images[2]}'`:'NULL'}, ${res_images[3]?`'${res_images[3]}'`:'NULL'}, ${res_images[4]?`'${res_images[4]}'`:'NULL'});`;
         console.log(query);
         models.sequelize.query(query).then(() => {
           console.log('슐랭가이드 item added.');
