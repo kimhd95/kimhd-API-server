@@ -3816,8 +3816,9 @@ function updateMBTILogs(req, res) {
 }
 
 function addChelinguideItem(req, res) {
-  const {user_id, res_name, region, subway, rating, comment} = req.body;
+  const {user_id, res_name, region, subway, rating, comment, mood, price, img_urls} = req.body;
   const getInfo_query = `SELECT * FROM restaurants WHERE res_name='${res_name}' AND region='${region}' AND subway='${subway}';`;
+  console.log(mood, price);
   console.log(getInfo_query);
   models.sequelize.query(getInfo_query).then(result => {
     if (result[0].length === 0) {
@@ -3848,8 +3849,8 @@ function addChelinguideItem(req, res) {
           resolve();
 
         }).then(() => {
-          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_name, res_region, res_subway, res_image1, res_image2, res_image3, res_image4, res_image5)
-            VALUES ('${user_id}', ${rating}, '${comment}', '${res_name}', '${region}', '${subway}',
+          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_name, res_region, res_subway, res_mood, res_price res_image1, res_image2, res_image3, res_image4, res_image5)
+            VALUES ('${user_id}', ${rating}, '${comment}', '${res_name}', '${region}', '${subway}', ${mood?`'${mood}'`:'NULL'}, ${price?`'${price}'`:'NULL'},
             ${res_images[0]?`'${res_images[0]}'`:'NULL'}, ${res_images[1]?`'${res_images[1]}'`:'NULL'}, ${res_images[2]?`'${res_images[2]}'`:'NULL'}, ${res_images[3]?`'${res_images[3]}'`:'NULL'}, ${res_images[4]?`'${res_images[4]}'`:'NULL'});`;
           console.log(query);
           models.sequelize.query(query).then(() => {
@@ -3894,8 +3895,8 @@ function addChelinguideItem(req, res) {
           resolve();
 
         }).then(() => {
-          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_mood, res_food_type, res_food_name, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
-            VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${mood2}', '${food_type}', '${food_name}', '${res_price}',
+          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_food_type, res_food_name, res_mood, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
+            VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${food_type}', '${food_name}', '${mood?mood:mood2}', '${price?price:res_price}',
             ${res_images[0]?`'${res_images[0]}'`:'NULL'}, ${res_images[1]?`'${res_images[1]}'`:'NULL'}, ${res_images[2]?`'${res_images[2]}'`:'NULL'}, ${res_images[3]?`'${res_images[3]}'`:'NULL'}, ${res_images[4]?`'${res_images[4]}'`:'NULL'});`;
           console.log(query);
           models.sequelize.query(query).then(() => {
