@@ -3821,6 +3821,7 @@ function addChelinguideItem(req, res) {
   console.log(mood, price);
   console.log(getInfo_query);
   models.sequelize.query(getInfo_query).then(result => {
+    console.log(result[0].length);
     if (result[0].length === 0) {
       const res_images = [];
       const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${subway} ${res_name}`);
