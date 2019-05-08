@@ -3821,7 +3821,6 @@ function addChelinguideItem(req, res) {
   console.log(mood, price);
   console.log(getInfo_query);
   models.sequelize.query(getInfo_query).then(result => {
-    console.log(result[0].length);
     if (result[0].length === 0) {
       const res_images = [];
       const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${subway} ${res_name}`);
@@ -3850,7 +3849,7 @@ function addChelinguideItem(req, res) {
           resolve();
 
         }).then(() => {
-          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_name, res_region, res_subway, res_mood, res_price res_image1, res_image2, res_image3, res_image4, res_image5)
+          const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_name, res_region, res_subway, res_mood, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
             VALUES ('${user_id}', ${rating}, '${comment}', '${res_name}', '${region}', '${subway}', ${mood?`'${mood}'`:'NULL'}, ${price?`'${price}'`:'NULL'},
             ${res_images[0]?`'${res_images[0]}'`:'NULL'}, ${res_images[1]?`'${res_images[1]}'`:'NULL'}, ${res_images[2]?`'${res_images[2]}'`:'NULL'}, ${res_images[3]?`'${res_images[3]}'`:'NULL'}, ${res_images[4]?`'${res_images[4]}'`:'NULL'});`;
           console.log(query);
