@@ -3888,6 +3888,7 @@ function addChelinguideItem(req, res) {
     else {
       const {id, mood2, food_type, food_name} = result[0][0];
       let res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
+      console.log("Res Price");
       console.log(res_price);
       res_price.replace('4', '4만원 이상');
       res_price.replace('3', '3만원 대');
