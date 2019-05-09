@@ -3818,12 +3818,12 @@ function updateMBTILogs(req, res) {
 function addChelinguideItem(req, res) {
   const {user_id, res_name, region, subway, rating, comment, mood, price, img_urls} = req.body;
   const getInfo_query = `SELECT * FROM restaurants WHERE res_name='${res_name}' AND region='${region}' AND subway='${subway}';`;
-  console.log(mood, price);
+  console.log("mood:",mood,"price:", price);
   console.log(getInfo_query);
   models.sequelize.query(getInfo_query).then(result => {
     if (result[0].length === 0) {
       // 이미지 없을경우 크롤링
-      if (img_urls.length === 0) {
+      if (!img_urls || img_urls.length === 0) {
         console.log("DB에 없는식당 / 사진x");
         const res_images = [];
         const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${subway} ${res_name}`);
@@ -3888,10 +3888,7 @@ function addChelinguideItem(req, res) {
     else {
       const {id, mood2, food_type, food_name} = result[0][0];
       let res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
-      console.log("Res Price");
-      console.log(res_price);
       res_price = res_price.replace('4', '4만원 이상').replace('3', '3만원 대').replace('2', '2만원 대').replace('1', '1만원 대').replace('0', '1만원 미만');
-      console.log(res_price);
 
       // img_url 없을때 크롤링
       if (!img_urls || img_urls.length === 0) {
