@@ -3888,11 +3888,12 @@ function addChelinguideItem(req, res) {
     else {
       const {id, mood2, food_type, food_name} = result[0][0];
       let res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
-      res_price.replace(/4/gi, '4만원 이상');
-      res_price.replace(/3/gi, '3만원 대');
-      res_price.replace(/2/gi, '2만원 대');
-      res_price.replace(/1/gi, '1만원 대');
-      res_price.replace(/0/gi, '1만원 미만');
+      console.log(res_price);
+      res_price.replace('4', '4만원 이상');
+      res_price.replace('3', '3만원 대');
+      res_price.replace('2', '2만원 대');
+      res_price.replace('1', '1만원 대');
+      res_price.replace('0', '1만원 미만');
       console.log(res_price);
 
       // img_url 없을때 크롤링
