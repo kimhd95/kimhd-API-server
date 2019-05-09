@@ -3818,20 +3818,19 @@ function updateMBTILogs(req, res) {
 function addChelinguideItem(req, res) {
   const {user_id, res_name, region, subway, rating, comment, mood, price, img_urls} = req.body;
   const getInfo_query = `SELECT * FROM restaurants WHERE res_name='${res_name}' AND region='${region}' AND subway='${subway}';`;
-  console.log("mood:",mood,"price:", price);
   console.log(getInfo_query);
   models.sequelize.query(getInfo_query).then(result => {
     if (result[0].length === 0) {
-      // 이미지 없을경우 크롤링
+      // 1. 유저이미지x & DB에 없는식당
       if (!img_urls || img_urls.length === 0) {
-        console.log("DB에 없는식당 / 사진x");
+        console.log("1. 유저이미지x & DB에 없는식당");
         const res_images = [];
         const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${subway} ${res_name}`);
 
         client.fetch(url, param, function(err, $, resp) {
           if (err) {
-              console.log(err);
-              return;
+            console.log(err);
+            return;
           }
           new Promise((resolve, reject) => {
             if ($('._img')['0']) {
@@ -3850,7 +3849,6 @@ function addChelinguideItem(req, res) {
               }
             }
             resolve();
-
           }).then(() => {
             const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_name, res_region, res_subway, res_mood, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
               VALUES ('${user_id}', ${rating}, '${comment}', '${res_name}', '${region}', '${subway}', ${mood?`'${mood}'`:'NULL'}, ${price?`'${price}'`:'NULL'},
@@ -3869,9 +3867,9 @@ function addChelinguideItem(req, res) {
         });
       }
 
-      // 이미지 있을 경우
+      // 2. 유저이미지o & DB에 없는식당
       else {
-        console.log("DB에 없는식당 / 사진o");
+        console.log("2. 유저이미지o & DB에 없는식당");
         const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_name, res_region, res_subway, res_mood, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
           VALUES ('${user_id}', ${rating}, '${comment}', '${res_name}', '${region}', '${subway}', ${mood?`'${mood}'`:'NULL'}, ${price?`'${price}'`:'NULL'},
           ${img_urls[0]?`'${img_urls[0]}'`:'NULL'}, ${img_urls[1]?`'${img_urls[1]}'`:'NULL'}, ${img_urls[2]?`'${img_urls[2]}'`:'NULL'}, ${img_urls[3]?`'${img_urls[3]}'`:'NULL'}, ${img_urls[4]?`'${img_urls[4]}'`:'NULL'});`;
@@ -3883,16 +3881,15 @@ function addChelinguideItem(req, res) {
           return res.status(500).json({success: false, message: 'INSERT Fail. ' + err.message});
         });
       }
-
     }
     else {
       const {id, mood2, food_type, food_name} = result[0][0];
       let res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
       res_price = res_price.replace('4', '4만원 이상').replace('3', '3만원 대').replace('2', '2만원 대').replace('1', '1만원 대').replace('0', '1만원 미만');
 
-      // img_url 없을때 크롤링
+      // 3. 유저이미지x & DB에 있는식당
       if (!img_urls || img_urls.length === 0) {
-        console.log("DB에 있는식당 / 사진x");
+        console.log("3. 유저이미지x & DB에 있는식당");
         const res_images = [];
         const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0].subway} ${result[0][0].res_name}`);
 
@@ -3918,7 +3915,6 @@ function addChelinguideItem(req, res) {
               }
             }
             resolve();
-
           }).then(() => {
             const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_food_type, res_food_name, res_mood, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
               VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${food_type}', '${food_name}', '${mood?mood:mood2}', '${price?price:res_price}',
@@ -3931,14 +3927,14 @@ function addChelinguideItem(req, res) {
               return res.status(500).json({success: false, message: 'INSERT SQL 에러 ' + err.message});
             });
 
-        }).catch(err => {
-          return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+          }).catch(err => {
+            return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+          });
         });
-      });
       }
-      // img_url 있을때
+      // 4. 유저이미지o & DB에 있는식당
       else {
-        console.log("DB에 있는식당 / 사진o");
+        console.log("4. 유저이미지o & DB에 있는식당");
         const query = `INSERT INTO user_chelinguides (user_id, rating, comment, res_id, res_name, res_region, res_subway, res_food_type, res_food_name, res_mood, res_price, res_image1, res_image2, res_image3, res_image4, res_image5)
           VALUES ('${user_id}', ${rating}, '${comment}', ${id}, '${res_name}', '${region}', '${subway}', '${food_type}', '${food_name}', '${mood?mood:mood2}', '${price?price:res_price}',
           ${img_urls[0]?`'${img_urls[0]}'`:'NULL'}, ${img_urls[1]?`'${img_urls[1]}'`:'NULL'}, ${img_urls[2]?`'${img_urls[2]}'`:'NULL'}, ${img_urls[3]?`'${img_urls[3]}'`:'NULL'}, ${img_urls[4]?`'${img_urls[4]}'`:'NULL'});`;
