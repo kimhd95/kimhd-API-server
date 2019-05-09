@@ -3894,7 +3894,7 @@ function addChelinguideItem(req, res) {
       console.log(res_price);
 
       // img_url 없을때 크롤링
-      if (img_urls.length === 0) {
+      if (!img_urls || img_urls.length === 0) {
         console.log("DB에 있는식당 / 사진x");
         const res_images = [];
         const url = 'https://search.naver.com/search.naver?where=image&sm=tab_jum&query='+encodeURIComponent(`${result[0][0].subway} ${result[0][0].res_name}`);
