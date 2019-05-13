@@ -4002,6 +4002,17 @@ function getChelinguideList(req, res) {
   });
 }
 
+function getChelinguideItemInfo(req, res) {
+  const {user_id, id} = req.body;
+  const query = `SELECT * FROM user_chelinguides WHERE user_id='${user_id}' AND id='${id}';`;
+  console.log(query);
+  models.sequelize.query(query).then(result => {
+    return res.status(200).json({success: true, message: result[0]});
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+}
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
@@ -4090,4 +4101,5 @@ module.exports = {
     addChelinguideItem: addChelinguideItem,
     modifyChelinguideItem: modifyChelinguideItem,
     getChelinguideList: getChelinguideList,
+    getChelinguideItemInfo: getChelinguideItemInfo,
 }
