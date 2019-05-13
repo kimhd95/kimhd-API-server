@@ -3885,11 +3885,14 @@ function addChelinguideItem(req, res) {
     else {
       const {id, mood2, food_type, food_name} = result[0][0];
       let res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
+      console.log(res_price);
       if (res_price) {
         res_price = res_price.replace('4', '4만원 이상').replace('1', '1만원 대').replace('0', '1만원 미만');
         if (res_price.includes('2') && res_price.includes('3')) {
+          console.log("2 && 3");
           res_price = res_price.replace('2, ', '').replace('3', '2~3만원 대');
         } else if (res_price.includes('2') || res_price.includes('3')) {
+          console.log("2 || 3");
           res_price = res_price.replace('2', '2~3만원 대');
           res_price = res_price.replace('3', '2~3만원 대');
         }
