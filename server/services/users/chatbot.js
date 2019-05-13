@@ -3970,9 +3970,9 @@ function modifyChelinguideItem(req, res) {
                    comment='${comment}' AND
                    res_price='${price}' AND
                    res_mood='${mood}' `;
-  console.log(img_urls.length);
+  console.log(img_urls);
   if (img_urls) {
-
+    console.log(img_urls.length);
   }
   query += `WHERE id=${id};`
   console.log(query);
