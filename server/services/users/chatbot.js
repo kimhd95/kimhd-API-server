@@ -3962,20 +3962,21 @@ function addChelinguideItem(req, res) {
 
 function modifyChelinguideItem(req, res) {
   const {id, user_id, res_name, region, subway, rating, comment, price, mood, img_urls} = req.body;
+
   let query = `UPDATE user_chelinguides
-               SET res_name='${res_name}' AND
-                   res_region='${region}' AND
-                   res_subway='${subway}' AND
-                   rating=${rating} AND
-                   comment='${comment}' AND
-                   res_price='${price}' AND
-                   res_mood='${mood}' `;
+               SET res_name='${res_name}',
+                   res_region='${region}',
+                   res_subway='${subway}',
+                   rating=${rating},
+                   comment='${comment}',
+                   res_price='${price}',
+                   res_mood='${mood}'`;
   if (img_urls) {
-    query += `AND res_image1=${img_urls[0] ? `'${img_urls[0]}'` : 'NULL'} `;
-    query += `AND res_image2=${img_urls[1] ? `'${img_urls[1]}'` : 'NULL'} `;
-    query += `AND res_image3=${img_urls[2] ? `'${img_urls[2]}'` : 'NULL'} `;
-    query += `AND res_image4=${img_urls[3] ? `'${img_urls[3]}'` : 'NULL'} `;
-    query += `AND res_image5=${img_urls[4] ? `'${img_urls[4]}'` : 'NULL'} `;
+    query += `, res_image1=${img_urls[0] ? `'${img_urls[0]}'` : 'NULL'} `;
+    query += `, res_image2=${img_urls[1] ? `'${img_urls[1]}'` : 'NULL'} `;
+    query += `, res_image3=${img_urls[2] ? `'${img_urls[2]}'` : 'NULL'} `;
+    query += `, res_image4=${img_urls[3] ? `'${img_urls[3]}'` : 'NULL'} `;
+    query += `, res_image5=${img_urls[4] ? `'${img_urls[4]}'` : 'NULL'} `;
   }
   query += `WHERE id=${id};`
   console.log(query);
