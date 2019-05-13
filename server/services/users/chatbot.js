@@ -3972,34 +3972,19 @@ function modifyChelinguideItem(req, res) {
                    res_mood='${mood}' `;
   if (img_urls) {
     query += `AND res_image1=${img_urls[0] ? `'${img_urls[0]}'` : 'NULL'} `;
-    query += `AND res_image1=${img_urls[1] ? `'${img_urls[1]}'` : 'NULL'} `;
-    query += `AND res_image1=${img_urls[2] ? `'${img_urls[2]}'` : 'NULL'} `;
-    query += `AND res_image1=${img_urls[3] ? `'${img_urls[3]}'` : 'NULL'} `;
-    query += `AND res_image1=${img_urls[4] ? `'${img_urls[4]}'` : 'NULL'} `;
-    console.log(img_urls.length);
+    query += `AND res_image2=${img_urls[1] ? `'${img_urls[1]}'` : 'NULL'} `;
+    query += `AND res_image3=${img_urls[2] ? `'${img_urls[2]}'` : 'NULL'} `;
+    query += `AND res_image4=${img_urls[3] ? `'${img_urls[3]}'` : 'NULL'} `;
+    query += `AND res_image5=${img_urls[4] ? `'${img_urls[4]}'` : 'NULL'} `;
   }
   query += `WHERE id=${id};`
   console.log(query);
-
-
-
-  // const getID_query = `SELECT * FROM user_chelinguides WHERE id=${id};`;
-  // console.log(getID_query);
-  // models.sequelize.query(getID_query).then(result => {
-  //   const id = result[0][0].id;
-  //   const query = `UPDATE user_chelinguides
-  //     SET res_mood='${mood}' AND res_price='${price}' AND rating=${rating} AND comment='${comment}'
-  //     WHERE id=${id};`;
-  //   console.log(query);
-  //   models.sequelize.query(query).then(() => {
-  //     console.log('슐랭가이드 item modified.');
-  //     return res.status(200).json({success: true});
-  //   }).catch(err => {
-  //     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-  //   });
-  // }).catch(err => {
-  //   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-  // });
+  models.sequelize.query(query).then(result => {
+    console.log('슐랭가이드 item modified.');
+    return res.status(200).json({success: true});
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
 }
 
 function getChelinguideList(req, res) {
