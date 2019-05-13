@@ -3970,8 +3970,12 @@ function modifyChelinguideItem(req, res) {
                    comment='${comment}' AND
                    res_price='${price}' AND
                    res_mood='${mood}' `;
-  console.log(img_urls);
   if (img_urls) {
+    query += `AND res_image1=${img_urls[0] ? `'${img_urls[0]}'` : 'NULL'} `;
+    query += `AND res_image1=${img_urls[1] ? `'${img_urls[1]}'` : 'NULL'} `;
+    query += `AND res_image1=${img_urls[2] ? `'${img_urls[2]}'` : 'NULL'} `;
+    query += `AND res_image1=${img_urls[3] ? `'${img_urls[3]}'` : 'NULL'} `;
+    query += `AND res_image1=${img_urls[4] ? `'${img_urls[4]}'` : 'NULL'} `;
     console.log(img_urls.length);
   }
   query += `WHERE id=${id};`
