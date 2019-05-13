@@ -3961,24 +3961,40 @@ function addChelinguideItem(req, res) {
 }
 
 function modifyChelinguideItem(req, res) {
-  const {user_id, res_name, region, subway, rating, comment, price, mood} = req.body;
-  const getID_query = `SELECT id FROM user_chelinguides WHERE user_id='${user_id}' AND res_name='${res_name}' AND res_region='${region}' AND res_subway='${subway}';`;
-  console.log(getID_query);
-  models.sequelize.query(getID_query).then(result => {
-    const id = result[0][0].id;
-    const query = `UPDATE user_chelinguides
-      SET res_mood='${mood}' AND res_price='${price}' AND rating=${rating} AND comment='${comment}'
-      WHERE id=${id};`;
-    console.log(query);
-    models.sequelize.query(query).then(() => {
-      console.log('슐랭가이드 item modified.');
-      return res.status(200).json({success: true});
-    }).catch(err => {
-      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-    });
-  }).catch(err => {
-    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
-  });
+  const {id, user_id, res_name, region, subway, rating, comment, price, mood, img_urls} = req.body;
+  let query = `UPDATE user_chelinguides
+               SET res_name='${res_name}' AND
+                   res_region='${region}' AND
+                   res_subway='${subway}' AND
+                   rating=${rating} AND
+                   comment='${comment}' AND
+                   res_price='${price}' AND
+                   res_mood='${mood}' `;
+  if (img_urls) {
+
+  }
+  query += `WHERE id=${id};`
+  console.log(query);
+
+
+
+  // const getID_query = `SELECT * FROM user_chelinguides WHERE id=${id};`;
+  // console.log(getID_query);
+  // models.sequelize.query(getID_query).then(result => {
+  //   const id = result[0][0].id;
+  //   const query = `UPDATE user_chelinguides
+  //     SET res_mood='${mood}' AND res_price='${price}' AND rating=${rating} AND comment='${comment}'
+  //     WHERE id=${id};`;
+  //   console.log(query);
+  //   models.sequelize.query(query).then(() => {
+  //     console.log('슐랭가이드 item modified.');
+  //     return res.status(200).json({success: true});
+  //   }).catch(err => {
+  //     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  //   });
+  // }).catch(err => {
+  //   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  // });
 }
 
 function getChelinguideList(req, res) {
