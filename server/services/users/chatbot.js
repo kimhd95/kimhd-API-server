@@ -3970,6 +3970,7 @@ function modifyChelinguideItem(req, res) {
                    comment='${comment}' AND
                    res_price='${price}' AND
                    res_mood='${mood}' `;
+  console.log(img_urls.length);
   if (img_urls) {
 
   }
