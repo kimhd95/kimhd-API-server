@@ -3885,7 +3885,6 @@ function addChelinguideItem(req, res) {
     else {
       const {id, mood2, food_type, food_name} = result[0][0];
       let res_price = (result[0][0].price_dinner) ? result[0][0].price_dinner : result[0][0].price_lunch;
-      console.log(res_price);
       if (res_price) {
         res_price = res_price.replace('4', '4만원 이상').replace('1', '1만원 대').replace('0', '1만원 미만');
         if (res_price.includes('2') && res_price.includes('3')) {
@@ -3895,7 +3894,6 @@ function addChelinguideItem(req, res) {
           res_price = res_price.replace('3', '2~3만원 대');
         }
       }
-      console.log(res_price);
       // 3. 유저이미지x & DB에 있는식당
       if (!img_urls || img_urls.length === 0) {
         console.log("3. 유저이미지x & DB에 있는식당");
