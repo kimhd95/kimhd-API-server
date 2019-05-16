@@ -3964,13 +3964,8 @@ function modifyChelinguideItem(req, res) {
   const {id, user_id, res_name, region, subway, rating, comment, price, mood, img_urls} = req.body;
 
   let query = `UPDATE user_chelinguides
-               SET res_name='${res_name}',
-                   res_region='${region}',
-                   res_subway='${subway}',
-                   rating=${rating},
-                   comment='${comment}',
-                   res_price='${price}',
-                   res_mood='${mood}'`;
+               SET res_name='${res_name}', res_region='${region}', res_subway='${subway}', rating=${rating},
+                   comment='${comment}', res_price='${price}', res_mood='${mood}'`;
   if (img_urls) {
     query += `, res_image1=${img_urls[0] ? `'${img_urls[0]}'` : 'NULL'} `;
     query += `, res_image2=${img_urls[1] ? `'${img_urls[1]}'` : 'NULL'} `;
@@ -3982,6 +3977,18 @@ function modifyChelinguideItem(req, res) {
   console.log(query);
   models.sequelize.query(query).then(result => {
     console.log('슐랭가이드 item modified.');
+    return res.status(200).json({success: true});
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+}
+
+function deleteChelinguideItem(req, res) {
+  const {user_id, id} = req.body;
+  const query = `DELETE FROM user_chelinguides WHERE user_id='${user_id}' AND id='${id}';`;
+  console.log(query);
+  models.sequelize.query(query).then(result => {
+    console.log('슐랭가이드 item deleted.');
     return res.status(200).json({success: true});
   }).catch(err => {
     return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
@@ -4107,6 +4114,7 @@ module.exports = {
     updateMBTILogs: updateMBTILogs,
     addChelinguideItem: addChelinguideItem,
     modifyChelinguideItem: modifyChelinguideItem,
+    deleteChelinguideItem: deleteChelinguideItem,
     getChelinguideList: getChelinguideList,
     getChelinguideItemInfo: getChelinguideItemInfo,
 }

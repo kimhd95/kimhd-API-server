@@ -105,6 +105,7 @@ router.post('/update_MBTI_logs', chatbotService.updateMBTILogs);
 
 router.post('/add_chelinguide_item', chatbotService.addChelinguideItem);
 router.post('/modify_chelinguide_item', chatbotService.modifyChelinguideItem);
+router.post('/delete_chelinguide_item', chatbotService.deleteChelinguideItem);
 router.post('/get_chelinguide_list', chatbotService.getChelinguideList);
 router.post('/get_chelinguide_item_info', chatbotService.getChelinguideItemInfo);
 
