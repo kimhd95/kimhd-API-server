@@ -630,6 +630,22 @@ function memberWithdraw (req, res) {
                 })
             }
         })
+    } else if (email && !password) {
+      // SNS 로그인일 경우 탈퇴처리
+      models.User.destroy({
+          where: {
+              email: email
+          }
+      }).then(result => {
+          if (result === 0) {
+              return res.status(403).json({ success: false, message: 'User email match. but somehow the delete failed.'});
+          } else {
+              console.log("Delete Email: ", email);
+              return res.status(200).json({ success: true, message: 'User account successfully deleted.', redirect: '/'});
+          }
+      }).catch(err => {
+          return res.status(403).json({ success: false, message: 'Unknown inner catch error on Doctor.destroy. err: ' + err.message});
+      })
     } else {
         res.clearCookie('token');
         return res.status(403).send({ success: false, message: 'No token given.' });
