@@ -55,9 +55,9 @@ function verifyToken (req, res) {
     let onetime = cookies.onetime;
     const secret = config.jwt_secret;
 
-    // console.log(`cookie: ${cookie}`);
-    // console.log(`token: ${token}`);
-    // console.log(`onetime: ${onetime}`);
+    console.log(`cookie: ${cookie}`);
+    console.log(`token: ${token}`);
+    console.log(`onetime: ${onetime}`);
     if (token) {
         console.log('token given.');
 
