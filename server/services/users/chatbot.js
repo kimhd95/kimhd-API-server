@@ -387,7 +387,8 @@ function socialLogin (req, res) {
                 } else {
                     return res.status(403).json({
                         success: false,
-                        message: 'This email is Already signed up.'
+                        message: 'This email is Already signed up.',
+                        redirect: '/'
                     });
                 }
             } else {
