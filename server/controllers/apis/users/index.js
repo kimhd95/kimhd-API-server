@@ -110,6 +110,7 @@ router.post('/get_chelinguide_list', chatbotService.getChelinguideList);
 router.post('/get_chelinguide_item_info', chatbotService.getChelinguideItemInfo);
 
 router.post('/save_plan', chatbotService.savePlan);
+router.post('/search_plan', chatbotService.searchPlan);
 
 router.use('/*', models.verifyAPIKEY); //현재 미사용
 // ^Middleware. Make sure to put all the routes which needs authentication below this middleware.

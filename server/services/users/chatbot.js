@@ -4056,6 +4056,21 @@ function savePlan(req, res) {
   });
 }
 
+function searchPlan(req, res) {
+  const {name, password} = req.body;
+  const query = `SELECT * FROM tour_users WHERE name='${name}' AND password='${password}';`;
+  console.log(query);
+  models.sequelize.query(query).then(result => {
+    if (result[0] && result[0].length > 0) {
+      return res.status(200).json({success: true, message: result[0]});
+    } else {
+      return res.status(200).json({success: false, message: 'no result'});
+    }
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+}
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
@@ -4147,4 +4162,5 @@ module.exports = {
     getChelinguideList: getChelinguideList,
     getChelinguideItemInfo: getChelinguideItemInfo,
     savePlan: savePlan,
+    searchPlan: searchPlan,
 }
