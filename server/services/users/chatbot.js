@@ -4044,6 +4044,18 @@ function getChelinguideItemInfo(req, res) {
   });
 }
 
+function savePlan(req, res) {
+  const {name, password, plan_type} = req.body;
+  const query = `INSERT INTO tour_users VALUES('${name}', '${password}', '${plan_type}');`;
+  console.log(query);
+  models.sequelize.query(query).then(result => {
+    console.log("Insert Succeed");
+    return res.status(200).json({success: true});
+  }).catch(err => {
+    return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message});
+  });
+}
+
 module.exports = {
     crawlTwoImage: crawlTwoImage,
     crawlImage: crawlImage,
@@ -4134,4 +4146,5 @@ module.exports = {
     deleteChelinguideItem: deleteChelinguideItem,
     getChelinguideList: getChelinguideList,
     getChelinguideItemInfo: getChelinguideItemInfo,
+    savePlan: savePlan,
 }
