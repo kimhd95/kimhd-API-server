@@ -2376,23 +2376,23 @@ function getAllSubway(req, res) {
 }
 
 function getAllRestsaurant(req, res) {
-    models.Restaurant.findAll({
-        attributes: ['res_name','subway'],
-        group: ['res_name', 'subway']
-    }).then(result => {
-        if (result) {
-            let result_array = result.reduce((acc,cur) => {
-              acc.push(cur.subway + ' ' + cur.res_name);
-              return acc;
-            },[]);
-            return res.status(200).json(result_array);
-            // return '됨';
-        } else {
-            return res.status(404).json({error: 'no result'});
-        }
-    }).catch(function (err) {
-      return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
-    });
+    // models.Restaurant.findAll({
+    //     attributes: ['res_name','subway'],
+    //     group: ['res_name', 'subway']
+    // }).then(result => {
+    //     if (result) {
+    //         let result_array = result.reduce((acc,cur) => {
+    //           acc.push(cur.subway + ' ' + cur.res_name);
+    //           return acc;
+    //         },[]);
+    //         return res.status(200).json(result_array);
+    //         // return '됨';
+    //     } else {
+    //         return res.status(404).json({error: 'no result'});
+    //     }
+    // }).catch(function (err) {
+    //   return res.status(500).json({success: false, message: 'Internal Server or Database Error. err: ' + err.message})
+    // });
 }
 
 function getSimilarRestaurant (req, res) {

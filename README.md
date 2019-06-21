@@ -27,6 +27,12 @@ ORM : Sequelize
 
 
 
+### 새로운 API 추가하기
+
+1. **[server/services/users/](./server/services/users/)**에 새로운 API 모듈 추가하기
+2. **[server/controllers/apis/users/index.js](./server/controllers/apis/users/index.js)**에 라우터 설정
+
+
 ### API
 
 **verifyAPIKEY**
@@ -136,10 +142,235 @@ ORM : Sequelize
   [GET] /get_subway_list_history?email=(+querystring)
   ```
 
-### 새로운 API 추가하기
 
-1. **[server/services/users/](./server/services/users/)**에 새로운 API 모듈 추가하기
-2. **[server/controllers/apis/users/index.js](./server/controllers/apis/users/index.js)**에 라우터 설정
+### API -2019.6.19 추가
+
+**[유저 등록 (registerUser)]**
+
+  ```
+  [Post] /register_user
+  ```
+
+**[로그인 (login)]**
+
+  ```
+  [Post] /login
+  ```
+
+**[소셜로그인 (socialLogin)]**
+
+  ```
+  [Post] /social_login
+  ```
+
+**[로그아웃 (logout)]**
+
+  ```
+  [Post] /logout
+  ```
+
+**[패스워드 변경 (updatePassword)]**
+
+  ```
+  [Post] /update_password
+  ```
+
+**[회원탈퇴 (memeberWithdraw)]**
+
+  ```
+  [Post] /member_withdraw
+  ```
+
+**[ID로 2개 음식점 조회 (getTwoRestaurant)]**
+
+  ```
+  [Post] /get_two_restaurant
+  ```
+
+**[가까운 음식점 조회 (getNearRestaurant)](./readme_img/getNearRestaurant.md)**
+
+  ```
+  [Post] /get_near_restaurant
+  ```
+
+  사용자의 위도, 경도 값을 기준으로 가까운 음식점을 조회한다.
+
+
+**[지하철 선택 기록 조회 (getSubwayHistory)]**
+
+  ```
+  [Post] /get_subway_history
+  ```
+
+**[계정별 선택 기록 개수 조회 (getCountHistory)]**
+
+  ```
+  [Post] /get_count_history
+  ```
+
+**[계정별 모든 선택 기록 조회 (getAllHistory)]**
+
+  ```
+  [Post] /get_all_history
+  ```
+
+**[계정 state 업데이트 (updateStateEmail)]**
+
+  ```
+  [Post] /update_state_email
+  ```
+
+**[일회용 계정 등록 (registerOnetimeUser)]**
+
+  ```
+  [Post] /register_onetime_user
+  ```
+
+**[일회용 계정으로 로그인 (loginOnetime)]**
+
+  ```
+  [Post] /login_onetime
+  ```
+
+**[사용자 정보 조회 (getUserInfo)]**
+
+  ```
+  [Get] /get_user_info/:kakao_id
+  [Get] /get_user_info2/:email
+  ```
+
+**[음식점 정보 조회 (getRestaurantInfo)]**
+
+  ```
+  [Post] /get_restaurant_info
+  ```
+
+  ID값으로 식당 정보를 조회한다. 해당 식당이 DB에 어떻게 저장되었는지 칼럼 값을 조회할 수 있다.
+
+**[계정에 추천 음식점ID 저장 (updateRest2)]**
+
+  ```
+  [Post] /update_rest2
+  ```
+
+  DB 내 사용자 계정 레코드에 코기 Decide_final 단계에서 제시된 2개의 식당의 ID값을 저장한다. 이렇게 저장된 ID 정보는 '다른식당보기' 등에서 사용된다.
+
+**[DB내 모든 음식점 조회 (getAllRestaurant)]**
+
+  ```
+  [Get] /get_all_restaurant
+  ```
+
+  ※ 이용자 제한이 필요한 API로 현재 임시 비활성화 상태이다.
+
+**[비슷한 음식점 조회 (getSimilarRestaurant)](./readme_img/getSimilarRestaurant.md)**
+**[비슷한 술집 조회 (getSimilarDrinkRestaurant)]**
+
+  ```
+  [Post] /get_similar_restaurant
+  [Post] /get_similar_drink_restaurant
+  ```
+
+  사용자가 최종적으로 선택한 식당을 기준으로 비슷한 식당 정보를 반환한다.
+
+**[다른 음식점 조회 (getOtherRestaurant)](./readme_img/getOtherRestaurant.md)**
+**[다른 술집 조회 (getOtherDrinkRestaurant)]**
+
+  ```
+  [Post] /get_other_restaurant
+  [Post] /get_other_drink_restaurant
+  ```
+
+  코기 시나리오 중 Decide_final 단계에서 추천된 식당/술집을 제외하고 동일 조건으로 다른 식당/술집을 찾아 반환한다. 결과가 3개 이상일 경우 랜덤으로 2개를 추출하여 반환한다.
+
+
+**[추천 술집 조회 (getDrinkRestaurant)]**
+
+  ```
+  [Post] /get_drink_restaurant
+  ```
+
+  조건에 맞는 술집 정보를 반환한다. getRestaurant API의 로직과 거의 동일하게 동작한다.
+
+**[음식점 필터링 결과 존재여부 확인 (verifyResultExist)]**
+
+  ```
+  [Post] /verify_result_exist
+  ```
+
+  특정 조건에 맞는 식당의 존재여부를 반환한다. 코기 시나리오 中 '1만원 미만' 시나리오에서 추가질문의 유효성을 확인하기 위한 용도로 구현하였다.
+
+**[음식점 위,경도값 갱신 (setRestaurantLatLng)]**
+
+  ```
+  [Post] /set_restaurant_latlng
+  ```
+
+  식당의 위도, 경도 값을 업데이트하는 API로, 일괄적으로 업데이트하기 위한 용도로 구현하였다.
+
+**[음식점 폐점유무 갱신 (updateClosedown)]**
+
+  ```
+  [Post] /update_closedown
+  ```
+
+  식당 폐점유무를 갱신한다. 이 API는 현재 매달 1일마다 Scheduler로 자동 실행된다.
+
+**[역 근처 음식점 조회 (getRestaurantSubway)]**
+
+  ```
+  [Post] /get_restaurant_subway
+  ```
+
+**[MBTI 사용 로그 기록 (updateMBTILogs)]**
+
+  ```
+  [Post] /update_MBTI_logs
+  ```
+
+  MBTI 사용 로그 데이터를 저장한다.
+
+**[슐랭가이드 항목 추가 (addChelinguideItem)](./readme_img/addChelinguideItem.md)**
+
+  ```
+  [Post] /add_chelinguide_item
+  ```
+
+**[슐랭가이드 항목 삭제 (deleteChelinguideItem)](./readme_img/deleteChelinguideItem.md)**
+
+  ```
+  [Post] /delete_chelinguide_item
+  ```
+
+**[슐랭가이드 목록 조회 (getChelinguideList)](./readme_img/getChelinguideList.md)**
+
+  ```
+  [Post] /get_chelinguide_list
+  ```
+
+**[슐랭가이드 항목 수정 (modifyChelinguideItem)](./readme_img/modifyChelinguideItem.md)**
+
+  ```
+  [Post] /modify_chelinguide_item
+  ```
+
+**[슐랭가이드 항목 정보 조회 (getChelinguideItemInfo)](./readme_img/getChelinguideItemInfo.md)**
+
+  ```
+  [Post] /get_chelinguide_item_info
+  ```
+
+**[여행챗봇 Plan 데이터 생성 (savePlan)](./readme_img/savePlan.md)**
+
+  ```
+  [Post] /save_plan
+  ```
+
+**[여행챗봇 Plan 데이터 조회 (searchPlan)](./readme_img/searchPlan.md)**
+
+  ```
+  [Post] /search_plan
+  ```
 
 
 
